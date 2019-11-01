@@ -1,0 +1,179 @@
+{% load breadcrumbs %}
+{% load pri_nav_item %}
+<!doctype html>
+<html lang="no">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>{% block head_title %}AndyNor.net{% endblock %}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	{% block head_css_override %}
+	<!-- bootstrap -->
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap.min.css">
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap-responsive.min.css">
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/smoothness/jquery-ui-1.8.20.custom.css">
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/chosen.min.css">
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/prettify.css">
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/custom_style.css">
+	<link rel="shortcut icon" href="{{ STATIC_URL }}favicon.png">
+	<link rel="apple-touch-icon" href="{{ STATIC_URL }}favicon_apple.png">
+	{% endblock %}
+
+	{% block javascript_prepend %}{% endblock %}
+
+	{% block feeds %}
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss/">
+	{%endblock feeds%}
+	{% block head_css_include %}{% endblock %}
+</head>
+
+<body>
+<!-- Prompt IE 6 users to install Chrome Frame. Remove this if you support IE 6.
+chromium.org/developers/how-tos/chrome-frame-getting-started -->
+<!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
+
+<header>
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				</a>
+
+				<a class="brand" href='{% url "root" %}'>Forsiden</a>
+
+				<div class="btn-group pull-right">
+					<button class="btn"><i class="icon-user"></i>
+					{% if user.is_authenticated %}
+						{% if user.first_name and user.last_name %}
+							{{user.first_name}}
+						{% else %}
+							{{user.username}}
+						{% endif %}
+					{% else %}
+						Guest
+					{% endif %}
+					</button>
+					<button class="btn dropdown-toggle" data-toggle="dropdown">
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						{% if user.is_authenticated %}
+						<li><a href='{% url "profile" %}'>View Profiles</a></li>
+						<li><a href='{% url "statistics" %}'>See Statistics</a></li>
+						<li><a href='{% url "list_files" %}'>Uploaded files list</a></li>
+						<li><a href='{% url "debug" %}'>Debug data</a></li>
+						<li><a href='{% url "password_change" %}'>Change Password</a></li>
+						<li class="divider"></li>
+						<li><a href='{% url "user_logout" %}'>Sign Out</a></li>
+						{% else %}
+						<li><a href='{% url "user_login" %}'>Sign In</a></li>
+						{% endif %}
+					</ul>
+				</div>
+
+				<div class="nav-collapse">
+					<ul class="nav">
+						{% url "app_blog" as url %}{% pri_nav_item request.path url 'Blog' 'icon-book' %}
+						{% url "blog_archive" as url %}{% pri_nav_item request.path url 'Arkiv' 'icon-book' %}
+						{% comment %}
+							{% url "blog_tag" as url %}{% pri_nav_item request.path url 'Tagsky' 'icon-book' %}
+						{% endcomment %}
+						{% url "app_databases" as url %}{% pri_nav_item request.path url 'Liker' 'icon-heart' %}
+						{% url "app_calc" as url %}{% pri_nav_item request.path url 'Kalkulator' 'icon-plus' %}
+						{% url "blog_show" 60 as url %}{% pri_nav_item request.path url 'Om meg' 'icon-user' %}
+						{% url "app_power" as url %}{% pri_nav_item request.path url 'Strøm' 'icon-fire' %}
+
+						{% if user.is_authenticated %}
+							{% url "app_stocks" as url %}{% pri_nav_item request.path url 'Aksje' 'icon-tasks' %}
+							{% url "app_money" as url %}{% pri_nav_item request.path url 'Økonomi' 'icon-tasks' %}
+						{% endif %}
+					</ul>
+				</div><!--/.nav-collapse -->
+			</div>
+		</div>
+	</div>
+
+	{% block body_header %}{% endblock %}
+</header>
+
+<div role="main" class="container">
+	<div class="row-fluid">
+
+	{% block messages %}
+		{% include "messages.html" %}
+	{% endblock %}
+
+	</div>
+
+	{% block body_main %}
+	{% endblock %}
+</div>
+
+
+<footer class="container row-fluid">
+{% block body_footer %}
+	<div class="navbar navbar-fixed-bottom">
+		<div class="navbar-inner">
+			<div class="container">
+
+				<div class="span5">
+				{% block search %}
+					{% url "search" as action %} {% include "search_form.html" with action=action %}
+				{% endblock %}
+				</div>
+				<div class="span7">
+					<ul id="social_icons">
+						<li class="sprite sprite-youtube">
+							<a target="_blank" href="https://www.youtube.com/channel/UCfkKzLGF6qYFhrJgbTigMSw"></a></li>
+						<li class="sprite sprite-facebook">
+							<a target="_blank" href="https://www.facebook.com/andynor"></a></li>
+						<li class="sprite sprite-google_">
+							<a target="_blank" href="https://plus.google.com/105088432543101709178"></a></li>
+						<li class="sprite sprite-instagram">
+							<a target="_blank" href="https://instagram.com/andynor/"></a></li>
+						<li class="sprite sprite-500px">
+							<a target="_blank" href="http://500px.com/andynor"></a></li>
+						<li class="sprite sprite-github">
+							<a target="_blank" href="https://github.com/andynor"></a></li>
+						<li class="sprite sprite-flickr">
+							<a target="_blank" href="http://www.flickr.com/photos/andynor"></a></li>
+						<li class="sprite sprite-linkedin">
+							<a target="_blank" href="https://www.linkedin.com/profile/view?id=176897969"></a></li>
+						<li class="sprite sprite-twitter">
+							<a target="_blank" href="https://twitter.com/AndyNor84"></a></li>
+						<li class="sprite sprite-spotify">
+							<a target="_blank" href="/databases/view/spotify/"></a></li>
+						<li class="sprite sprite-feed">
+							<a target="_blank" href="http://feeds.feedburner.com/andynor/"></a></li>
+					</ul>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+{% endblock %}
+</footer>
+
+<!-- scripts -->
+<script src="{{ STATIC_URL }}js/jquery-1.12.3.min.js"></script>
+<script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+<script src="{{ STATIC_URL }}js/jscolor/jscolor.js"></script>
+<script src="{{ STATIC_URL }}js/prettify/prettify.js"></script>
+<script src="{{ STATIC_URL }}js/jquery-ui-1.10.1.custom.min.js"></script>
+<script src="{{ STATIC_URL }}js/chosen.jquery.min.js"></script>
+<script src="{{ STATIC_URL }}js/jquery.unveil.min.js"></script>
+<script src="{{ STATIC_URL }}js/site-wide-javascript.js"></script>
+{% block javascript_append %}{% endblock %}
+<!-- end scripts -->
+
+{% block credits %}{% endblock %}
+
+</body>
+</html>

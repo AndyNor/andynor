@@ -1,0 +1,82 @@
+{% extends "blog.html" %}
+
+{% block blog_content %}
+	<h2>Upload images</h2>
+
+	{% if form %}
+		{% include "form.html" with form=form submit='Upload' redirect=redirect %}
+	{% endif %}
+
+	<h4>Current images:</h4>
+	<hr>
+
+<form action="{% url "change_blog_ref" %}" id="blog_image_form" method="post">{% csrf_token %}
+	<div class="row-fluid">
+
+		<p>Selected images: <button type="submit" class="btn btn-mini">Move to blog</button></p>
+
+		<ul class="thumbnails" style="margin: 40px 0 0 0">
+		{% for image in images %}
+			<li class="thumbnail span2">
+
+				<label style="margin-bottom: 0;">
+					<input type="checkbox" name="selected_pictures" value="{{image.pk}}">
+					<span class="pull-right"><i class="icon-list"></i><small>{{image.order}}</small></span>
+					<div>
+						<ul class="btn-group" style="margin-left: 0;">
+							<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-camera"></i> {{image.pk}}
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a href="{{MEDIA_URL}}{{image.large}}" rel="tooltip" data-original-title="{{image.filename|default:'no filename'}}" data-placement="bottom"><i class="icon-file" style="margin-right: 5px"></i> View large version</a>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<a href="{% url 'image_add_comment' image.pk%}?next={{ request.get_full_path|urlencode}}" rel="tooltip" data-original-title="{{image.description|default:'No comment'}}" data-placement="bottom"><i class="icon-pencil" style="margin-right: 5px"></i> Edit description</a>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<a href="{% url 'image_upload_replace' image.blog.pk image.pk%}"><i class="icon-repeat" style="margin-right: 5px"></i> Upload replacement</a>
+								</li>
+								<li>
+									<a href="{% url 'image_recalculate_thumb' image.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-wrench"></i> Regenerate thumbnail</a>
+								</li>
+								<li>
+									<a href="{% url 'image_fullsize_thumb' image.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-wrench"></i> Regenerate thumbnail (large)</a>
+								</li>
+								<li>
+									<a href="{% url 'image_regen_large' image.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-wrench"></i> Regenerate large version</a>
+								</li>
+
+								<li class="divider"></li>
+
+								<li>
+									<a href="{% url 'image_remove' image.pk %}"><i class="icon-remove"></i> Delete</a>
+								</li>
+							</ul>
+						</ul>
+					</div>
+
+					<img style="margin-top: 5px;" src="{{MEDIA_URL}}{{ image.thumbnail }}">
+				</label>
+
+			</li>
+			{% if forloop.counter|divisibleby:'6' %}</ul><ul class="thumbnails">{% endif %}
+		{% endfor %}
+		</ul>
+	</div>
+
+	<p>Selected images: <button type="submit" class="btn btn-mini">Move to blog</button></p>
+
+</form>
+
+<hr>
+<h4>Usage:</h4>
+<ul>
+	<li>Gallery: [gallery=<b>x</b>-<b>y</b>]</li>
+	<li>Large image: [img=<b>id</b>]</li>
+	<li>Thumbnail: [thumb=<b>id</b>]</li>
+</ul>
+
+{% endblock %}

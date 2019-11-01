@@ -1,0 +1,14 @@
+{% extends "blog.html" %}
+
+{% block blog_content %}
+	<h2>Replace this image</h2>
+	<img class="thumbnail" src="{{MEDIA_URL}}{{ image.thumbnail }}">
+	<hr>
+
+	{% if form %}
+		{% include "form.html" with form=form submit='Replace' redirect=redirect %}
+	{% endif %}
+
+
+
+{% endblock %}

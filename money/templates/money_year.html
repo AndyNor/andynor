@@ -1,0 +1,79 @@
+{% extends "money.html" %}
+{% load humanize %}
+
+{% block money_title %} Summary of {{ year }}{% endblock %}
+
+{% block money_subtitle %}
+<ul class="pager">
+	<li class="previous"><a href="{% url "money_year" last_year %}">&larr; Previous</a></li>
+	<li><a class="btn" href="{% url "app_money" %}">Main overview</a></li>
+	<li class="next"><a href="{% url "money_year" next_year %}">Next &rarr;</a></li>
+</ul>
+{% endblock %}
+
+{% block money_main %}
+
+<h5>Expences</h5>
+<div class="scrollable">
+	{% include "money_year_table_monthly.html" with table_data=expence_data %}
+</div>
+
+<h5>Salary</h5>
+<div class="scrollable">
+	{% include "money_year_table_monthly.html" with table_data=salary_data %}
+</div>
+
+{% if dp_data.payments %}
+<h5>Loan payback</h5>
+<div class="scrollable">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th></th>
+				{% for item in dp_data.thead %}
+					<th>{{ item.text }}</th>
+				{% endfor %}
+			</tr>
+		</thead>
+		<tbody>
+		{% for i in dp_data.payments %}
+			<tr style="color:#{{ i.destination_transaction.category.text_color|default:'A9A9A9' }};">
+				<td><a href="{% url "money_edit" "downpayment" i.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
+				<td>{{ i.date }}</td>
+				<td>{{ i.source_account }}</td>
+				<td>{{ i.destination_account }}</td>
+				<td class="money">{{ i.interest_and_fees|intcomma }}</td>
+				<td class="money">{{ i.repayment|intcomma }}</td>
+				<td>{{ i.comment }}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endif %}
+
+<h5>Special items</h5>
+<div class="scrollable">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th></th>
+				<th>Date</th>
+				<th>Description</th>
+				<th>Price</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for item in asset_data %}
+			<tr style="color:#{{ item.category.text_color|default:'A9A9A9' }};">
+				<td><a href="{% url "money_edit" "expence" item.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
+				<td>{{ item.date }}</td>
+				<td>{{ item.comment|default:'' }} ({{ item.sub_category }})</td>
+				<td>{{ item.amount|intcomma }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,9 @@
+{% if messages %}
+	{% for message in messages %}
+	<div id="div_message" class="alert alert-{{ message.tags }}">
+		<a class="close" data-dismiss="alert" href="#">×</a>
+		<h4 class="alert-heading">{{ message.tags|capfirst }}</h4>
+		{{ message }}
+	</div>
+	{% endfor %}
+{% endif %}

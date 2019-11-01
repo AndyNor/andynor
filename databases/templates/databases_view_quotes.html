@@ -1,0 +1,14 @@
+{% extends "databases.html" %}
+{% load bbcodes %}
+{% block databases_category %}
+
+	{% for item in item_list %}
+		{% if user.is_authenticated %}
+		<a href="{% url "databases_edit_data" 'Data' item.pk category_name %}?next={{ request.get_full_path|urlencode }}">
+			<i class="icon-pencil"></i></a>
+		{% endif %}
+		<h3 class="displayInline">{{item.name}}</h3>
+		{% bbcode text=item.text|linebreaks blog_id=1 %}
+	{% endfor %}
+
+{% endblock %}

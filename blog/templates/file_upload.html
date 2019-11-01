@@ -1,0 +1,46 @@
+{% extends "blog.html" %}
+
+{% block blog_content %}
+	<h2>Upload files</h2>
+
+	{% if form %}
+		{% include "form.html" with form=form submit='Upload' redirect=redirect %}
+	{% endif %}
+
+	<h4>Current files:</h4>
+
+	{% if files %}
+	<table class="table table-condensed table-striped">
+		<thead>
+			<tr>
+				<th></th>
+				<th>ID</th>
+				<th>Filename</th>
+				<th>Size</th>
+				<th>Date</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for file in files %}
+			<tr>
+				<td><a href="{% url 'file_replace' file.blog.pk file.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-repeat"></i></a></td>
+				<td>{{ file.pk }}</td>
+				<td>{{ file.filename }}</td>
+				<td>{{ file.size }}</td>
+				<td>{{ file.created }}</td>
+				<td><a href="{% url 'file_remove' file.blog.pk file.pk %}?token={{csrf_token}}"><i class="icon-remove"></i></a></td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	<hr>
+
+
+	<h4>Usage:</h4>
+	<ul>
+		<li>[file=<b>ID</b>]</li>
+	</ul>
+
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "index.html" %}
+{% load humanize %}
+{% load variable_lookup %}
+
+{% block head_css_include %}{% endblock %}
+{% block body_main %}
+
+{% block stocks_main %}
+
+<ul class="pager">
+	<li><a class="btn" href="{% url "stocks_ticker_new" %}">Ny aksje</a></li>
+	<li><a class="btn" href="{% url "stocks_transaction_new" %}">Ny transaksjon</a></li>
+	<li><a class="btn" href="{% url "stocks_ticker_history_new" %}">Ny markedspris</a></li>
+	<li><span class="btn">Split</span></li>
+</ul>
+
+<h3>Beholdning</h3>
+
+<table class="table table-striped">
+	<thead>
+		<th></th>
+		<th>Ticker</th>
+		<th>Antall aksjer</th>
+		<th>Kjøpt for</th>
+		<th>Gebyrer</th>
+		<th>Snitt per aksje</th>
+		<th>Siste kjøpspris</th>
+		<th>Nåverdi</th>
+		<th>Resultat</th>
+		<th>Split</th>
+		<th>Merge</th>
+	</thead>
+{% for row in view_data_summary %}
+	<tr>
+		<td><a href="{% url "stocks_ticker_edit" pk=row.ticker.id %}"><i class="icon-pencil"></a></td>
+		<td><a href="{% url "stocks_details" ticker=row.ticker.id %}">{{row.ticker}}</a></td>
+		<td>{{row.sum_amount|intcomma}}</td>
+		<td>{{row.sum_total_price|floatformat:"0"|intcomma}}</td>
+		<td>{{row.sum_brokerage|floatformat:"0"|intcomma}}</td>
+		<td>{{row.average_stock_price|floatformat:"3"|intcomma|default:"N/A"}}</td>
+		<td>{% if row.current_price %}<a href="{% url "stocks_ticker_history_edit" pk=row.current_price.id %}">{{row.current_price.price}}</a>{% endif %}</td>
+		<td>{{row.current_value|floatformat:"0"|intcomma}}</td>
+		<td>{{row.estimate|floatformat:"0"|intcomma|default:"N/A"}}</td>
+		<td><a href="{% url "stocks_split_ticker" pk=row.ticker.id %}"><i class="icon-resize-full"></a></td>
+		<td><a href="{% url "stocks_merge_ticker" pk=row.ticker.id %}"><i class="icon-resize-small"></a></td>
+	</tr>
+{% endfor %}
+	<tr>
+		<td></td>
+		<td><b>SUM</b></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td><b>{{view_data_current_value_sum|floatformat:"0"|intcomma}}</b></td>
+		<td><b>{{view_data_estimate_sum|floatformat:"0"|intcomma}}</b></td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+
+<h3>Resultat per år</h3>
+
+<table class="table table-striped">
+	<thead>
+		<th>Ticker</th>
+		{% for year in view_data_tax.years %}
+		<th>{{year}}</th>
+		{% endfor %}
+	</thead>
+{% for ticker, year_resultsum in view_data_tax.result_data.items %}
+	<tr>
+		<td>{{ticker.company_name}}</td>
+		{% for year in view_data_tax.years %}
+		<td>{{year_resultsum|variable_lookup:year|floatformat:"0"|intcomma|default:0}}</td>
+		{% endfor %}
+	</tr>
+{% endfor %}
+	<tr>
+		<td><i>Totale gebyrer</i></td>
+		{% for year in view_data_tax.years %}
+			<td><i>{{view_data_tax.brokerage|variable_lookup:year|floatformat:"0"|intcomma|default:0}}</i></td>
+		{% endfor %}
+	</tr>
+	<tr>
+		<td><b>SUM</b></td>
+		{% for year in view_data_tax.years %}
+			<td><b>{{view_data_tax.total_sum|variable_lookup:year|floatformat:"0"|intcomma|default:0}}</b></td>
+		{% endfor %}
+	</tr>
+</table>
+
+{% endblock %}
+
+{% endblock %}
+{% block javascript_append %}{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "index.html" %}
+{% load humanize %}
+{% load percent %}
+
+
+{% block body_main %}
+
+<h2>Norsk skatt</h2>
+<p>Prøv med noen andre verdier:</p>
+
+<form class="form" action="" method="post">
+  {% csrf_token %}
+  <fieldset>
+  	<div class="row">
+
+			<div class="input-prepend">
+			  <span class="add-on">Lønn og feriepenger:</span>
+			  <input class="span2" type="text" name="arbeidsinntekter" value="{{user_var.arbeidsinntekter}}">
+			</div>
+
+			<div class="input-prepend">
+			  <span class="add-on">Renteutgifter:</span>
+			  <input class="span2" type="text" name="renteutgifter" value="{{user_var.renteutgifter}}">
+			</div>
+			<div class="input-prepend">
+			  <span class="add-on">Total formue:</span>
+			  <input class="span2" type="text" name="formue" value="{{user_var.formue}}">
+			</div>
+			<div class="input-prepend">
+			  <span class="add-on">Total gjeld:</span>
+			  <input class="span2" type="text" name="gjeld" value="{{user_var.gjeld}}">
+			</div>
+
+			<div class="input-prepend">
+			  <span class="add-on">Renteinntekter:</span>
+			  <input class="span2" type="text" name="renteinntekter" value="{{user_var.renteinntekter}}">
+			</div>
+			<div class="input-prepend">
+			  <span class="add-on">Boligutleie:</span>
+			  <input class="span2" type="text" name="utleie_overskudd" value="{{user_var.utleie_overskudd}}">
+			</div>
+			<div class="input-prepend">
+			  <span class="add-on">Aksjeutbytte:</span>
+			  <input class="span2" type="text" name="aksjeutbytte" value="{{user_var.aksjeutbytte}}">
+			</div>
+			<div class="input-prepend">
+			  <span class="add-on">Gaver frivillig arbeid:</span>
+			  <input class="span2" type="text" name="frivillig" value="{{user_var.frivillig}}">
+			</div>
+
+			<div class="input-prepend">
+			  <span class="add-on">Boligsparing ungdom:</span>
+			  <input class="span2" type="text" name="bsu_sparing" value="{{user_var.bsu_sparing}}">
+			</div>
+			<div class="input-prepend">
+			  <span class="add-on">Fagforening:</span>
+			  <input class="span2" type="text" name="fagforening" value="{{user_var.fagforening}}">
+			</div>
+			<div class="input-prepend input-append">
+			  <span class="add-on">Pensjonspremie:</span>
+			  <input class="span2" type="text" name="pensjon" value="{{user_var.pensjon}}">
+			  <button class="btn btn-primary" type="submit">Beregn</button>
+			</div>
+
+  	</div>
+
+
+  </fieldset>
+</form>
+
+<hr>
+<p><i>Dette regnearket tar utgangspunkt i innslag og satser for <b>{{constant.VERSION}}</b></i></p>
+
+<p>Ordinær lønn er all lønn utbetalt fra arbeidsgiver og inkluderer feriepenger som normalt er opptjent året før. Oppgitt til <span class="badge badge-info">{{user_var.arbeidsinntekter|intcomma}}</span> I Norge betaler vi trygdeskatt og inntektskatt på ordinær lønn. All annen inntekt er kapitalinntekt og inkluderer <u>overskudd</u> på aksjehandel og utleie av bolig, og renter på penger i bank. Oppgitt til <span class="badge badge-info">{{kapitalinntekter|intcomma}}</span> (skjermingsfradrag for aksjer på <b>{{constant.aksje_skjermingsfradrag|percent}}</b> trukket fra). Skatt på kapitalinntekt er <b>{{constant.skatt|percent}}</b>.</p>
+	<ul>
+		<li>Trygdeskatten er <b>{{constant.avgift_trygd|percent}}</b> på ordinær lønn. Hvis ordinær lønn er mindre enn <b>{{constant.avgift_trygd_innslag|intcomma}}</b> betales ikke trygdeskatt. Så lenge ordinær lønn er høyere, betales det fra første krone, men fortsatt ikke mer enn at skatten maksimalt kan bli <b>{{constant.avgift_trygd_max|percent}}</b> av det som overstiger dette "fribeløpet". Beregnet til <span class="badge badge-important">{{trygdeskatt|intcomma}}</span></li>
+
+		<li>Inntektskatt har fem nivåer:
+			<ul>
+				<li><b>{{constant.skatt|percent}}</b> på all ordinær lønn og kapitalinntekter etter at fradragene er trukket fra: <span class="badge badge-important">{{arbeidsinntektskatt|intcomma}}</span></li>
+				<li>Trinnskatt nivå 1 <b>{{constant.toppskatt_trinn01|percent}}</b> på ordinær lønn for alt mellom {{constant.toppskatt_trinn01_innslag|intcomma}} og {{constant.toppskatt_trinn02_innslag|intcomma}}: <span class="badge badge-important">{{toppskatt_trinn01|intcomma}}</span></li>
+				<li>Trinnskatt nivå 2 <b>{{constant.toppskatt_trinn02|percent}}</b> på ordinær lønn for alt mellom {{constant.toppskatt_trinn02_innslag|intcomma}} og {{constant.toppskatt_trinn1_innslag|intcomma}}: <span class="badge badge-important">{{toppskatt_trinn02|intcomma}}</span></li>
+				<li>Toppskatt nivå 1 <b>{{constant.toppskatt_trinn1|percent}}</b> på ordinær lønn for alt mellom {{constant.toppskatt_trinn1_innslag|intcomma}} og {{constant.toppskatt_trinn2_innslag|intcomma}}: <span class="badge badge-important">{{toppskatt_trinn1|intcomma}}</span></li>
+				<li>Toppskatt nivå 2 <b>{{constant.toppskatt_trinn2|percent}}</b> på ordinær lønn for alt over {{constant.toppskatt_trinn2_innslag|intcomma}}: <span class="badge badge-important">{{toppskatt_trinn2|intcomma}}</span></li>
+			</ul>
+		<b>Fradrag</b>:
+			<ul>
+				<li>Klassefradraget er på <span class="badge badge-success">{{constant.klassefradrag|intcomma}}</span>
+					<ul>
+						<li>Andre regler for forsørgere</li>
+					</ul>
+				</li>
+				<li>Minstefradraget på <b>{{constant.minstefradrag|percent|intcomma}}</b> gir <span class="badge badge-success">{{minstefradrag|intcomma}}</span>
+					<ul>
+						<li>Minimum <b>{{constant.minstefradrag_min|intcomma}}</b> og maksimalt <b>{{constant.minstefradrag_max|intcomma}}</b></li>
+						<li>Andre regler for pensjonister</li>
+					</ul>
+				</li>
+				<li>Fagforeningskontigent på <b>{{constant.fagforeningssats|percent}}</b> <span class="badge badge-success">{{fagforening_fradrag|intcomma}}</span>
+					<ul>
+						<li>Maksverdi på <b>{{constant.fagforeningssats_max|intcomma}}</b></li>
+					</ul>
+				</li>
+				<li>Pensjonstrekket <b>{{constant.pensjonstrekk|percent}}</b>: <span class="badge badge-success">{{pensjon_fradrag|intcomma}}</span></li>
+				<li>Rentefradrag på renteutgifter: <span class="badge badge-success">{{rentefradrag}}</span></li>
+				<li>Gaver til frivillig organisasjoner: <span class="badge badge-success">{{frivillig_fradrag|intcomma}}</span>		<ul>
+						<li>Maksimalt <b>{{constant.frivillig_maks|intcomma}}</b></li>
+					</ul>
+				</li>
+			</ul>
+		</li>
+	</ul>
+</p>
+
+<p>Staten tar også skatt på formue, deriblant eiendom, for hver krone over <b>{{constant.formue_frigrense|intcomma}}</b>. Blir <span class="badge badge-important">{{formueskatt|intcomma}}</span>
+	<ul>
+		<li>Merk at formue er summen av eiendeler fratrukket lån og at det er prosentsatser for å beregne verdi av hus, hytte og bil. Formueskatten er <b>{{constant.formueskatt_kommune|percent}}</b> til kommune og <b>{{constant.formueskatt_stat|percent}}</b> til staten</li>
+	</ul>
+</p>
+
+Boligsparing Ungdom gir et direkte fradrag på <b>{{constant.bsu_frigrense|percent}}</b>: <span class="badge badge-success">{{bsu_fradrag|intcomma}}</span>
+	<ul>
+		<li>Maksimalt <b>{{constant.bsu_frigrense_max|intcomma}}</b></li>
+	</ul>
+
+<p><b>Total skatt blir da <span class="badge badge-important">{{total_skatt|intcomma}}</span> ({{total_skatt_prosent|percent}})</b></p>
+
+Skatteetaten tar ikke inn beløp under <b>{{constant.innkrevingsgrense|intcomma}}</b>. For å ha litt ekstra å rute med i sommerferien og ved juletider trekkes det halv skatt i desember og ingen skatt i sommerferiemåneden. Denne skatten må derfor samles inn de resterende 10.5 månedene. Dette gir et månedlig skattetrekk på <b>{{justert_skatt|percent}}</b>. De fleste har tabelltrekk med ganske høy prosentsats på ekstrainntekt. Skatten blir forhåndstrukket og når det endelige regnestykket er klart året etter, får man enten penger igjen på skatten eller restskatt.
+
+<hr>
+
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
+	var tax_chart_data = {{ tax_data_json|safe }};
+</script>
+
+<div class="row">
+	<div class="span6" id="tax_chart1"></div>
+	<div class="span6" id="tax_chart2"></div>
+</div>
+
+
+{% endblock %}
+
+{% block javascript_append %}
+<script src="{{STATIC_URL}}js/highcharts-v2.3.5.js"></script>
+<script src="{{STATIC_URL}}js/tax_chart.js"></script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "index.html" %}
+
+{% block body_main %}
+{% block blog_content %}
+
+{% include "blog_category_menu.html" %}
+
+<div class="row">
+
+	<div class="span9">
+		{% include 'blog_show_post.html' %}
+	</div>
+
+	<div class="span3">
+	{% block blog_side_menu %}
+
+		<div class="box">
+			<div class="box-header">
+				<span class="aside-header">More {{blog_active.category}}</span>
+			</div>
+			<div class="box-content" style="font-size: 75%">
+
+
+				<ul class="nav nav-pills nav-stacked">
+					{% for blog in blog_history %}
+						<li class="{% if blog.pk == blog_active.pk %}active{% endif %}">
+							<a href="{% url 'blog_show' blog.pk %}">
+							{% if not blog.published %}<i class="icon-file"></i>{% endif %}
+							{% if not blog.linked %}<i class="icon-filter"></i>{% endif %}
+							{% if blog.sticky %}<i class="icon-star"></i>{% endif %}
+							{{ blog.title }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+
+				{% if pagination != None %}
+				<div class="pagination pagination-centered">
+					<ul>
+					<li><a href="{% url 'category_history' category_pk 1 %}">&laquo;</a></li>
+					{% for p in pagination %}
+					<li class="{{ p.class }}"><a href="{% url 'category_history' category_pk p.page %}">{{ p.page }}</a></li>
+					{% endfor %}
+					<li><a href="{% url 'category_history' category_pk page_last %}">&raquo;</a></li>
+					</ul>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+
+		{% endblock %}
+
+	</div>
+</div>
+{% endblock %}
+{% endblock %}

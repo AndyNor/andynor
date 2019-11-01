@@ -1,0 +1,164 @@
+{% extends "index.html" %}
+{% load upto %}
+{% load humanize %}
+{% load l10n %}
+{% load bbcodes %}
+{% block body_main %}
+
+<div class="container">
+
+	{% include "blog_category_menu.html" %}
+
+	<div class="row-fluid">
+
+		<div class="span9">
+		{% for blog in blogs_display %}
+			{% include 'blog_show_post.html' with blog_active=blog.content comments=blog.comments %}
+		{% endfor %}
+		</div>
+
+		<div class="span3" style="font-size: 75%">
+
+
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header"><i class="icon-heart"></i> Sticky emner</span>
+				</div>
+				<div class="box-content">
+					<ul>
+						{% for i in sticky_blogs %}
+							<li><a href="/blog/{{i.pk}}/">{{ i.title }}</a></li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+
+
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header"><i class="icon-tags"></i> Tag cloud</span>
+				</div>
+				<div class="box-content" style="font-size: 150%">
+					{% for tag in tagfreqs %}
+						<a style="margin: 2px; font-size: {% localize off %}{{tag.frequency}}{% endlocalize %}%;" href="{% url "blog_tag_view" tag.pk %}">{{ tag }}</a>
+					{% endfor %}
+				</div>
+			</div>
+
+			{% comment %}
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header"><i class="icon-calendar"></i> Bursdager</span>
+				</div>
+				<div class="box-content">
+					<ol>
+						{% for p in profiles %}
+							{% if p.birthday_countdown == 0 %}
+								<li><span class="text_highlight"><a href="{% url "profile_update" p.pk %}">{{p.name}}</a> turns {{ p.age }} years today!</span></li>
+							{% else %}
+								<li><a href="{% url "profile_update" p.pk %}">{{p.name}}</a> <small> in {{ p.birthday_countdown }} day{{ p.birthday_countdown|pluralize }}</small></li>
+							{% endif %}
+						{% endfor %}
+					</ol>
+				</div>
+			</div>
+			{% endcomment %}
+
+
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header"><i class="icon-film"></i> Nylige filmer</span>
+				</div>
+				<div class="box-content">
+					<ol>
+						{% for movie in movies %}
+							<li>
+								<a href="{{ movie.url }}">{{ movie.name }}</a>
+							</li>
+						{% endfor %}
+					</ol>
+				</div>
+			</div>
+
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header"><i class="icon-film"></i> TV-serier</span>
+				</div>
+				<div class="box-content">
+					<ol>
+						{% for serie in tvseries %}
+							<li>
+								<a href="{{ serie.url }}">{{ serie.name }}</a>
+							</li>
+						{% endfor %}
+					</ol>
+				</div>
+			</div>
+
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header"><i class="icon-music"></i> Lydbøker (Audible)</span>
+				</div>
+				<div class="box-content">
+					<ol>
+						{% for book in audible %}
+							<li>
+								<a href="{{ book.url }}">{{ book.name }}</a>
+							</li>
+						{% endfor %}
+					</ol>
+				</div>
+			</div>
+
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header"><i class="icon-file"></i> Papirbøker</span>
+				</div>
+				<div class="box-content">
+					<ol>
+						{% for book in paperbooks %}
+							<li>
+								<a href="{{ book.url }}">{{ book.name }}</a>
+							</li>
+						{% endfor %}
+					</ol>
+				</div>
+			</div>
+
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header"><i class="icon-screenshot"></i> Nye spill</span>
+				</div>
+				<div class="box-content">
+					<ol>
+						{% for game in games %}
+							<li>
+								<a href="{{ game.url }}">{{ game.name }}</a>
+							</li>
+						{% endfor %}
+					</ol>
+				</div>
+			</div>
+
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header"><i class="icon-music"></i> Mine Spotify-lister</span>
+				</div>
+				<div class="box-content">
+					{% for pl in spotify %}
+						<a style="margin-left: 10px" href="{{ pl.url }}">{{ pl.name }}</a>
+					{% endfor %}
+				</div>
+			</div>
+
+
+		</div>
+	</div>
+
+
+
+</div>
+{% endblock %}
+
+
+

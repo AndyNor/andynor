@@ -1,0 +1,12 @@
+{% extends "index.html" %}
+{% block body_main %}
+
+<h3>Profiles</h3>
+
+<div class="row">
+{% for profile in profiles %}
+	{% include "profile_template.html" with profile=profile %}
+{% endfor %}
+</div>
+
+{% endblock %}

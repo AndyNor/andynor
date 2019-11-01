@@ -1,0 +1,26 @@
+{% for year in archive_menu %}
+
+<div class="box" style="width: 66%; margin-left: auto; margin-right: auto;">
+	<div class="box-header">
+		<span class="aside-header"><i class="icon-calendar"></i> {{ year.year }}</span>
+	</div>
+	<div class="box-content">
+
+		<div class="blog_archive_body">
+			<ul>
+			{% for month in year.months %}
+				{% if month.type == 'active' %}
+				<li><a class="active" href="{% url "blog_archive_month" year.year month.month %}">{{ month.name }}</a></li>
+				{% elif month.type == 'enabled' %}
+				<li><a href="{% url "blog_archive_month" year.year month.month %}">{{ month.name }}</a></li>
+				{% else %}
+				<li><p>{{ month.name }}</p></li>
+				{% endif %}
+			{% endfor %}
+			</ul>
+		</div>
+
+	</div>
+</div>
+
+{% endfor %}

@@ -1,0 +1,48 @@
+{% extends "index.html" %}
+{% load humanize %}
+
+{% block head_css_include %}{% endblock %}
+{% block body_main %}
+
+<ul class="pager">
+	<li><a class="btn" href="{% url "app_stocks" %}">Tilbake</a></li>
+</ul>
+
+<h3>{{header_text.name}} ({{header_text.ticker}})</h3>
+
+<table class="table table-striped">
+	<thead>
+		<th></th>
+		<th>Dato</th>
+		<th>Kjøp</th>
+		<th>Dato</th>
+		<th>Salg</th>
+		<th>Resultat</th>
+		<th></th>
+	</thead>
+{% for transaction in view_data %}
+	<tr>
+		<td>{% if transaction.bought %}<a href="{% url "stocks_transaction_edit" transaction.bought.pk %}"><i class="icon-pencil"></a>{% endif %}</td>
+		<td>{{transaction.bought.date}}</a></td>
+		<td>{{transaction.bought.amount|intcomma}} @ {{transaction.bought.average_stock_price|floatformat:"3"|intcomma}}</td>
+		<td>{{transaction.sold.date}}</a></td>
+		<td>{{transaction.sold.amount|intcomma}} {% if transaction.sold %}@{% endif %} {{transaction.sold.average_stock_price|floatformat:"3"|intcomma}}</td>
+		<td>{{transaction.result|floatformat:"0"|intcomma}}</td>		
+		<td>{% if transaction.sold %}<a href="{% url "stocks_transaction_edit" transaction.sold.pk %}"><i class="icon-pencil"></a>{% endif %}</td>
+
+	</tr>
+{% endfor %}
+
+	<tr>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td><b class="pull-right">Sum</b></td>
+		<td><b>{{result_total|floatformat:"0"|intcomma}}</b></td>
+		<td></td>
+	</tr>
+</table>
+
+{% endblock %}
+{% block javascript_append %}{% endblock %}

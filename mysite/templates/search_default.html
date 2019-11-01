@@ -1,0 +1,19 @@
+{% extends "index.html" %}
+{% block body_main %}
+	<p>All matches for "<b>{{query_string}}</b>"</p>
+	<hr>
+	<ol>
+	{% if found_entries %}
+		{% for i in found_entries %}
+			<li>
+				<a href="{% url "blog_show" i.pk %}">{{i.title}}</a>
+				<ul>
+					<li><small>{{i.category|capfirst}} ({{i.created|timesince}})</small></li>
+				</ul>
+			</li>
+		{% endfor %}
+	{% else %}
+		<p>Sorry, I did not find anything...</p>
+	{% endif %}
+	</ol>
+{% endblock %}

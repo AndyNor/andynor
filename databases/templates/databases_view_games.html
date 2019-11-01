@@ -1,0 +1,39 @@
+{% extends "databases.html" %}
+{% load humanize %}
+{% block databases_category %}
+
+<table class="table table-condensed table-striped">
+	<thead>
+		<tr>
+			<th></th>
+			<th>Tittel</th>
+			<th>År utgitt</th>
+			<th>Kategori</th>
+			<th>Særlig anbefalt</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for item in item_list %}
+		<tr>
+			<td>{% if user.is_authenticated %}
+			<a href='{% url "databases_edit_data" "Data" item.pk category_name %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i></a>
+			{% endif %}</td>
+			<td>
+			{% if item.url %}
+				<a href="{{item.url}}">{{item.name}}</a>
+			{% else %}
+				{{item.name}}
+			{% endif %}
+			{% if item.series_nr %}
+				({{ item.series_nr|ordinal }})
+			{% endif %}
+			</td>
+			<td>{{ item.produced|date:"Y" }}</td>
+			<td>{{item.subcategory.name|capfirst}}</td>
+			<td>{% if item.star %}<i class="icon-star"></i>{% endif %}</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+
+{% endblock %}

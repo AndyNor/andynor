@@ -1,0 +1,36 @@
+{% extends "stocks.html" %}
+{% load humanize %}
+
+{% block stocks_main %}
+
+	<h3>Aksjer <small>Merge</small></h3>
+	<hr>
+	{{description}}<br>
+	{{status}}
+
+    <form method="post" action="" class="form-horizontal">
+	{% csrf_token %}
+	<fieldset>
+
+	<div class="control-group ">
+		<label for="id_merge_ratio" class="control-label">Merge</label>
+		<div class="controls">
+			<input id="id_merge_ratio" name="merge_ratio" type="number" value="1">
+			<span class="help-inline">
+			 stocks into 1 stock
+			</span>
+		</div>
+	</div>
+
+	<div class="form-actions">
+		<button type="submit" {% if secure %} autocomplete="off" {% endif %} class="btn btn-primary submitButtonMargin">{{submit|default:'Commit'}}</button>
+		<a class="btn btn-danger" href="{{ redirect|default:"/return/" }}">Cancel</a>
+	</div>
+	</fieldset>
+</form>
+
+
+{% endblock %}
+
+
+

@@ -1,0 +1,6 @@
+{% extends "blog.html" %}
+
+{% block blog_content %}
+	<h4>Skriv en kommentar til "{{title}}"</h4>
+	{% include "form.html" with form=form %}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "databases.html" %}
+{% block databases_content %}
+	<h2>Edit databases {{type}}</h2>
+	<div class="row">
+		<div class="span9">
+			{% include "form.html" %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="span12">
+			{% for e in entries %}
+			<div class="input-prepend input-append database_row">
+				<span class="add-on"><a href="{% url "databases_edit" type  e.pk %}"><i class="icon-edit"></i></a></span>
+				<input class="span2" class="appendedPrependedInput" type="text" value="{{ e.name }}">
+				<span class="add-on"><a href="{% url "databases_del" type e.pk %}?token={{csrf_token}}"><i class="icon-remove"></i></a></span>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+{% endblock %}
+

@@ -1,0 +1,241 @@
+{% extends "index.html" %}
+{% load humanize %}
+{% load l10n %}
+
+{% block head_css_include %}
+{% endblock %}
+
+{% block body_main %}
+{% block power_content %}
+
+{% if user.is_authenticated %}
+	{% block money_actions %}
+	<div class="pull-right">
+		<a class="btn btn-small btn-primary" style="margin: 2px" href="{% url "power_payment" %}?next={{ request.get_full_path|urlencode }}">Registrer regning</a>
+		<a class="btn btn-small btn-primary" style="margin: 2px" href="{% url "power_reading" %}?next={{ request.get_full_path|urlencode }}">Måleravlesing</a>
+	</div>
+	{% endblock %}
+{% endif %}
+
+	<h3>Strømforbruk</h3>
+
+<h5>Månedlige utgifter</h5>
+<div class="row">
+	<div class="col-sm-12">
+		<canvas height="80" id="chart_total_cost"></canvas>
+	</div>
+</div>
+
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
+var ctx_total_cost = document.getElementById('chart_total_cost').getContext('2d');
+var chart_total_cost = new Chart(ctx_total_cost, {
+	// The type of chart we want to create
+	type: 'bar',
+	// The data for our dataset
+	data: {
+		labels: [{% for date in total_cost.labels %} new Date({{ date }}000), {% endfor %}],
+		datasets: [
+			{
+				label: 'Linjeleie fastbeløp',
+				backgroundColor: 'rgb(239, 118, 118)',
+				data: {{ total_cost.static }},
+			},
+			{
+			label: 'Linjeleie bruk',
+				backgroundColor: 'rgb(77, 111, 208)',
+				data: {{ total_cost.grid }},
+			},
+			{
+				label: 'Strømforbruk',
+				backgroundColor: 'rgb(142, 178, 243)',
+				data: {{ total_cost.usage }},
+			},
+		]
+	},
+	// Configuration options go here
+	options: {
+		scales: {
+			xAxes: [
+				{
+					stacked: true,
+					type: 'time',
+					time: {
+						unit: 'quarter',
+					},
+					offset: true,
+					distribution: 'linear',
+					ticks: {
+						autoSkip: true
+					}
+				}
+			],
+			yAxes: [
+				{
+					stacked: true,
+					ticks: {
+						suggestedMin: 0,
+					},
+					scaleLabel: {
+						display: true,
+						labelString: 'NOK',
+					}
+				}
+			]
+		},
+	}
+});
+</script>
+<hr>
+
+
+<h5>Forbruk og strømpris</h5>
+<div class="row">
+	<div class="col-sm-12">
+		<canvas height="80" id="chart_forbruk_kost"></canvas>
+	</div>
+</div>
+
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
+var ctx_forbruk_kost = document.getElementById('chart_forbruk_kost').getContext('2d');
+var chart_forbruk_kost = new Chart(ctx_forbruk_kost, {
+	// The data for our dataset
+	type: 'bar',
+	data: {
+		labels: [{% for date in forbruk.labels %} new Date({{ date }}000), {% endfor %}],
+		datasets: [
+			{
+				type: 'line',
+				pointRadius: 5,
+				label: 'Strømpris',
+				fill: false,
+				backgroundColor: 'rgb(239, 118, 118)',
+				data: {{ forbruk.kwh_pris }},
+			},
+			{
+				label: 'kWh brukt',
+				backgroundColor: 'rgb(77, 111, 208)',
+				data: {{ forbruk.antall_kwh }},
+			},
+		]
+	},
+	// Configuration options go here
+	options: {
+		scales: {
+			xAxes: [
+				{
+					type: 'time',
+					time: {
+						unit: 'quarter',
+					},
+					offset: true,
+					distribution: 'linear',
+					ticks: {
+						autoSkip: true
+					}
+				}
+			],
+			yAxes: [
+				{
+					ticks: {
+						suggestedMin: 0,
+					},
+					scaleLabel: {
+						display: true,
+						labelString: 'Øre/kWh | kWh/dag',
+					}
+				}
+			]
+		},
+	}
+});
+</script>
+<hr>
+
+
+<h5>Forbruk måned for måned</h5>
+<div class="row">
+	<div class="col-sm-12">
+		<canvas height="80" id="chart_month_relative"></canvas>
+	</div>
+</div>
+
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
+var ctx_month_relative = document.getElementById('chart_month_relative').getContext('2d');
+var chart_month_relative = new Chart(ctx_month_relative, {
+	// The data for our dataset
+	type: 'bar',
+	data: {
+		labels: ["Januar", "Februar", "Mars", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Desember"],
+		datasets: [
+			{% for year, values in forbruk_monthly %}
+			{
+				label: '{{ year }}',
+			{% if forloop.last %}
+				backgroundColor: 'rgb(239, 118, 118)',
+			{% else %}
+				backgroundColor: 'rgb(253, 205, 205)',
+			{% endif %}
+				data: [{% for month, kwh in values.items %}{{ kwh|unlocalize }},{% endfor %}],
+			},
+			{% endfor %}
+		]
+	},
+	// Configuration options go here
+	options: {
+		scales: {
+			yAxes: [
+				{
+					ticks: {
+						suggestedMin: 0,
+					},
+					scaleLabel: {
+						display: true,
+						labelString: 'Snitt kWh per dag',
+					}
+				}
+			]
+		},
+	}
+});
+</script>
+
+
+
+{% comment %}
+	<div class="row">
+		<div style="height: 350px;" id="payment_graph2"></div>
+	</div>
+
+	<div class="row">
+		<div style="height: 300px;" id="reading_graph"></div>
+	</div>
+	<div class="row">
+		<div style="height: 300px;" id="payment_graph"></div>
+	</div>
+
+	<script type="text/javascript" nonce="{{request.csp_nonce}}">
+	var power_reading_plotdata = {{ readings_json|safe }};
+	var power_payment_plotdata = {{ payments_json|safe }};
+	var power_total_cost_plotdata = {{ total_cost_json|safe }};
+	</script>
+{% endcomment %}
+
+{% endblock %}
+{% endblock %}
+
+
+{% block credits %}
+{% endblock %}
+
+{% comment %}
+{% block javascript_append %}
+	<script type="text/javascript" src="{{ STATIC_URL }}js/highcharts_v2.2.5.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/power.js"></script>
+{% endblock %}
+{% endcomment %}
+
+
+{% block javascript_prepend %}
+	<script type="text/javascript" src="{{ STATIC_URL }}js/moment.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/chart.js@2.8.0"></script>
+{% endblock %}

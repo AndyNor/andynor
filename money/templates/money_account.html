@@ -1,0 +1,61 @@
+{% extends "money.html" %}
+{% load humanize %}
+
+{% block money_title %} Account {{ account|capfirst }} {% endblock %}
+
+{% block money_subtitle %}
+<ul class="pager">
+	<li class="previous {{ links.last.active }}"><a href="{% url 'money_account' account_id links.last.page %}">&larr; Previous</a></li>
+	<li><a class="btn" href="{% url 'app_money' %}">Main overview</a></li>
+	<li class="next"><a href="{% url 'money_account' account_id links.next.page %}">Next &rarr;</a></li>
+</ul>
+{% endblock %}
+
+{% block money_main %}
+
+<table class="table" style="font-size: 90%">
+	<thead>
+		<tr>
+			<th></th>
+			<th width="10%">Date</th>
+			<th width="50%">Information</th>
+			<th width="8%">Ut</th>
+			<th width="8%">Inn</th>
+			<th width="8%">Kommende utgift</th>
+			<th width="8%">Kommende inntekt</th>
+			<th width="8%">Balanse</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for i in table_data.tbody %}
+		<tr style="color:#{{ i.category.text_color|default:'A9A9A9' }}; {% if not i.completed %} background-color: #f6f6f6; {% endif %}">
+			<td><a href='{% url "money_edit" "expence" i.pk %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i></a></td>
+			<td>{{ i.date }}</td>
+			<td>{{ i.sub_category }} {% if i.comment %} ({{ i.comment }}) {% endif %}</td>
+			<td class="money">
+			{% if not i.positive and i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
+			</td>
+			<td class="money">
+			{% if i.positive and i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
+			</td>
+			<td class="money">
+			{% if not i.positive and not i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
+			</td>
+			<td class="money">
+			{% if i.positive and not i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
+			</td>
+			<td class="money" style="color:grey";>
+			{{ i.balance|floatformat:"2"|intcomma }}
+			</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+<ul class="pager">
+	<li class="previous {{ links.last.active }}"><a href="{% url 'money_account' account_id links.last.page %}">&larr; Forward</a></li>
+	<li><a class="btn" href="{% url 'app_money' %}">Main overview</a></li>
+	<li class="next"><a href="{% url 'money_account' account_id links.next.page %}">Earlier &rarr;</a></li>
+</ul>
+
+{% endblock %}

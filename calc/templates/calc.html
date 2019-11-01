@@ -1,0 +1,12 @@
+{% extends "index.html" %}
+{% load humanize %}
+
+{% block body_main %}
+
+<h3>Calculators</h3>
+<ul>
+	<li><a href="{% url "calc_tax" %}">Norsk skattekalkulator</a></li>
+	<li><a href="{% url "calc_loan" %}">Serie og annuitetslån</a></li>
+</ul>
+
+{% endblock %}

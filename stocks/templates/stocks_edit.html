@@ -1,0 +1,13 @@
+{% extends "stocks.html" %}
+{% load humanize %}
+
+{% block stocks_main %}
+
+	<h3>Aksjer <small>{{ header_text }} {% if delete_link_pk %}| <a href="{% url delete_link_name pk=delete_link_pk %}?token={{csrf_token}}">Slett</a>{% endif %}</small></h3>
+	<hr>
+	{% include "form.html" with form=form %}
+
+{% endblock %}
+
+
+

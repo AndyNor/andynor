@@ -1,0 +1,13 @@
+{% extends "money.html" %}
+
+{% block money_main %}
+
+<ul class="pager">
+<h3>Månedlige utgifter {{month}} {{year}}</h3>
+
+	<li><form method="post" action="{% url 'money_add_monthly_expences' year=year month=month %}" style="display: inline;">
+		{% csrf_token %}<button class="btn" type="submit">Bekreft</button></form></li>
+	<li><a style="margin-left: 30px" class="btn" href="{% url 'money_month' year=year month=month %}">Gå tilbake</a></li>
+</ul>
+
+{% endblock %}

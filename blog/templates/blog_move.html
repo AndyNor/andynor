@@ -1,0 +1,25 @@
+{% extends "blog.html" %}
+
+{% block blog_content %}
+
+	<h2>Move images between posts</h2>
+	{% if form %}
+		<p>Choose the recieving blog:</p>
+		{% include "form.html" with form=form %}
+	{% endif %}
+
+	{% if images %}
+		<p>These images has been selected for transfer:</p>
+		<ul class="thumbnails">
+		{% for image in images %}
+			<li>
+				<img class="thumbnail span2" src="{{MEDIA_URL}}{{ image.thumbnail }}">
+			</li>
+			{% if forloop.counter|divisibleby:'5' %}
+				</ul><ul class="thumbnails">
+			{% endif %}
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+{% endblock %}

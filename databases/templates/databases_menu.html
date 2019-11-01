@@ -1,0 +1,27 @@
+{% if user.is_authenticated %}
+<div class="pull-right">
+	<ul class="btn-group">
+		<a class="btn btn-primary" href='{% url "databases_new_data" "Data" category_name %}'>New</a>
+		<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+			Admin
+			<span class="caret"></span>
+		</a>
+		<ul class="dropdown-menu">
+			<li><a href='{% url "databases_new" "Category" %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i> Edit categories</a></li>
+			<li><a href='{% url "databases_new" "SubCategory" %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i> Edit sub-categories</a></li>
+			<li><a href='{% url "databases_new" "Series" %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i> Edit series</a></li>
+		</ul>
+	</ul>
+</div>
+{% endif %}
+
+<div class="database_container">
+	<ul class="nav nav-tabs">
+	{% for cat in category_list %}
+		<li{% ifequal category_name cat.name %} class="active"{% endifequal %}>
+		<a href='{% url "databases_view" cat.name %}'>
+		{{cat.name|capfirst}}</a>
+		</li>
+	{% endfor %}
+	</ul>
+</div>

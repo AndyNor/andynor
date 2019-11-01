@@ -1,0 +1,26 @@
+{% if form.is_multipart %}
+    <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+{% else %}
+    <form method="post" action="" class="form-horizontal">
+{% endif %}
+{% csrf_token %}
+	<fieldset>
+	{% for field in form %}
+	<div class="control-group {% if field.errors %} error {% endif %}">
+		{{ field.label_tag }}
+		<div class="controls">
+			{{ field }}
+			<span class="help-inline">
+			{% if field.errors %}
+				{% for error in field.errors %} {{ error }} {% endfor %}
+			{% else %} {{ field.help_text }} {% endif %}
+			</span>
+		</div>
+	</div>
+	{% endfor %}
+	<div class="form-actions">
+		<button type="submit" {% if secure %} autocomplete="off" {% endif %} class="btn btn-primary submitButtonMargin">{{submit|default:'Commit'}}</button>
+		<a class="btn btn-danger" href="{{ redirect|default:"/return/" }}">Cancel</a>
+	</div>
+	</fieldset>
+</form>

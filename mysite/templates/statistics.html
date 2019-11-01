@@ -1,0 +1,117 @@
+{% extends "index.html" %}
+{% load upto %}
+{% block body_main %}
+
+{% if user.is_authenticated %}
+
+	<div class="row">
+
+		<div class="span5">
+			<h3>Site statistics</h3>
+			<p>System time: <b>{{ current_time|date:"l jS F Y, G:i (O)" }}</b><br>
+			Active sessions: <b>{{ session_count }}</b><br>
+			Logged in users:
+			{% for user in session_users %}
+				<b>{{ user.user }}
+				{% if user.active %}
+					<small>(you)</small>
+				{% endif %}</b>
+				{% if not forloop.last %}, {% endif %}
+			{% endfor %}
+			</ul></p>
+
+
+			<div style="font-size: 70%">
+				<h6>Latest log-in attempts</h6>
+				<ol>
+				{% for log in logs %}
+				<li>
+					<span class="{{ log.color }}">{{ log.time|date:"D, d. M, Y - H:i" }} - {{  log.user }} - {{  log.message }} ({{  log.ip }})</span>
+				</li>
+				{% endfor %}
+				</ol>
+			</div>
+
+		</div>
+
+		<div class="span7">
+			<script type="text/javascript" nonce={{request.csp_nonce}}>
+				var visits_monthly = {{ visits_monthly|safe }};
+				var visits_daily = {{ visits_daily|safe }};
+				var lays_days = {{ lays_days }};
+			</script>
+			<div class="span8" style="height: 180px" id="visits_monthly"></div>
+			<div class="span8" style="height: 180px" id="visits_daily"></div>
+		</div>
+
+
+
+	</div>
+	<hr>
+
+
+	<div class="row" style="font-size: 70%">
+
+		<div class="span2">
+			<h6><i class="icon-pencil"></i> Draft blogs</h6>
+			<ol>
+			{% for blog in blogs_draft %}
+				<li>
+					<a href="{% url "blog_show" blog.pk %}">{{ blog.title }}</a>
+					<small>{{ blog.created|timesince|upto:',' }}</small>
+				</li>
+			{% endfor %}
+			</ol>
+		</div>		
+
+		<div class="span2">
+			<h6><i class="icon-pencil"></i> New blogs</h6>
+			<ol>
+			{% for blog in blogs_new %}
+				<li>
+					<a href="{% url "blog_show" blog.pk %}">{{ blog.title }}</a>
+					<small>{{ blog.created|timesince|upto:',' }}</small>
+				</li>
+			{% endfor %}
+			</ol>
+		</div>
+
+		<div class="span2">
+			<h6><i class="icon-wrench"></i> Updated blogs</h6>
+			<ol>
+			{% for blog in blogs_updated %}
+				<li>
+					<a href="{% url "blog_show" blog.pk %}">{{ blog.title }}</a>
+					<small>{{ blog.updated|timesince|upto:',' }}</small>
+				</li>
+			{% endfor %}
+			</ol>
+		</div>
+
+
+		<div class="span6">
+			<h6>Latest comments</h6>
+			<ol>
+			{% for comment in latest_comments %}
+			<li>
+				<b>{{ comment.poster }}</b> in
+				<a href="{% url "blog_show" comment.page.pk %}">{{ comment.page.title }}</a>
+				({{ comment.created|timesince|upto:',' }} ago):
+				<i>{{ comment.comment|linebreaks }}</i>
+			</li>
+			{% endfor %}
+			</ol>
+		</div>		
+
+	</div>
+
+
+	{% endif %}
+
+	{% block javascript_append %}
+	<script src="{{ STATIC_URL }}js/highcharts-v2.3.5.js"></script>
+	<script src="{{ STATIC_URL }}js/visit_graph.js"></script>
+
+	{% endblock %}
+
+{% endblock %}

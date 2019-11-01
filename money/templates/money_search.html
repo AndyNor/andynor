@@ -1,0 +1,59 @@
+{% extends "money.html" %}
+{% load humanize %}
+{% block money_title %} Search for <small>{{ query_string }}</small>{% endblock %}
+
+{% block money_actions %}{% endblock %}
+
+{% block money_main %}
+
+    <ul class="pager">
+        <li><a class="btn" href="{% url 'app_money' %}">Main overview</a></li>
+    </ul>
+
+    {% if query_string %}
+        <ol>
+        {% if found_entries %}
+
+        <button type="button" class="btn btn-info pull-right">total {{ query_sum.sum_total|intcomma }}</button>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Out</th>
+                    <th>Inn</th>
+                    <th>Loan</th>
+                    <th>Lend</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for i in found_entries %}
+                <tr style="color:#{{ i.category.text_color|default:'A9A9A9' }}; {% if i.is_asset %}background-color: #fffff4;{% endif %}">
+                    <td><a href="{% url 'money_edit' 'expence' i.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
+                    <td>{{ i.date }}</td>
+                    <td>{{ i.sub_category }} {% if i.comment %} ({{ i.comment }}) {% endif %}</td>
+                    <td class="money">
+                    {% if not i.positive and i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
+                    </td>
+                    <td class="money">
+                    {% if i.positive and i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
+                    </td>
+                    <td class="money">
+                    {% if not i.positive and not i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
+                    </td>
+                    <td class="money">
+                    {% if i.positive and not i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
+                    </td>
+                </tr>
+
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>Sorry, I did not find anything...</p>
+        {% endif %}
+        </ol>
+    {% endif %}
+{% endblock %}

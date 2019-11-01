@@ -1,0 +1,37 @@
+{% extends "money.html" %}
+{% block money_title %}
+	{{ head_text }}
+	<div class="pull-right">
+		<a class="btn btn-mini btn-info" href="{% url 'money_admin_add_account' %}">Edit accounts</a>
+		<a class="btn btn-mini btn-info" href="{% url 'money_admin_category' %}">Edit categories</a>
+		<a class="btn btn-mini btn-info" href="{% url 'money_admin_subcategory' %}">Edit subcategories</a>
+	</div>
+{% endblock %}
+
+{% block money_actions %}{% endblock %}
+
+{% block money_main %}
+
+	{% include "form.html" %}
+
+	<table class="table table-bordered table-condensed">
+	{% for i in entries %}
+		<tr>
+			<td><a href="{{i.pk}}/?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
+			<td>{{ i.name }}</td>
+			{% if i.parent_category %}
+				<td style="background-color: #{{ i.parent_category.text_color }};"></td>
+				<td>{{ i.parent_category }}</td>
+			{% else %}
+				<td style="background-color: #{{ i.text_color }};"></td>
+			{% endif %}
+			{% if i.account_type %}
+				<td>{{ i.get_account_type_display }}</td>
+				<td>{{ i.sub_category.parent_category }} {{ i.sub_category }}</td>
+			{% endif %}
+			<td>{{ i.description }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+
+{% endblock %}

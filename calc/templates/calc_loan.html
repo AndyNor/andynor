@@ -1,0 +1,139 @@
+{% extends "index.html" %}
+{% load humanize %}
+{% load percent %}
+
+
+{% block body_main %}
+
+<h2>Serie og annuitetslån</h2>
+<p>Prøv med noen andre verdier:</p>
+
+<form class="form" action="" method="post">
+  {% csrf_token %}
+  <fieldset>
+  	<div class="row">
+
+			<div class="input-prepend">
+			  <span class="add-on">Lånebehov:</span>
+			  <input class="span2" type="text" name="laanebehov" value="{{user_var.laanebehov}}">
+			</div>
+			<div class="input-prepend">
+			  <span class="add-on">Terminer per år:</span>
+			  <input class="span2" type="text" name="terminer" value="{{user_var.terminer}}">
+			</div>
+			<div class="input-prepend">
+			  <span class="add-on">Løpetid i år:</span>
+			  <input class="span2" type="text" name="loepetid" value="{{user_var.loepetid}}">
+			</div>
+
+
+			<div class="input-prepend">
+			  <span class="add-on">Nominell rente [%]:</span>
+			  <input class="span2" type="text" name="nomrente" value="{{user_var.nomrente}}">
+			</div>
+			<div class="input-prepend">
+			  <span class="add-on">Termingebyr:</span>
+			  <input class="span2" type="text" name="termingebyr" value="{{user_var.termingebyr}}">
+			</div>
+
+			<div class="input-prepend">
+			  <span class="add-on">Etableringsgebyr:</span>
+			  <input class="span2" type="text" name="etablering" value="{{user_var.etablering}}">
+			</div>
+			<div class="input-prepend input-append">
+			  <span class="add-on">Tinglysningsgebyr:</span>
+			  <input class="span2" type="text" name="tinglysning" value="{{user_var.tinglysning}}">
+			  <button class="btn btn-primary" type="submit">Beregn</button>
+			</div>
+
+  	</div>
+
+
+  </fieldset>
+</form>
+
+<hr>
+
+<div class="row">
+	<div class="span6">
+		<h4>Annuitetslån</h4>
+		Innbetaling per termin: {{ serie.per_termin|intcomma }}<br>
+		Totalkostnad: {{ serie.total_kost|intcomma }}<br>
+		Kostnad gebyrer og renter: {{ serie.rebyr_renter|intcomma }}<br>
+		<hr>
+		<table class="table table-condensed table-striped">
+			<thead>
+				<tr>
+				{% for item in table_head %}
+					<th>{{ item }}</th>
+				{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+			{% for i in serie.plan %}
+			<tr>
+				<td class="">{{ i.0|intcomma }}</td>
+				<td class="">{{ i.1|intcomma }}</td>
+				<td class="">{{ i.2|intcomma }}</td>
+				<td class="">{{ i.3|intcomma }}</td>
+				<td class="">{{ i.4|intcomma }}</td>
+			</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+
+
+	</div>
+	<div class="span6">
+		<h4>Serielån</h4>
+		Innbetaling per termin: {{ annuitet.per_termin|intcomma }}<br>
+		Totalkostnad: {{ annuitet.total_kost|intcomma }}<br>
+		Kostnad gebyrer og renter: {{ annuitet.rebyr_renter|intcomma }}<br>
+		<hr>
+		<table class="table table-condensed table-striped">
+			<thead>
+				<tr>
+				{% for item in table_head %}
+					<th>{{ item }}</th>
+				{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+			{% for i in annuitet.plan %}
+			<tr>
+				<td class="">{{ i.0|intcomma }}</td>
+				<td class="">{{ i.1|intcomma }}</td>
+				<td class="">{{ i.2|intcomma }}</td>
+				<td class="">{{ i.3|intcomma }}</td>
+				<td class="">{{ i.4|intcomma }}</td>
+			</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<hr>
+
+{% comment %} NOT DONE YET 
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
+	var tax_chart_data = {{ tax_data_json|safe }};
+</script>
+
+<div class="row">
+	<div class="span6" id="tax_chart1"></div>
+	<div class="span6" id="tax_chart2"></div>
+</div>
+
+{% endcomment %}
+
+
+{% endblock %}
+
+
+
+{% block javascript_append %}
+<script src="{{STATIC_URL}}js/highcharts-v2.3.5.js"></script>
+{% endblock %}
+
+

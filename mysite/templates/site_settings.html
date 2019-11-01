@@ -1,0 +1,78 @@
+{% extends "index.html" %}
+{% load upto %}
+{% load humanize %}
+{% block body_main %}
+	<h1>My dashboard</h1>
+	<p>Week {{ current_time|date:"W, l jS F Y, G:i (O)" }}</p>
+
+	<div class="row">
+
+			<h5>Visits <small>{{ visits_total }} and counting...</small></h5>
+			<script type="text/javascript">
+				var visits_monthly = {{visits_monthly|safe}};
+				var visits_daily = {{visits_daily|safe}};
+			</script>
+
+			<div class="span8" style="height: 200px" id="visits_monthly"></div>
+			<div class="span4" style="height: 200px" id="visits_daily"></div>
+
+	</div>
+
+	<div class="row">
+
+		<div class="span4">
+
+		<h5>Latest comments</h5><hr>
+		{% for comment in latest_comments %}
+			<p>
+				<b><i class="icon-user"></i> {{ comment.poster }}</b>
+				<small>
+					<a href="{% url "blog_show" comment.page.pk %}">{{ comment.page.title }}</a>
+					({{ comment.created|timesince|upto:',' }})
+				</small>
+				<ul>
+					<li>
+						<i>{{ comment.comment|linebreaks }}</i>
+					</li>
+				</ul>
+			</p>
+		{% endfor %}
+		</div>
+
+		<div class="span8">
+			<div class="row">
+				<div class="span2">
+					<h5>Sessions</h5><hr>
+					Active: <b>{{ session_count }}</b><br>
+					{% for user in session_users %}
+						<a href="{{ user.session }}">{{ user.user }}</a>
+						{% if user.active %}
+							(active)
+						{% endif %}
+						<br>
+					{% endfor %}
+				</div>
+
+			</div>
+			<div class="row">
+				<div class="span3">
+					<h5><a href="{% url "profile" %}">Birthdays</a></h5><hr>
+					<small>
+					<ul>
+						{% for p in profiles %}
+							<li><a href="{% url "profile_update" p.pk %}">{{p.name}}</a> ({{ p.birthday_countdown }} days)</li>
+						{% endfor %}
+					</ul>
+					</small>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+{% endblock %}
+
+{% block javascript_append %}
+<script src="{{ STATIC_URL }}js/highcharts-2.2.5.js"></script>
+<script src="{{ STATIC_URL }}js/visit_graph.js"></script>
+{% endblock %}

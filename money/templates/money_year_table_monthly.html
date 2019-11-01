@@ -1,0 +1,38 @@
+{% load humanize %}
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th class="header"></th>
+			{% for month in month_names %}
+				<th><a class="btn btn-mini" href="{% url 'money_month' year forloop.counter %}">{{ month|slice:'3' }}</a></th>
+			{% endfor %}
+			<th>Sum</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for item in table_data %}
+		{% if not forloop.last  %}
+		<tr style="color:#{{ item.text_color|default:'A9A9A9' }};">
+			<td>{{ item.category|capfirst }}</td>
+			{% for sum in item.cell_sums %}
+				<td class="money">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
+			{% endfor %}
+			<td class="money">{{ item.category_sum|default:''|floatformat:"0"|intcomma }}</td>
+		</tr>
+		{% else %}
+	</tbody>
+	<tfoot>
+		<tr>
+			<td>Sum</td>
+			{% for sum in item %}
+				{% if sum < 0 %}
+					<td class="money" style="color:red;">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
+				{% else %}
+					<td class="money">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
+				{% endif %}
+			{% endfor %}
+		</tr>
+		{% endif %}
+	{% endfor %}
+	</tfoot>
+</table>

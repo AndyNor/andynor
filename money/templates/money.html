@@ -1,0 +1,37 @@
+{% extends "index.html" %}
+{% load breadcrumbs %}
+
+{% block search %}
+	{% url "money_search" as action %} {% include "search_form.html" with action=action %}
+{% endblock %}
+
+{% block body_main %}
+<div class="row" style="margin-top: 10px">
+	<div class="span12">
+		{% block money_actions %}
+		<div class="pull-right">
+			<a class="btn btn-small btn-danger"
+				href='{% url "money_new" "expence" %}?next={{ request.get_full_path|urlencode }}'>
+					New expence</a>
+			<a class="btn btn-small btn-success"
+				href='{% url "money_new" "salary" %}?next={{ request.get_full_path|urlencode }}'>
+					Add salary</a>
+			<a class="btn btn-small btn-success"
+				href='{% url "money_new" "transaction" %}?next={{ request.get_full_path|urlencode }}'>
+					Transfer money</a>
+			<a class="btn btn-small btn-danger"
+				href='{% url "money_new" "downpayment" %}?next={{ request.get_full_path|urlencode }}'>
+					Pay loan</a>
+		</div>
+		{% endblock %}
+		<h3>{% block money_title %}{% endblock %}</h3>
+	</div>
+	<div class="span12">
+		{% block money_subtitle %}{% endblock%}<hr>
+	</div>
+
+</div>
+
+	{% block money_main %}{% endblock %}
+
+{% endblock %}

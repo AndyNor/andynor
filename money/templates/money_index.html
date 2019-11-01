@@ -1,0 +1,82 @@
+{% extends "money.html" %}
+{% load humanize %}
+
+{% block money_title %} {{block.super}} Main overview {% endblock %}
+
+{% block money_main %}
+
+<div class="row">
+	<div class="scrollable span7">
+		<div id="graph_per_year" style="height: 400px;"></div>
+	</div>
+
+	<div class="scrollable span5">
+		<div id="graph_per_account" style="height: 400px;">
+		<script type="text/javascript" nonce="{{request.csp_nonce}}">
+			var balance_data = {{ balance_json|safe }};
+			var year_data = {{ year_json|safe }};
+		</script>
+	</div>
+</div>
+
+
+<div class="row">
+	<div class="scrollable span7">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Year</th>
+					<th>Gross</th>
+					<th>Nett</th>
+					<th>Pension</th>
+					<th>Tax</th>
+					<th>%</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in year_data %}
+				<tr>
+					<td><a class="btn btn-mini" href='{% url "money_year" item.year %}'>{{ item.year }}</a></td>
+					<td class="money">{{ item.gross|default:'-'|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.nett|default:'-'|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.retirement|default:'-'|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.tax|default:'-'|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.tax_pct }}%</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<div class="scrollable span5">
+		<table class="table table-striped sortable">
+			<thead>
+				<tr>
+					<th>Account</th>
+					<th>Current</th>
+					<th>Planned</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for item in balance_data.data %}
+				<tr>
+					<td><a class="btn btn-mini" href='{% url "money_account" item.pk %}'>{{ item.account }}</a></td>
+					<td class="money">{{ item.real|default:'-'|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.planned|default:'-'|floatformat:"0"|intcomma }}</td>
+				</tr>
+			{% endfor %}
+				<tr>
+					<td><b>SUM</b></td>
+					<td>{{balance_data.sum_real|default:'-'|floatformat:"0"|intcomma}}</td>
+					<td>{{balance_data.sum_planned|default:'-'|floatformat:"0"|intcomma}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endblock %}
+
+{% block javascript_append %}
+<script src="{{ STATIC_URL }}js/highcharts-2.2.5.js"></script>
+<script src="{{ STATIC_URL }}js/money_graphs.js"></script>
+{% endblock %}

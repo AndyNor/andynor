@@ -1,0 +1,13 @@
+{% extends "blog.html" %}
+
+{% block blog_content %}
+	<h2>Replace file</h2>
+	<p>{{file.filename}}</p>
+	<hr>
+
+	{% if form %}
+		{% include "form.html" with form=form submit='Replace' redirect=redirect %}
+	{% endif %}
+
+
+{% endblock %}

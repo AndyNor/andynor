@@ -1,0 +1,74 @@
+{% extends "money.html" %}
+{% load humanize %}
+
+{% block money_title %} Details for {{ month_name }} {{ year }} {% endblock %}
+{% block money_subtitle %}
+<ul class="pager">
+	<li class="previous"><a href="{% url "money_month" links.last.year links.last.month %}">&larr; Previous</a></li>
+	<li><a class="btn" href="{% url "app_money" %}">Main overview</a></li>
+	<li><a class="btn" href="{% url "money_year" year %}">Summary of {{ year }}</a></li>
+	<li><a class="btn" href="{% url "money_add_monthly_expences" year=year month=month %}"><b>Legg til faste utgifter</b></a></li>
+	<li class="next"><a href="{% url "money_month" links.next.year links.next.month %}">Next &rarr;</a></li>
+</ul>
+{% endblock %}
+
+{% block money_main %}
+
+{% if salary_data.tbody %}
+<h5>Income</h5>
+<div class="scrollable">
+<table class="table table-condensed table-striped">
+	<thead>
+		<tr>
+			<th></th>
+			{% for item in salary_data.thead %}
+				<th>{{ item.text }}</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+	{% for i in salary_data.tbody %}
+		<tr>
+			<td><a href="{% url "money_edit" "salary" i.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
+			<td>{{ i.date|date:"jS" }}</td>
+			<td>{{ i.account }} {{ i.comment|default:'' }}</td>
+			<td class="money">{{ i.salary|intcomma }}</td>
+			<td class="money">{{ i.extra_hours|intcomma }}</td>
+			<td class="money">{{ i.tax|intcomma }}</td>
+			<td class="money">{{ i.retirement_pension|intcomma }}</td>
+			<td class="money">{{ i.labor_union|intcomma }}</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+</div>
+{% endif %}
+
+<h5>Expences</h5>
+<div class="scrollable">
+<table class="table table-condensed table-striped">
+	<thead>
+		<tr>
+			<th></th>
+			{% for item in expence_data.thead %}
+				<th>{{ item.text }}</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+	{% for t in expence_data.tbody %}
+		<tr style="color:#{{ t.text_color }};">
+			<td><a href="{% url "money_edit" "expence" t.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
+			<td>{{ t.date|date:"jS" }}</td>
+			<td>{{ t.account }}</td>
+			<td>{{ t.category }} {{ t.sub_category|default:"" }} {{ t.comment|default:"" }}</td>
+			<td class="money">{{ t.amount_expense|intcomma }}</td>
+			<td class="money">{{ t.amount_income|intcomma }}</td>
+			<td class="money">{{ t.amount_loan|intcomma }}</td>
+			<td class="money">{{ t.amount_lend|intcomma }}</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "blog.html" %}
+
+{% block blog_content %}
+
+<ul class="pager">
+<h3>Delete blog entry: {{month}} {{year}}</h3>
+
+	{% url "blog_delete" blog_pk as blog_delete_url %}
+	<li><form method="post" action="{{ blog_delete_url }}" style="display: inline;">
+		{% csrf_token %}<button class="btn" type="submit">Bekreft</button></form></li>
+	
+	{% url "blog_show" blog_pk as blog_update_url %}	
+	<li><a style="margin-left: 30px" class="btn" href="{{ blog_update_url }}">Gå tilbake</a></li>
+</ul>
+
+{% endblock %}

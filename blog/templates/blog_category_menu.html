@@ -1,0 +1,18 @@
+<div class="row" style="font-size: 85%">
+	<div class="span12">
+	{% block blog_header %}
+		<div style="padding: 10px 0">
+			<ul class="nav nav-tabs">
+			{% for cat in category_list %}
+				<li{% ifequal category_name cat.category %} class="active"{% endifequal %}>
+				<a href="{% url "blog_category" cat.pk %}">
+				{{cat.category|capfirst}}</a></li>
+			{% endfor %}
+			{% if user.is_authenticated %}
+				<li><a href='{% url "blog_new" %}'><b>New blog entry</b></a></li>
+			{% endif %}
+			</ul>
+		</div>
+	{% endblock %}
+	</div>
+</div>

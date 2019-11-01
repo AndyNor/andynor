@@ -1,0 +1,30 @@
+{% extends "databases.html" %}
+{% load humanize %}
+{% block databases_category %}
+
+<table class="table table-condensed table-striped">
+	<thead>
+		<tr>
+			<th width="5%"></th>
+			<th width="95%">Spilleliste</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for item in item_list %}
+		<tr>
+			<td>{% if user.is_authenticated %}
+			<a href='{% url "databases_edit_data" "Data" item.pk category_name %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i></a>
+			{% endif %}</td>
+			<td>
+			{% if item.url %}
+				<i class="icon-music"></i> <a href="{{item.url}}">{{item.name}}</a>
+			{% else %}
+				{{item.name}}
+			{% endif %}
+			</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+
+{% endblock %}

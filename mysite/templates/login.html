@@ -1,0 +1,7 @@
+{% extends "index.html" %}
+{% block body_main %}
+	<h1>Identify yourself</h1>
+	<p>Enter your username and secret passphrase</p>
+	{% include "form.html" with form=form submit='Verify' secure=True %}
+{% endblock %}
+

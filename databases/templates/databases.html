@@ -1,0 +1,19 @@
+{% extends "index.html" %}
+{% load humanize %}
+{% block body_main %}
+
+	{% block databases_content %}
+		{% include 'databases_menu.html' %}
+
+		{% block databases_category %}
+			{% if not item_list %}
+				<p>Nothing to show</p>
+			{% endif %}
+			{% for item in item_list %}
+				<a class="btn database_item" href="{{ item.url }}">{{ item.name }}</a>
+			{% endfor %}
+		{% endblock %}
+
+	{% endblock %}
+
+{% endblock %}

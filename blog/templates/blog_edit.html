@@ -1,0 +1,33 @@
+{% extends "blog.html" %}
+{% load humanize %}
+
+{% block blog_content %}
+
+	<h2>Write <small>{{ sub_header }}</small></h2>
+	<hr>
+	<div class="pull-right">
+		<a class="btn btn-small" style="margin: 5px" href="{% url "blog_category_new" %}?next={{ request.get_full_path|urlencode }}">Add category</a><br>
+		<a class="btn btn-small" style="margin: 5px" href="{% url "blog_tag_add" %}?next={{ request.get_full_path|urlencode }}">Add tag</a><br>
+		<a class="btn btn-small btn-primary" style="margin: 5px" href="/blog/340/">BB-codes</a>
+	</div>
+	{% include "form.html" with form=form redirect=redirect %}
+	<table class="table table-bordered table-condensed">
+	{% for i in entries %}
+		<tr>
+		{% if i.category %}
+			<td><a href="{% url "blog_category_edit" i.pk %}"><i class="icon-pencil"></i></a></td>
+			<td>{{ i.category }}</td>
+			<td>{{ i.description }}</td>
+		{% endif %}
+		{% if i.tag %}
+			<td><a href="{% url "blog_tag_edit" i.pk %}"><i class="icon-pencil"></i></a></td>
+			<td>{{ i.tag }}</td>
+			<td>{{ i.description }}</td>
+		{% endif %}
+		</tr>
+	{% endfor %}
+	</table>
+{% endblock %}
+
+
+

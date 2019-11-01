@@ -1,0 +1,13 @@
+{% extends "index.html" %}
+{% block body_main %}
+
+	{% block databases_content %}
+		<h1>Databases</h1>
+		<hr>
+		<a class="btn" href="{% url "databases_new" 'Category' %}">Category</a>
+		<a class="btn" href="{% url "databases_new" 'SubCategory' %}">SubCategory</a>
+		<a class="btn" href="{% url "databases_new" 'Series' %}">Series</a>
+		<a class="btn" href="{% url "databases_new" 'Data' %}">Data</a>
+	{% endblock %}
+
+{% endblock %}
