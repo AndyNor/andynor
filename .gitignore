@@ -4,6 +4,7 @@ secrets_dev.py
 db.sqlite3
 *.sql
 *.zip
+initial_data.json
 
 # local
 dev.bat
