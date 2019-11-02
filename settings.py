@@ -23,7 +23,7 @@ INSTALLED_APPS = (
     'stocks',
 )
 
-from secrets_dev import load_secrets
+from secrets import load_secrets
 load_secrets()
 import os
 
@@ -45,7 +45,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'db.sqlite3',
+        # use absolute path on production
+        'NAME': '/home/andynor/webapps/django225/myproject/db.sqlite3',
         # Or path to database file if using sqlite3.
         'USER': '',
         'PASSWORD': '',
@@ -63,7 +64,7 @@ USE_I18N = True
 MEDIA_ROOT = '/home/andynor/webapps/static_media/'
 MEDIA_URL = '/media/'
 
-FILE_ROOT = '/home/andynor/webapps/static/fileupload/'
+FILE_ROOT = '/home/andynor/webapps/static_media/fileupload/'
 FILE_URL = '/media/fileuploads/'
 
 STATIC_ROOT = '/home/andynor/webapps/static/'
