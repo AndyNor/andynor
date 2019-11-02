@@ -5,9 +5,9 @@
 
 {% block money_subtitle %}
 <ul class="pager">
-	<li class="previous {{ links.last.active }}"><a href="{% url 'money_account' account_id links.last.page %}">&larr; Previous</a></li>
+	<li class="previous {{ links.last.active }}"><a href="{% url 'money_account' account_id links.last.page %}">&larr; Forward</a></li>
 	<li><a class="btn" href="{% url 'app_money' %}">Main overview</a></li>
-	<li class="next"><a href="{% url 'money_account' account_id links.next.page %}">Next &rarr;</a></li>
+	<li class="next"><a href="{% url 'money_account' account_id links.next.page %}">Earlier &rarr;</a></li>
 </ul>
 {% endblock %}
 
@@ -17,8 +17,8 @@
 	<thead>
 		<tr>
 			<th></th>
-			<th width="10%">Date</th>
-			<th width="50%">Information</th>
+			<th width="15%">Date</th>
+			<th width="45%">Information</th>
 			<th width="8%">Ut</th>
 			<th width="8%">Inn</th>
 			<th width="8%">Kommende utgift</th>
