@@ -1,5 +1,7 @@
 {% extends "money.html" %}
 {% load humanize %}
+{% load i18n %}
+{% load l10n %}
 
 {% block money_title %} {{block.super}} Main overview {% endblock %}
 
@@ -36,7 +38,7 @@
 			<tbody>
 				{% for item in year_data %}
 				<tr>
-					<td><a class="btn btn-mini" href='{% url "money_year" item.year %}'>{{ item.year }}</a></td>
+					<td><a class="btn btn-mini" href='{% url "money_year" item.year %}'>{{ item.year|unlocalize }}</a></td>
 					<td class="money">{{ item.gross|default:'-'|floatformat:"0"|intcomma }}</td>
 					<td class="money">{{ item.nett|default:'-'|floatformat:"0"|intcomma }}</td>
 					<td class="money">{{ item.retirement|default:'-'|floatformat:"0"|intcomma }}</td>

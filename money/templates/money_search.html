@@ -1,20 +1,73 @@
 {% extends "money.html" %}
 {% load humanize %}
-{% block money_title %} Search for <small>{{ query_string }}</small>{% endblock %}
+{% load i18n %}
+{% load l10n %}
+
+{% block money_title %}
+    Search for <small>{{ query_string }}</small>
+   <ul class="pager">
+        <li><a class="btn" href="{% url 'app_money' %}">Main overview</a></li>
+    </ul>
+{% endblock %}
 
 {% block money_actions %}{% endblock %}
 
-{% block money_main %}
+{% block javascript_prepend %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/moment.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/chart.js@2.8.0"></script>
+{% endblock %}
 
-    <ul class="pager">
-        <li><a class="btn" href="{% url 'app_money' %}">Main overview</a></li>
-    </ul>
+{% block money_main %}
 
     {% if query_string %}
         <ol>
         {% if found_entries %}
 
-        <button type="button" class="btn btn-info pull-right">total {{ query_sum.sum_total|intcomma }}</button>
+        <p>Showing {{ found_entries.count }} search matches.<br>
+        Sum total of {{ query_sum.sum_total|floatformat:"2" }}.</p>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <canvas height="80" id="chart_cost"></canvas>
+            </div>
+        </div>
+
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
+var ctx_chart_cost = document.getElementById('chart_cost').getContext('2d');
+var chart_chart_cost = new Chart(ctx_chart_cost, {
+    type: 'bar',
+    data: {
+        labels: [{% for i in fount_entries_reversed %}"{% if i.comment %} {{ i.comment }}{% endif %} ({{i.sub_category}})",{% endfor %}],
+        datasets: [{
+            data: [{% for i in fount_entries_reversed %}{{ i.amount|unlocalize }},{% endfor %}],
+            backgroundColor: [{% for i in fount_entries_reversed %}"#{{i.category.text_color|default:'A9A9A9'}}",{% endfor %}],
+            barThickness: 5,
+            maxBarThickness: 20,
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                    reverse: true,
+                }
+            }],
+            xAxes: [{
+                display: false,
+            }]
+        },
+        legend: {
+                display: false
+        },
+    }
+});
+</script>
+
+        <hr>
+
+
 
         <table class="table">
             <thead>
@@ -52,7 +105,7 @@
             </tbody>
         </table>
         {% else %}
-            <p>Sorry, I did not find anything...</p>
+            <p>No match for query</p>
         {% endif %}
         </ol>
     {% endif %}

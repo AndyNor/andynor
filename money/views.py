@@ -845,6 +845,9 @@ def balance(request):
 @never_cache
 def search(request):
 	from django.db.models import Sum
+
+	query_sum = None
+	found_entries = None
 	query = request.GET.get('q', None)
 	if query:
 		entry_query = get_query(query, ['comment', 'category__name', 'sub_category__name'])
@@ -852,26 +855,19 @@ def search(request):
 			found_entries = Transaction.objects.filter(
 				entry_query,
 				owner=request.user
-			).order_by('-date')
+			)
+			found_entries = found_entries.order_by('-date')
+			found_entries_reversed = found_entries.order_by('date')
 			query_sum = found_entries.aggregate(sum_total=Sum('amount'))
-
-			return render(request, 'money_search.html', {
-				'query_string': query,
-				'found_entries': found_entries,
-				'query_sum': query_sum
-			})
-
-		else:
-			return render(request, 'money_search.html', {
-				'query_string': query,
-				'found_entries': None,
-			})
 	else:
-		messages.error(request, 'No serach query!')
-		return render(request, 'money_search.html', {
-			'query_string': query,
-			'found_entries': None,
-		})
+		messages.info(request, 'No search query detected')
+
+	return render(request, 'money_search.html', {
+		'query_string': query,
+		'found_entries': found_entries,
+		'fount_entries_reversed': found_entries_reversed,
+		'query_sum': query_sum,
+	})
 
 
 @login_required

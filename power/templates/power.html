@@ -33,7 +33,7 @@ var chart_total_cost = new Chart(ctx_total_cost, {
 	type: 'bar',
 	// The data for our dataset
 	data: {
-		labels: [{% for date in total_cost.labels %} new Date({{ date }}000), {% endfor %}],
+		labels: [{% for date in total_cost.labels %} new Date({{ date|unlocalize }}000), {% endfor %}],
 		datasets: [
 			{
 				label: 'Linjeleie fastbeløp',
@@ -101,7 +101,7 @@ var chart_forbruk_kost = new Chart(ctx_forbruk_kost, {
 	// The data for our dataset
 	type: 'bar',
 	data: {
-		labels: [{% for date in forbruk.labels %} new Date({{ date }}000), {% endfor %}],
+		labels: [{% for date in forbruk.labels %} new Date({{ date|unlocalize }}000), {% endfor %}],
 		datasets: [
 			{
 				type: 'line',
