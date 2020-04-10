@@ -23,22 +23,6 @@ def validate_date(value):
 		raise ValidationError('You can not register a reading into the future')
 
 
-class Reading(models.Model):
-	owner = models.ForeignKey(User, on_delete=models.PROTECT)
-	date = models.DateField(validators=[validate_date])
-	kwh = models.IntegerField(validators=[validate_kwh])
-	period_usage = models.IntegerField()
-	daily_usage = models.IntegerField()
-
-
-class ReadingForm(forms.ModelForm):
-	formfield_callback = make_custom_plugins
-
-	class Meta:
-		model = Reading
-		fields = ('date', 'kwh',)
-
-
 class Payment(models.Model):
 	owner = models.ForeignKey(User, on_delete=models.PROTECT)
 	date = models.DateField()
@@ -70,11 +54,3 @@ class PaymentForm(forms.ModelForm):
 	class Meta:
 		model = Payment
 		exclude = ('owner',)
-
-
-#registrer en reading, ta den forige avlesingen og finn forskjellen (må være positiv eller ny avlesing kan være 0-reset), legg til
-#en ny averageusage fra sist registrerings dato til denne registreringens dato.
-#registrere betalinger
-#vise betalt forbuk vs estimert forbruk
-#vise grafene kwt/døgn, øre/kwt og kr/dag i en stor graf fra start til nå
-#vise tabell over alle betalinger utført med registert data + bruks og leiekostnad og kr/døgn

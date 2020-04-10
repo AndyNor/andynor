@@ -4,8 +4,8 @@
 
 <div class="row">
 {% for item in item_list %}
-	<div class="span4 database_tvseries_item">
-		<img class="tvseries" src="{{ STATIC_URL }}img/tvseries/{{ item.series_nr }}.jpg">
+	<div class="database_tvseries_item">
+		<img class="tvseries" style="width: 100px; height: 100px;" src="{{ MEDIA_URL }}{{item.image}}">
 		<h3 >{{ item.name }}</h3>
 		<h6 class="displayInline">{{ item.subcategory }}</h6>
 		{% if user.is_authenticated %}
@@ -13,9 +13,6 @@
 			<i class="icon-pencil"></i></a>
 		{% endif %}
 		<p class="database_tvseries_text"><i>{{ item.text }}</i>
-		{% if item.url %}
-		<br><a href="{{item.url}}">url</a>
-		{% endif %}
 		</p>
 	</div>
 	{% if forloop.counter|divisibleby:'3' %}

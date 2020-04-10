@@ -14,7 +14,6 @@ from django.contrib import messages  # Message system
 
 APP_NAME = 'app_power'
 
-
 def day_of_month(datetime_date):
 	this_year = int(datetime_date.strftime('%Y'))
 	this_month = int(datetime_date.strftime('%m'))
@@ -52,14 +51,7 @@ def index(request):
 		days_of_month = day_of_month(p.date)
 		p.cost_day = p.cost_total / days_of_month
 		''' Date is rounded to the closest month and Decimal must be converted to float '''
-		"""
-		payment = {
-			'timestamp': montly_timestamp(p.date),
-			'cost': round(float(p.cost_day), 2),
-			'usage': round(float(p.kwh_usage / days_of_month), 2),
-			'price': round(float(p.kwh_usage_cost * 100), 4),
-		}
-		"""
+
 		timestamp = int(montly_timestamp(p.date))
 		forbruk["kwh_pris"].append(round(float(p.kwh_usage_cost * 100), 4))
 		forbruk["antall_kwh"].append(round(float(p.kwh_usage / days_of_month), 2))
@@ -70,25 +62,15 @@ def index(request):
 			forbruk_monthly[year] = {}
 		forbruk_monthly[year][month] = kwh
 
-		"""
-		cost_parts = {
-			'timestamp': timestamp,
-			'usage': round(float(p.kwh_usage * p.kwh_usage_cost), 2),
-			'cable': round(float(p.kwh_usage * p.kwh_rent_cost), 2),
-			'static': round(float(p.fixed_cost), 2),
-		}
-		"""
 		usage = round(float(p.kwh_usage * p.kwh_usage_cost), 2)
 		cable = round(float(p.kwh_usage * p.kwh_rent_cost), 2)
 		static = round(float(p.fixed_cost), 2)
-		#total_cost["labels"].append(int(time.mktime(p.date.timetuple())))
 		total_cost["labels"].append(timestamp)
 		total_cost["usage"].append(usage)
 		total_cost["grid"].append(cable)
 		total_cost["static"].append(static)
 
 		payments_json_data.append(payment)
-		#total_cost_data.append(cost_parts)
 
 	forbruk["labels"] = total_cost["labels"]
 
@@ -98,30 +80,15 @@ def index(request):
 			if not month in forbruk_monthly[year]:
 				forbruk_monthly[year][month] = 0
 
+	sortert_forbruk_monthly = {}
+	for year in forbruk_monthly:
+		sortert_forbruk_monthly[year] = {k: v for k, v in sorted(forbruk_monthly[year].items(), key=lambda item: item[0])}
 
-	#payments_json = json.dumps(payments_json_data)
-
-	#readings = models.Reading.objects.filter(owner=owner).order_by('-pk')
-	#readings_json_data = []
-	"""
-	for r in readings:
-		timestamp = time.mktime(r.date.timetuple())
-		reading = {
-			'timestamp': timestamp,
-			'kwh': round(float(r.daily_usage), 2)
-		}
-		readings_json_data.append(reading)
-	"""
-	#readings_json = json.dumps(readings_json_data)
-	#total_cost_data_json = json.dumps(total_cost_data)
 
 	return render(request, 'power.html', {
-		#'payments_json': payments_json,
-		#'readings_json': readings_json,
-		#'total_cost_json': total_cost_data_json,
 		'total_cost': total_cost,
 		'forbruk': forbruk,
-		'forbruk_monthly': sorted(forbruk_monthly.items()),
+		'forbruk_monthly': sortert_forbruk_monthly.items(),
 	})
 
 
@@ -153,73 +120,3 @@ def payment(request, pk=False):
 		'payment_form': payment_form,
 		'payments': payments,
 	})
-
-
-@login_required
-def reading(request):
-	reading_form = models.ReadingForm()
-	if request.method == 'POST':
-		reading_form = models.ReadingForm(request.POST)
-		if reading_form.is_valid():
-			earlier_readings = models.Reading.objects.filter(owner=request.user)
-
-			# this is the first registration
-			if not earlier_readings:
-				messages.success(request, "Congratulations on the first reading!")
-				f = reading_form.save(commit=False)
-				f.owner = request.user
-				f.period_usage = 0
-				f.daily_usage = 0
-				f.save()
-				return HttpResponseRedirect(get_previous_page(request, APP_NAME))
-
-			# a normal registration
-			else:
-				last_reading = earlier_readings.latest('id')
-
-				this_kwh = reading_form.cleaned_data['kwh']
-				this_date = reading_form.cleaned_data['date']
-
-				if last_reading.date >= this_date:
-					messages.error(request, "You already got a later registration!")
-					return HttpResponseRedirect(reverse("power_reading"))
-
-				if last_reading.kwh > this_kwh:
-					messages.error(request, "Your last registration was higher!")
-					return HttpResponseRedirect(reverse("power_reading"))
-
-				last_kwh = last_reading.kwh
-				last_date = last_reading.date
-				last_period_usage = last_reading.period_usage
-
-				time_delta = this_date - last_date
-
-				f = reading_form.save(commit=False)
-				f.owner = request.user
-				f.period_usage = (this_kwh - last_kwh) + last_period_usage
-				try:
-					f.daily_usage = round(float(f.period_usage - last_period_usage) / time_delta.days)
-				except:
-					f.daily_usage = 0
-				f.save()
-				return HttpResponseRedirect(get_previous_page(request, APP_NAME))
-
-	readings = models.Reading.objects.filter(owner=request.user).order_by('-pk')
-
-	return render(request, 'power_reading.html', {
-		'reading_form': reading_form,
-		'readings': readings,
-	})
-
-
-@login_required
-def reading_reset(request, new_state=0):
-	new_state = int(new_state)
-	r = models.Reading(
-		owner=request.user,
-		date=models.Reading.objects.filter(owner=request.user).latest('id').date,
-		kwh=new_state,
-		period_usage=0,
-		daily_usage=0)
-	r.save()
-	return HttpResponseRedirect(get_previous_page(request, APP_NAME))

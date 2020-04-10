@@ -27,25 +27,48 @@ class Object(object):
 
 def monthly_expences(request, year, month):
 
+	def day_to_date(year, month, day):
+		return datetime(year=int(year), month=int(month), day=int(day))
+
+	faste = FastUtgift.objects.filter(eier=request.user)
+	month_name = day_to_date(year=int(year), month=int(month), day=1).strftime("%B")
+
 	if request.method == "POST":
 
-		def day_to_date(year, month, day):
-			return datetime(year=int(year), month=int(month), day=int(day))
 
-		add_to_transaction(request=request, amount=-169, date=day_to_date(year, month, 24), sub_category=25, comment='Spotify')  # 25 Musikk
-		add_to_transaction(request=request, amount=-139, date=day_to_date(year, month, 4), sub_category=23, comment='Netflix')  # 23 TV og serier
-		add_to_transaction(request=request, amount=-430, date=day_to_date(year, month, 20), sub_category=12, comment='NOF innbo og reise')  # 12 Forskring bolig
-		add_to_transaction(request=request, amount=-730, date=day_to_date(year, month, 20), sub_category=20, comment='FP Gruppeliv')  # 20 Forsikring helse
-		add_to_transaction(request=request, amount=-29, date=day_to_date(year, month, 20), sub_category=21, comment='iCloud 200G')  #21 Internett
-		add_to_transaction(request=request, amount=-750, date=day_to_date(year, month, 18), sub_category=84, comment='Ruter 30-dager')  # 84 Reise jobb
-		add_to_transaction(request=request, amount=-99, date=day_to_date(year, month, 23), sub_category=23, comment='HBO Nordic')  # 23 TV og serier
-		add_to_transaction(request=request, amount=-350, date=day_to_date(year, month, 17), sub_category=22, comment='Telenor (mobil + abb.)')  # 22 Telefon
-		add_to_transaction(request=request, amount=-300, date=day_to_date(year, month, 15), sub_category=40, comment='Redd barna')  # 40 Veldedighet
-		add_to_transaction(request=request, amount=-275, date=day_to_date(year, month, 20), sub_category=40, comment='Plan Norge')  # 40 Veldedighet
-		add_to_transaction(request=request, amount=-215, date=day_to_date(year, month, 26), sub_category=58, comment='Audible')  # 58 Bøker
-		add_to_transaction(request=request, amount=-799, date=day_to_date(year, month, 20), sub_category=17, comment='SATS')  # 17 Treningssenter
-		add_to_transaction(request=request, amount=-519, date=day_to_date(year, month, 16), sub_category=21, comment='Get Internett')  # 21 Internett
-		add_to_transaction(request=request, amount=-2693, date=day_to_date(year, month, 1), sub_category=90, comment='Fellesutgifter sameie MTG14')  # 90 fellesutgifter
+
+		def add_to_transaction(owner, amount, date, sub_category, comment):
+			category = sub_category.parent_category
+			account = Account.objects.get(pk=1)
+			t = Transaction(
+					owner=request.user,
+					account=account,  # Lønn
+					amount=amount,
+					date=date,
+					category=category,
+					sub_category=sub_category,
+					comment=comment,
+					is_asset=False,
+				)
+			t.save()
+
+		for f in faste:
+			add_to_transaction(owner=request.user, amount=-f.kostnad, date=day_to_date(year, month, f.dag), sub_category=f.sub_category, comment=f.comment)  # 25 Musikk
+
+		#add_to_transaction(owner=request.user, amount=-169, date=day_to_date(year, month, 24), sub_category=25, comment='Spotify')  # 25 Musikk
+		#add_to_transaction(owner=request.user, amount=-139, date=day_to_date(year, month, 4), sub_category=23, comment='Netflix')  # 23 TV og serier
+		#add_to_transaction(owner=request.user, amount=-430, date=day_to_date(year, month, 20), sub_category=12, comment='NOF innbo og reise')  # 12 Forskring bolig
+		#add_to_transaction(owner=request.user, amount=-730, date=day_to_date(year, month, 20), sub_category=20, comment='FP Gruppeliv')  # 20 Forsikring helse
+		#add_to_transaction(owner=request.user, amount=-29, date=day_to_date(year, month, 20), sub_category=21, comment='iCloud 200G')  #21 Internett
+		#add_to_transaction(owner=request.user, amount=-750, date=day_to_date(year, month, 18), sub_category=84, comment='Ruter 30-dager')  # 84 Reise jobb
+		#add_to_transaction(owner=request.user, amount=-99, date=day_to_date(year, month, 23), sub_category=23, comment='HBO Nordic')  # 23 TV og serier
+		#add_to_transaction(owner=request.user, amount=-350, date=day_to_date(year, month, 17), sub_category=22, comment='Telenor (mobil + abb.)')  # 22 Telefon
+		#add_to_transaction(owner=request.user, amount=-300, date=day_to_date(year, month, 15), sub_category=40, comment='Redd barna')  # 40 Veldedighet
+		#add_to_transaction(owner=request.user, amount=-275, date=day_to_date(year, month, 20), sub_category=40, comment='Plan Norge')  # 40 Veldedighet
+		#add_to_transaction(owner=request.user, amount=-215, date=day_to_date(year, month, 26), sub_category=58, comment='Audible')  # 58 Bøker
+		#add_to_transaction(owner=request.user, amount=-799, date=day_to_date(year, month, 20), sub_category=17, comment='SATS')  # 17 Treningssenter
+		#add_to_transaction(owner=request.user, amount=-519, date=day_to_date(year, month, 16), sub_category=21, comment='Get Internett')  # 21 Internett
+		#add_to_transaction(owner=request.user, amount=-2693, date=day_to_date(year, month, 1), sub_category=90, comment='Fellesutgifter sameie MTG14')  # 90 fellesutgifter
 
 		return HttpResponseRedirect(reverse("money_month", kwargs={'year': year, 'month': month}))
 
@@ -53,24 +76,12 @@ def monthly_expences(request, year, month):
 		return render(request, 'money_montly_expences.html', {
 			'month_name': MONTH_NAMES[int(month) - 1],
 			'month': month,
+			'month_name': month_name,
 			'year': year,
+			'faste': faste,
 			})
 
-def add_to_transaction(request, amount, date, sub_category, comment):
-	category = SubCategory.objects.get(pk=sub_category).parent_category
-	account = Account.objects.get(pk=1)
-	sub_category = SubCategory.objects.get(pk=sub_category)
-	t = Transaction(
-			owner=request.user,
-			account=account,  # Lønn
-			amount=amount,
-			date=date,
-			category=category,
-			sub_category=sub_category,
-			comment=comment,
-			is_asset=False,
-		)
-	t.save()
+
 
 
 # add account

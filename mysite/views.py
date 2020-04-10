@@ -149,7 +149,7 @@ def debug(request):
 
 	return render(request, 'debug.html', {
 		'session_data': sorted_session_items,
-	})    
+	})
 
 
 def go_back(request):

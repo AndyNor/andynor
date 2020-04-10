@@ -36,11 +36,41 @@
 
 			<div class="box">
 				<div class="box-header">
-					<span class="aside-header"><i class="icon-tags"></i> Tag cloud</span>
+					<span class="aside-header"><i class="icon-tags"></i> På Internett</span>
 				</div>
-				<div class="box-content" style="font-size: 150%">
+				<div class="box-content">
+					<div style="margin: 0px; padding: 0px;">
+						<ul>
+							<li>
+								<a target="_blank" href="https://github.com/andynor">Min GitHub</a></li>
+							<li>
+								<a target="_blank" href="https://instagram.com/andynor/">Min Instagram</a></li>
+							<li>
+								<a target="_blank" href="https://open.spotify.com/user/andynor">Min Spotify</a></li>
+							<li>
+								<a target="_blank" href="http://www.flickr.com/photos/andynor">Min Flickr</a></li>
+							<li>
+								<a target="_blank" href="https://www.youtube.com/channel/UCfkKzLGF6qYFhrJgbTigMSw">Min YouTube</a></li>
+							<li>
+								<a target="_blank" href="http://500px.com/andynor">Min 500px</a></li>
+							<li>
+								<a target="_blank" href="https://www.facebook.com/andynor">Min Facebook</a></li>
+							<li>
+								<a target="_blank" href="http://feeds.feedburner.com/andynor/">Min RSS</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header"><i class="icon-tags"></i> Tagger</span>
+				</div>
+				<div class="box-content">
 					{% for tag in tagfreqs %}
-						<a style="margin: 2px; font-size: {% localize off %}{{tag.frequency}}{% endlocalize %}%;" href="{% url "blog_tag_view" tag.pk %}">{{ tag }}</a>
+						<a style='margin: 2px; font-size: {% localize off %}{{tag.frequency}}{% endlocalize %}%;' href='{% url "blog_tag_view" tag.pk %}'>{{ tag }}</a>
 					{% endfor %}
 				</div>
 			</div>
@@ -54,9 +84,9 @@
 					<ol>
 						{% for p in profiles %}
 							{% if p.birthday_countdown == 0 %}
-								<li><span class="text_highlight"><a href="{% url "profile_update" p.pk %}">{{p.name}}</a> turns {{ p.age }} years today!</span></li>
+								<li><span class='text_highlight'><a href='{% url "profile_update" p.pk %}'>{{p.name}}</a> turns {{ p.age }} years today!</span></li>
 							{% else %}
-								<li><a href="{% url "profile_update" p.pk %}">{{p.name}}</a> <small> in {{ p.birthday_countdown }} day{{ p.birthday_countdown|pluralize }}</small></li>
+								<li><a href='{% url "profile_update" p.pk %}'>{{p.name}}</a> <small> in {{ p.birthday_countdown }} day{{ p.birthday_countdown|pluralize }}</small></li>
 							{% endif %}
 						{% endfor %}
 					</ol>
@@ -140,22 +170,8 @@
 				</div>
 			</div>
 
-			<div class="box">
-				<div class="box-header">
-					<span class="aside-header"><i class="icon-music"></i> Mine Spotify-lister</span>
-				</div>
-				<div class="box-content">
-					{% for pl in spotify %}
-						<a style="margin-left: 10px" href="{{ pl.url }}">{{ pl.name }}</a>
-					{% endfor %}
-				</div>
-			</div>
-
-
 		</div>
 	</div>
-
-
 
 </div>
 {% endblock %}

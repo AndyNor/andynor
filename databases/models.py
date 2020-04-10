@@ -1,6 +1,7 @@
 from django import forms
 from django.db import models
 from mysite.models import make_custom_plugins
+from django.conf import settings
 
 
 class Category(models.Model):
@@ -14,13 +15,14 @@ class Category(models.Model):
 		super(Category, self).save(*args, **kwargs)
 
 	class Meta:
+		verbose_name_plural = "Kategorier"
 		ordering = ['name']
 
 
 class CategoryForm(forms.ModelForm):
 	class Meta:
 		model = Category
-		fields = "__all__" 
+		fields = "__all__"
 
 
 class SubCategory(models.Model):
@@ -35,12 +37,13 @@ class SubCategory(models.Model):
 
 	class Meta:
 		ordering = ['name']
+		verbose_name_plural = "Subkategorier"
 
 
 class SubCategoryForm(forms.ModelForm):
 	class Meta:
 		model = SubCategory
-		fields = "__all__" 
+		fields = "__all__"
 
 
 class Series(models.Model):
@@ -55,12 +58,13 @@ class Series(models.Model):
 
 	class Meta:
 		ordering = ['name']
+		verbose_name_plural = "Serier"
 
 
 class SeriesForm(forms.ModelForm):
 	class Meta:
 		model = Series
-		fields = "__all__" 
+		fields = "__all__"
 
 
 class Data(models.Model):
@@ -77,9 +81,19 @@ class Data(models.Model):
 	produced = models.DateField("Release", blank=True, null=True, help_text=u'Release date')
 	text = models.TextField("Description", blank=True, null=True, help_text=u'TV-siers: description')
 	duration = models.IntegerField("Duration", blank=True, null=True, help_text=u'[minutes]')
+	image = models.ImageField(upload_to="database_images",
+		height_field=None,
+		width_field=None,
+		max_length=100,
+		blank=True,
+		null=True,
+		)
 
 	def __str__(self):
 		return u'%s' % (self.name)
+
+	class Meta:
+		verbose_name_plural = "Registrerte ting"
 
 
 class DataForm(forms.ModelForm):
@@ -87,7 +101,7 @@ class DataForm(forms.ModelForm):
 
 	class Meta:
 		model = Data
-		fields = "__all__" 
+		fields = "__all__"
 
 	def __init__(self, *args, **kwargs):
 		super(DataForm, self).__init__(*args, **kwargs)

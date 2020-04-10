@@ -6,14 +6,12 @@ body {
 	body {
 		padding-top: 0px;
 		padding-bottom: 0px;
-		font-size: 75% !important;
 	}
 }
 @media (max-width: 767px) {
 	body {
 		padding-top: 0px;
 		padding-bottom: 0px;
-		font-size: 100% !important;
 	}
 }
 
@@ -140,6 +138,11 @@ a.link_blank{
 	padding-left: 13px;
 }
 
+a.menylink{
+	color: black;
+	text-decoration: none;
+}
+
 
 .blog_archive_body {
 	width: 100%;
@@ -168,6 +171,7 @@ a.link_blank{
 a {
 	color: #255f0a;
 }
+
 .blog_archive_body a {
 	border: 1px solid #255f0a;
 	display: block;
@@ -242,36 +246,6 @@ a {
 .textJustify{
 	text-align: justify;
 }
-
-
-.sprite {
-	display: block;
-	float: right;
-	margin: 10px 3px 10px 2px;
-	background: url(../img/social_icons.png);
-	background-repeat: no-repeat;
-	-webkit-filter: grayscale(0.9) opacity(0.4); /* Google Chrome & Safari 6+ */
-}
-.sprite a{
-	position: absolute;
-	width: 28px;
-	height: 28px;
-}
-.sprite:hover{
-	-webkit-filter: grayscale(0.2) opacity(0.9); /* Google Chrome & Safari 6+ */
-}
-
-.sprite-500px {    width: 28px;    height: 28px;    background-position: -5px -5px;}
-.sprite-facebook {    width: 28px;    height: 28px;    background-position: -43px -5px;}
-.sprite-feed {    width: 28px;    height: 28px;    background-position: -81px -5px;}
-.sprite-flickr {    width: 28px;    height: 28px;    background-position: -119px -5px;}
-.sprite-github {    width: 28px;    height: 28px;    background-position: -157px -5px;}
-.sprite-google_ {    width: 28px;    height: 28px;    background-position: -195px -5px;}
-.sprite-instagram {    width: 28px;    height: 28px;    background-position: -233px -5px;}
-.sprite-linkedin {    width: 28px;    height: 28px;    background-position: -271px -5px;}
-.sprite-spotify {    width: 28px;    height: 28px;    background-position: -309px -5px;}
-.sprite-twitter {    width: 28px;    height: 28px;    background-position: -347px -5px;}
-.sprite-youtube {    width: 28px;    height: 28px;    background-position: -385px -5px;}
 
 
 #image_upload_actions ul{

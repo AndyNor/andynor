@@ -9,7 +9,12 @@
 		<div class="span5">
 			<h3>Site statistics</h3>
 			<p>System time: <b>{{ current_time|date:"l jS F Y, G:i (O)" }}</b><br>
-			Active sessions: <b>{{ session_count }}</b><br>
+			<hr>
+			Active sessions:<b>{{ session_count }}</b><br>
+			{% for s in sessions %}
+				{{s.expire_date}}<br>
+			{% endfor %}
+			<hr>
 			Logged in users:
 			{% for user in session_users %}
 				<b>{{ user.user }}
@@ -62,7 +67,7 @@
 				</li>
 			{% endfor %}
 			</ol>
-		</div>		
+		</div>
 
 		<div class="span2">
 			<h6><i class="icon-pencil"></i> New blogs</h6>
@@ -101,7 +106,7 @@
 			</li>
 			{% endfor %}
 			</ol>
-		</div>		
+		</div>
 
 	</div>
 

@@ -12,7 +12,6 @@
 	{% block money_actions %}
 	<div class="pull-right">
 		<a class="btn btn-small btn-primary" style="margin: 2px" href="{% url "power_payment" %}?next={{ request.get_full_path|urlencode }}">Registrer regning</a>
-		<a class="btn btn-small btn-primary" style="margin: 2px" href="{% url "power_reading" %}?next={{ request.get_full_path|urlencode }}">Måleravlesing</a>
 	</div>
 	{% endblock %}
 {% endif %}
@@ -199,26 +198,6 @@ var chart_month_relative = new Chart(ctx_month_relative, {
 });
 </script>
 
-
-
-{% comment %}
-	<div class="row">
-		<div style="height: 350px;" id="payment_graph2"></div>
-	</div>
-
-	<div class="row">
-		<div style="height: 300px;" id="reading_graph"></div>
-	</div>
-	<div class="row">
-		<div style="height: 300px;" id="payment_graph"></div>
-	</div>
-
-	<script type="text/javascript" nonce="{{request.csp_nonce}}">
-	var power_reading_plotdata = {{ readings_json|safe }};
-	var power_payment_plotdata = {{ payments_json|safe }};
-	var power_total_cost_plotdata = {{ total_cost_json|safe }};
-	</script>
-{% endcomment %}
 
 {% endblock %}
 {% endblock %}

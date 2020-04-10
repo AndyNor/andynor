@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from mysite.models import make_custom_plugins
 from datetime import datetime
 from django.db.models import Sum
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 MONEY_MAX_DIGITS = 15
 MONEY_DECIMAL_PLACES = 2
@@ -72,11 +74,30 @@ class AccountForm(forms.ModelForm):
 		exclude = ('owner',)
 
 
+def validate_lovlig_dato(value):
+	if not (value >= 1 and value <= 28):
+		raise ValidationError(
+			_('%(value)s er ikke mellom 1 og 28'),
+			params={'value': value},
+		)
+
+
+class FastUtgift(models.Model):
+	eier = models.ForeignKey(User, on_delete=models.PROTECT)
+	kostnad = models.DecimalField(max_digits=MONEY_MAX_DIGITS, decimal_places=MONEY_DECIMAL_PLACES)
+	dag = models.IntegerField(validators=[validate_lovlig_dato])
+	sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT)
+	comment = models.CharField(max_length=100, blank=True)
+
+	def __str__(self):
+		return u'%s' % (self.comment)
+
+
 class Transaction(models.Model):
 # A transaction is an action of moving money into and away from accounts
 	owner = models.ForeignKey(User, on_delete=models.PROTECT)
-	account = models.ForeignKey(Account, 
-		help_text=u'The receiving account', 
+	account = models.ForeignKey(Account,
+		help_text=u'The receiving account',
 		on_delete=models.PROTECT)
 	amount = models.DecimalField(max_digits=MONEY_MAX_DIGITS, decimal_places=MONEY_DECIMAL_PLACES,
 		help_text=u'Use negative value if money is to be added to account')

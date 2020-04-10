@@ -86,14 +86,14 @@ def generate_form(request, model, modelform, pk, initial=False):
 			raise Http404
 		form = modelform(instance=instance)
 		if request.method == 'POST':
-			form = modelform(request.POST, instance=instance)
+			form = modelform(request.POST, request.FILES, instance=instance)
 	else:  # new
 		if initial:
 			form = modelform(initial=initial)
 		else:
 			form = modelform()
 		if request.method == 'POST':
-			form = modelform(request.POST)
+			form = modelform(request.POST, request.FILES)
 	return form
 
 

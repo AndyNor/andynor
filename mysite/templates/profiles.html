@@ -1,12 +1,31 @@
 {% extends "index.html" %}
 {% block body_main %}
 
-<h3>Profiles</h3>
 
-<div class="row">
+<h4>Administrasjon</h4>
+
+<li><a href='{% url "statistics" %}'>Statistikk</a></li>
+<li><a href='{% url "list_files" %}'>Opplastede filer</a></li>
+<li><a href='{% url "debug" %}'>Debug</a></li>
+<li><a href='{% url "password_change" %}'>Bytt passord</a></li>
+
+<hr>
+
+<h4>Brukere</h4>
+
+<table class="table">
+	<tr>
+		<th>Brukernavn</th>
+		<th>Fornavn</th>
+		<th>Etternavn</th>
+	</tr>
 {% for profile in profiles %}
-	{% include "profile_template.html" with profile=profile %}
+	<tr>
+		<td>{{profile.user.username|default:"-"}}</td>
+		<td>{{profile.name|default:"-"}}</td>
+		<td>{{profile.surname|default:"-"}}</td>
+	</tr>
 {% endfor %}
-</div>
+</table>
 
 {% endblock %}

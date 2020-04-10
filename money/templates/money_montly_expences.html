@@ -3,10 +3,32 @@
 {% block money_main %}
 
 <ul class="pager">
-<h3>Månedlige utgifter {{month}} {{year}}</h3>
+<h3>Månedlige utgifter</h3>
+<h4>{{month_name}} {{year}}</h4>
+
+<a href="/admin/money/fastutgift/">Rediger poster</a><br><br>
+
+<table class="table table-sm">
+	<tr>
+		<th>Rediger</th>
+		<th>Kostnad</th>
+		<th>Dag</th>
+		<th>Subkategori</th>
+		<th>Kommentar</th>
+	</tr>
+{% for f in faste %}
+	<tr>
+		<td><a href="/admin/money/fastutgift/{{f.pk}}/change/">Rediger</a></td>
+		<td>{{f.kostnad}}</td>
+		<td>{{f.dag}}</td>
+		<td>{{f.sub_category}}</td>
+		<td>{{f.comment}}</td>
+	</tr>
+{% endfor %}
+</table>
 
 	<li><form method="post" action="{% url 'money_add_monthly_expences' year=year month=month %}" style="display: inline;">
-		{% csrf_token %}<button class="btn" type="submit">Bekreft</button></form></li>
+		{% csrf_token %}<button class="btn btn-success" type="submit">Bekreft</button></form></li>
 	<li><a style="margin-left: 30px" class="btn" href="{% url 'money_month' year=year month=month %}">Gå tilbake</a></li>
 </ul>
 
