@@ -2,7 +2,7 @@
 cd ~/webapps/django225/myproject/
 
 git fetch
-git pull origin master
+git reset --hard origin/master
 
 python3.7 -m pip install -r requirements.txt
 python3.7 manage.py makemigrations
