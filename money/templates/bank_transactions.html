@@ -45,7 +45,7 @@ Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a cla
 					{% if t.amount == t.related_transaction.amount %}
 					<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn btn-success">Ja</a>
 					{% else %}
-					<a href="/admin/money/banktransaction/{{t.pk}}/" class="btn btn-warning">Forskjellig beløp</a>
+					<a href="{% url 'money_edit' this_type='expence' pk=t.related_transaction.pk %}" class="btn btn-warning">Forskjellig beløp</a>
 					{% endif %}
 				{% else %}
 					<a href="{% url 'create_transaction' t.pk %}" class="btn btn-link">Opprett</a>

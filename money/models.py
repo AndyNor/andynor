@@ -6,7 +6,8 @@ from mysite.models import make_custom_plugins
 from datetime import datetime, timedelta
 from django.db.models import Sum
 from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy
+from django.db.models import Q
 
 MONEY_MAX_DIGITS = 15
 MONEY_DECIMAL_PLACES = 2
@@ -136,7 +137,7 @@ class AccountForm(forms.ModelForm):
 def validate_lovlig_dato(value):
 	if not (value >= 1 and value <= 28):
 		raise ValidationError(
-			_('%(value)s er ikke mellom 1 og 28'),
+			gettext_lazy('%(value)s er ikke mellom 1 og 28'),
 			params={'value': value},
 		)
 
@@ -303,9 +304,9 @@ class BankTransactionForm(forms.ModelForm):
 	def __init__(self, *args, **kwargs):
 		super(BankTransactionForm, self).__init__(*args, **kwargs)
 		if self.instance:
-			end_time = datetime.now()
-			start_time = end_time - timedelta(days=10)
-			self.fields['unique_reference'].queryset = Transaction.objects.filter(owner=self.instance.eier).filter(owner=self.instance.eier).filter(date__range=(start_time, end_time))
+			days_ago = self.instance.accounting_date - timedelta(days=15)
+			days_ahead = self.instance.accounting_date + timedelta(days=15)
+			self.fields['related_transaction'].queryset = Transaction.objects.filter(owner=self.instance.eier).filter(date__range=(days_ago, days_ahead))
 
 
 class Salary(models.Model):

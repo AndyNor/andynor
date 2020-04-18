@@ -451,6 +451,8 @@ def edit(request, this_type, pk=False):
 		head_text = "Transfer money between accounts"
 	if this_type == u'downpayment':
 		head_text = "Pay back a loan"
+	if this_type == u'bank_transaction':
+		head_text = "Rediger importert banktransaksjon"
 
 	return render(request, u'money_edit.html', {
 		'type': this_type,
