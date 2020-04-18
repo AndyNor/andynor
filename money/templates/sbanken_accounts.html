@@ -1,0 +1,38 @@
+{% extends "index.html" %}
+{% load breadcrumbs %}
+
+{% block search %}
+	{% url "money_search" as action %} {% include "search_form.html" with action=action %}
+{% endblock %}
+
+{% block body_main %}
+
+<h3>Kontoer i Sbanken</h3>
+
+<table class="table table-condensed">
+	<thead>
+		<tr>
+			<th>Kontonavn</th>
+			<th>Kontonummer</th>
+			<th>Kontotype</th>
+			<th>Tilgjengelig</th>
+			<th>Balanse</th>
+			<th>Kredittgrense</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for a in accounts.items %}
+		<tr>
+			<td><a href="{% url 'sbanken_transactions' accountID=a.accountId %}">{{a.name}}</a></td>
+			<td>{{a.accountNumber}}</td>
+			<td>{{a.accountType}}</td>
+			<td>{{a.available}}</td>
+			<td>{{a.balance}}</td>
+			<td>{{a.creditLimit}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+
+{% endblock %}

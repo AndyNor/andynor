@@ -1,0 +1,35 @@
+{% extends "index.html" %}
+{% load breadcrumbs %}
+
+{% block search %}
+	{% url "money_search" as action %} {% include "search_form.html" with action=action %}
+{% endblock %}
+
+{% block body_main %}
+
+<h3>Transaksjoner for ?</h3>
+
+Viser {{transactions.items.count}} transaksjoner.
+
+<table class="table table-condensed">
+	<thead>
+		<tr>
+			<th width="20%">Dato accounting (purchase)</th>
+			<th>Reservasjon</th>
+			<th>Beløp</th>
+			<th>Beskrivelse</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for t in transactions.items %}
+		<tr>
+			<td>{{t.accountingDate}}</a></td>
+			<td>{{t.isReservation|yesno:"Ja,Nei"}}</td>
+			<td>{{t.amount}}</td>
+			<td>{{t.text}} ({{t.transactionTypeText}})</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% endblock %}

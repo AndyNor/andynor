@@ -4,6 +4,35 @@ from django.contrib.auth.models import User
 from datetime import date
 
 
+class ApplicationLog(models.Model):
+	opprettet = models.DateTimeField(
+			verbose_name="Opprettet",
+			auto_now_add=True,
+			null=True,
+			)
+	sist_oppdatert = models.DateTimeField(
+			verbose_name="Sist oppdatert",
+			auto_now=True,
+			)
+	event_type = models.CharField(
+			verbose_name="event_type",
+			max_length=30,
+			blank=False, null=False,
+			help_text=u"event_type",
+			)
+	message = models.TextField(
+			verbose_name="message",
+			blank=False, null=False,
+			help_text=u"message",
+			)
+	def __str__(self):
+		return u'%s %s %s' % (self.opprettet.strftime('%Y-%m-%d %H:%M:%S'), self.event_type, self.message)
+
+	class Meta:
+		verbose_name_plural = "Applikasjonslogger"
+		default_permissions = ('add', 'change', 'delete', 'view')
+
+
 class SiteLog(models.Model):
 	ip = models.GenericIPAddressField()
 	priority = models.IntegerField(blank=True, null=True)
@@ -44,28 +73,12 @@ class UserProfile(models.Model):
 	)
 
 	user = models.OneToOneField(User, related_name="profile", on_delete=models.PROTECT, null=True)
-	#user = models.ForeignKey(User, unique=True, blank=True, null=True)  # changed to OneToOneField 2016-04-16
-	date_birth = models.DateField("Birth", blank=True, null=True)
 	name = models.CharField(max_length=40)
 	surname = models.CharField(max_length=40, blank=True, null=True)
-	relation = models.CharField(max_length=1, choices=RELATION_CHOICES)
-	homepage = models.URLField("Website", blank=True, null=True)
-	home_address = models.CharField(max_length=150, blank=True, null=True)
-	phone = models.CharField(max_length=25, blank=True, null=True)
-	gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
-	is_alive = models.BooleanField("Is alive?", default=True)
-	date_death = models.DateField("Date of death", blank=True, null=True)
-	image = models.CharField(max_length=10, blank=True, null=True)
 	DEFAULT_PAYMENT_ACCOUNT = models.IntegerField(blank=True, null=True)
 	DEFAULT_EXPENCE_SUB_CATEGORY = models.IntegerField(blank=True, null=True)
 	DEFAULT_DOWNPAYMENT_COMMENT = models.CharField(max_length=40, blank=True, null=True)
 	DEFAULT_SALARY_COMMENT = models.CharField(max_length=40, blank=True, null=True)
-	"""
-	ALTER TABLE  `mysite_userprofile` ADD  `DEFAULT_PAYMENT_ACCOUNT` INT NULL;
-	ALTER TABLE  `mysite_userprofile` ADD  `DEFAULT_EXPENCE_SUB_CATEGORY` INT NULL;
-	ALTER TABLE  `mysite_userprofile` ADD  `DEFAULT_DOWNPAYMENT_COMMENT` varchar(40) NULL;
-	ALTER TABLE  `mysite_userprofile` ADD  `DEFAULT_SALARY_COMMENT` varchar(40) NULL;
-	"""
 
 	def age(this):
 		birth = this.date_birth
@@ -132,7 +145,7 @@ class UserProfileForm(forms.ModelForm):
 
 	class Meta:
 		model = UserProfile
-		fields = "__all__" 
+		fields = "__all__"
 
 
 class LoginForm(forms.Form):

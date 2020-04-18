@@ -1,0 +1,59 @@
+{% extends "index.html" %}
+{% load breadcrumbs %}
+
+{% block search %}
+	{% url "money_search" as action %} {% include "search_form.html" with action=action %}
+{% endblock %}
+
+{% block body_main %}
+
+<h3>Transaksjoner fra Sbanken</h3>
+
+<div class="pull-right">
+<a class="btn btn-small btn-danger"
+	href='{% url "money_new" "expence" %}?next={{ request.get_full_path|urlencode }}'>
+	Legg manuell utgift</a>
+</div>
+
+
+Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a class="btn btn-info" href='{% url "sbanken_accounts" %}'>BankAPI</a>
+
+<div id="div_message" class="alert alert-info">
+		<a class="close" data-dismiss="alert" href="#">×</a>
+		<h4 class="alert-heading">{{latest_synch.event_type}}</h4>
+		{{ latest_synch.opprettet|timesince }} siden.<br>{{ latest_synch.message }} <a href="http://localhost:8001/admin/mysite/applicationlog/?event_type=SBanken+API">(se historikk)</a>
+	</div>
+
+
+<table class="table table-condensed">
+	<thead>
+		<tr>
+			<th width="15%">Kjøpsdato</th>
+			<th>Beløp</th>
+			<th>Beskrivelse</th>
+			<th width="25%">Behandlet?</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for t in transactions %}
+		<tr>
+			<td>{{t.accounting_date}}</a></td>
+			<td>{{t.amount}}</td>
+			<td>{{t.description}})</td>
+			<td>
+				{% if t.related_transaction %}
+					{% if t.amount == t.related_transaction.amount %}
+					<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn btn-success">Ja</a>
+					{% else %}
+					<a href="/admin/money/banktransaction/{{t.pk}}/" class="btn btn-warning">Forskjellig beløp</a>
+					{% endif %}
+				{% else %}
+					<a href="{% url 'create_transaction' t.pk %}" class="btn btn-link">Opprett</a>
+				{% endif %}
+			</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% endblock %}

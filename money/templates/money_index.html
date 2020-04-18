@@ -8,11 +8,11 @@
 {% block money_main %}
 
 <div class="row">
-	<div class="scrollable span7">
+	<div class="scrollable span6">
 		<div id="graph_per_year" style="height: 400px;"></div>
 	</div>
 
-	<div class="scrollable span5">
+	<div class="scrollable span6">
 		<div id="graph_per_account" style="height: 400px;">
 		<script type="text/javascript" nonce="{{request.csp_nonce}}">
 			var balance_data = {{ balance_json|safe }};
@@ -23,25 +23,27 @@
 
 
 <div class="row">
-	<div class="scrollable span7">
+	<div class="scrollable span6">
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th>Year</th>
-					<th>Gross</th>
-					<th>Nett</th>
-					<th>Pension</th>
-					<th>Tax</th>
-					<th>%</th>
+					<th>År</th>
+					<th>Brutto</th>
+					<th>Netto</th>
+					{% comment %}<th>Pension</th>{% endcomment %}
+					<th>Skatt</th>
+					<th>Skatt %</th>
 				</tr>
 			</thead>
 			<tbody>
 				{% for item in year_data %}
 				<tr>
-					<td><a class="btn btn-mini" href='{% url "money_year" item.year %}'>{{ item.year|unlocalize }}</a></td>
+					<td><a class="btn btn-link" href='{% url "money_year" item.year %}'>{{ item.year|unlocalize }}</a></td>
 					<td class="money">{{ item.gross|default:'-'|floatformat:"0"|intcomma }}</td>
 					<td class="money">{{ item.nett|default:'-'|floatformat:"0"|intcomma }}</td>
+					{% comment %}
 					<td class="money">{{ item.retirement|default:'-'|floatformat:"0"|intcomma }}</td>
+					{% endcomment %}
 					<td class="money">{{ item.tax|default:'-'|floatformat:"0"|intcomma }}</td>
 					<td class="money">{{ item.tax_pct }}%</td>
 				</tr>
@@ -50,27 +52,33 @@
 		</table>
 	</div>
 
-	<div class="scrollable span5">
+	<div class="scrollable span6">
 		<table class="table table-striped sortable">
 			<thead>
 				<tr>
-					<th>Account</th>
-					<th>Current</th>
-					<th>Planned</th>
+					<th>Konto</th>
+					<th>Planlagt</th>
+					<th>Min balanse</th>
+					<th>Bankens balanse</th>
+					<th>Differanse</th>
 				</tr>
 			</thead>
 			<tbody>
 			{% for item in balance_data.data %}
 				<tr>
-					<td><a class="btn btn-mini" href='{% url "money_account" item.pk %}'>{{ item.account }}</a></td>
-					<td class="money">{{ item.real|default:'-'|floatformat:"0"|intcomma }}</td>
-					<td class="money">{{ item.planned|default:'-'|floatformat:"0"|intcomma }}</td>
+					<td><a class="btn btn-link" href='{% url "money_account" item.pk %}'>{{ item.account }}</a></td>
+					<td class="money">{{ item.planned|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.real|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.real_bank|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.diff_balanse|floatformat:"0"|intcomma }}</td>
 				</tr>
 			{% endfor %}
 				<tr>
 					<td><b>SUM</b></td>
 					<td>{{balance_data.sum_real|default:'-'|floatformat:"0"|intcomma}}</td>
 					<td>{{balance_data.sum_planned|default:'-'|floatformat:"0"|intcomma}}</td>
+					<td></td>
+					<td></td>
 				</tr>
 			</tbody>
 		</table>

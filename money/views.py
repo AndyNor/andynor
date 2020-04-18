@@ -7,9 +7,10 @@ from decimal import Decimal
 from django.template import RequestContext
 from django.http import Http404
 from django.contrib.auth.decorators import login_required  # shortcut for is_authenticated()
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from django.contrib import messages  # Message system
 from money.models import *
+from mysite.models import ApplicationLog
 from mysite.site_wide_functions import get_previous_page, generate_form, makeJSON
 from mysite.search import get_query
 from django.urls import reverse
@@ -54,21 +55,6 @@ def monthly_expences(request, year, month):
 
 		for f in faste:
 			add_to_transaction(owner=request.user, amount=-f.kostnad, date=day_to_date(year, month, f.dag), sub_category=f.sub_category, comment=f.comment)  # 25 Musikk
-
-		#add_to_transaction(owner=request.user, amount=-169, date=day_to_date(year, month, 24), sub_category=25, comment='Spotify')  # 25 Musikk
-		#add_to_transaction(owner=request.user, amount=-139, date=day_to_date(year, month, 4), sub_category=23, comment='Netflix')  # 23 TV og serier
-		#add_to_transaction(owner=request.user, amount=-430, date=day_to_date(year, month, 20), sub_category=12, comment='NOF innbo og reise')  # 12 Forskring bolig
-		#add_to_transaction(owner=request.user, amount=-730, date=day_to_date(year, month, 20), sub_category=20, comment='FP Gruppeliv')  # 20 Forsikring helse
-		#add_to_transaction(owner=request.user, amount=-29, date=day_to_date(year, month, 20), sub_category=21, comment='iCloud 200G')  #21 Internett
-		#add_to_transaction(owner=request.user, amount=-750, date=day_to_date(year, month, 18), sub_category=84, comment='Ruter 30-dager')  # 84 Reise jobb
-		#add_to_transaction(owner=request.user, amount=-99, date=day_to_date(year, month, 23), sub_category=23, comment='HBO Nordic')  # 23 TV og serier
-		#add_to_transaction(owner=request.user, amount=-350, date=day_to_date(year, month, 17), sub_category=22, comment='Telenor (mobil + abb.)')  # 22 Telefon
-		#add_to_transaction(owner=request.user, amount=-300, date=day_to_date(year, month, 15), sub_category=40, comment='Redd barna')  # 40 Veldedighet
-		#add_to_transaction(owner=request.user, amount=-275, date=day_to_date(year, month, 20), sub_category=40, comment='Plan Norge')  # 40 Veldedighet
-		#add_to_transaction(owner=request.user, amount=-215, date=day_to_date(year, month, 26), sub_category=58, comment='Audible')  # 58 Bøker
-		#add_to_transaction(owner=request.user, amount=-799, date=day_to_date(year, month, 20), sub_category=17, comment='SATS')  # 17 Treningssenter
-		#add_to_transaction(owner=request.user, amount=-519, date=day_to_date(year, month, 16), sub_category=21, comment='Get Internett')  # 21 Internett
-		#add_to_transaction(owner=request.user, amount=-2693, date=day_to_date(year, month, 1), sub_category=90, comment='Fellesutgifter sameie MTG14')  # 90 fellesutgifter
 
 		return HttpResponseRedirect(reverse("money_month", kwargs={'year': year, 'month': month}))
 
@@ -294,6 +280,38 @@ def edit(request, this_type, pk=False):
 						t = form.save(commit=False)
 						# We can't invert the sum once again, but we check the category from subcategory
 						t.category = t.sub_category.parent_category
+						t.save()
+					return HttpResponseRedirect(get_previous_page(request, APP_NAME))
+
+	### bank_transaction
+	elif this_type == u'bank_transaction':
+
+		if not pk:
+			form = BankTransactionForm()
+			if request.method == 'POST':
+				form = BankTransactionForm(request.POST)
+		else:
+			try:
+				instance = BankTransaction.objects.get(pk=pk)
+				if instance.eier != request.user:
+					messages.error(request, "You don't own this bank transaction!")
+					return HttpResponseRedirect(reverse("money_new", args=["expence"]))
+			except BankTransaction.DoesNotExist:
+				raise Http404
+			form = BankTransactionForm(instance=instance)
+			if request.method == 'POST':
+				form = BankTransactionForm(request.POST, instance=instance)
+		if request.method == 'POST':
+			if form.is_valid():
+				if form.cleaned_data:
+					if not pk:
+						# The transaction is new
+						t = form.save(commit=False)
+						t.eier = request.user
+						t.save()
+					else:
+						# Updateing an existing transaction
+						t = form.save(commit=False)
 						t.save()
 					return HttpResponseRedirect(get_previous_page(request, APP_NAME))
 
@@ -833,11 +851,18 @@ def balance(request):
 			account=a.pk,
 		).aggregate(sum=Sum('amount'))['sum']
 
+		if not a.balance in (None, Decimal(0)):
+			diff_balanse = a.balance - real_balance
+		else:
+			diff_balanse = None
+
 		account_balance.append({
 			'pk': a.pk,
 			'account': a.name,
 			'real': real_balance,
+			'real_bank': a.balance,
 			'planned': planned_balance,
+			'diff_balanse': diff_balanse,
 		})
 		if real_balance is not None:
 			sum_real += real_balance
@@ -925,3 +950,145 @@ def index(request):
 		'year_json': makeJSON(year_data),
 		'APP_NAME': APP_NAME,
 	})
+
+
+from requests_oauthlib import OAuth2Session
+from oauthlib.oauth2 import BackendApplicationClient
+import urllib.parse
+import requests
+import requests
+import os
+
+CUSTOMERID = os.environ['SBANKEN_CUSTOMERID']
+CLIENTID = os.environ['SBANKEN_CLIENTID']
+SECRET = os.environ['SBANKEN_SECRET']
+
+
+def create_authenticated_http_session(client_id, client_secret):
+	oauth2_client = BackendApplicationClient(client_id=urllib.parse.quote(client_id))
+	session = OAuth2Session(client=oauth2_client)
+	session.fetch_token(
+		token_url='https://auth.sbanken.no/identityserver/connect/token',
+		client_id=urllib.parse.quote(client_id),
+		client_secret=urllib.parse.quote(client_secret)
+	)
+	return session
+
+
+def sbanken_get(http_session, url, headers):
+	response = http_session.get(url, headers=headers).json()
+
+	if not response["isError"]:
+		return response
+	else:
+		return {"errorType": response["errorType"], "errorMessage": response["errorMessage"]}
+
+
+@login_required
+def sbanken_accounts(request):
+	http_session = create_authenticated_http_session(CLIENTID, SECRET)
+	url = "https://api.sbanken.no/exec.bank/api/v1/Accounts"
+	headers = {'customerId': CUSTOMERID}
+	accounts = sbanken_get(http_session, url, headers)
+
+	return render(request, u'sbanken_accounts.html', {
+		'accounts': accounts,
+	})
+
+
+@login_required
+def sbanken_transactions(request, accountID):
+	http_session = create_authenticated_http_session(CLIENTID, SECRET)
+	url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/"
+	headers = {'customerId': CUSTOMERID}
+	transactions = sbanken_get(http_session, url, headers)
+
+	return render(request, u'sbanken_transactions.html', {
+		'transactions': transactions,
+	})
+
+
+@login_required
+def bank_transactions(request):
+	transactions = BankTransaction.objects.filter(eier=request.user).order_by("-accounting_date")
+	try:
+		latest_synch = ApplicationLog.objects.filter(event_type='SBanken API').order_by('-opprettet')[0]
+	except:
+		latest_synch = None
+
+	return render(request, u'bank_transactions.html', {
+		'transactions': transactions,
+		'latest_synch': latest_synch,
+	})
+
+
+def transactions_similar(bank_transaction, user):
+	days_ago = bank_transaction.accounting_date - timedelta(days=15)
+	days_ahead = bank_transaction.accounting_date + timedelta(days=15)
+	valg = Transaction.objects.filter(owner=user)
+	valg = valg.filter(account=bank_transaction.account)
+	valg = valg.filter(date__range=(days_ago, days_ahead))
+	valg = valg.filter(amount__range=(bank_transaction.amount-50, bank_transaction.amount+50))
+	valg = valg.order_by('-date')
+	return valg
+
+
+def __create_new_transaction(request, bank_transaction, sub_category):
+	try:
+		sub_category = SubCategory.objects.get(pk=sub_category)
+		category = sub_category.parent_category
+		t = Transaction.objects.create(
+				owner=request.user,
+				account=bank_transaction.account,
+				amount=bank_transaction.amount,
+				date=bank_transaction.accounting_date,
+				category=category,
+				sub_category=sub_category,
+				comment=bank_transaction.description,
+				is_asset=False,
+			)
+		bank_transaction.related_transaction = t
+		bank_transaction.save()
+	except Exception as e:
+		messages.error(request, e)
+	return
+
+
+def __link_transaction(request, bank_transaction, pk):
+	try:
+		t = Transaction.objects.get(pk=pk)
+		bank_transaction.related_transaction = t
+		bank_transaction.save()
+	except Exception as e:
+		messages.error(request, e)
+	return
+
+
+@login_required
+def create_transaction(request, bank_transaction):
+	bank_transaction = BankTransaction.objects.get(pk=bank_transaction)
+
+	if request.POST.get('action') == 'create_new':
+		sub_category = request.POST.get('sub_category')
+		__create_new_transaction(request, bank_transaction, sub_category)
+		return HttpResponseRedirect(reverse("bank_transactions"))
+
+	if request.POST.get('action') == 'link_existing':
+		pk = request.POST.get('pk')
+		print(pk)
+		__link_transaction(request, bank_transaction, pk)
+		return HttpResponseRedirect(reverse("bank_transactions"))
+
+	categories = Category.objects.all()
+	valg = transactions_similar(bank_transaction=bank_transaction, user=request.user)
+
+	return render(request, u'create_transaction.html', {
+		'valg': valg,
+		'categories': categories,
+		'bank_transaction': bank_transaction,
+	})
+
+
+
+
+

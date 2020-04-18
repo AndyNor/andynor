@@ -5,8 +5,12 @@ from money import views
 #now = datetime.datetime.now()
 
 urlpatterns = [
-	url(r'^edit/(?P<this_type>[a-z]{1,11})/$', views.edit, name="money_new"),
-	url(r'^edit/(?P<this_type>[a-z]{1,11})/(?P<pk>\d{1,12})/$', views.edit, name="money_edit"),
+	url(r'^api/accounts/$', views.sbanken_accounts, name="sbanken_accounts"),
+	url(r'^api/transactions/(?P<accountID>[A-F0-9]{32})/$', views.sbanken_transactions, name="sbanken_transactions"),
+	url(r'^bank/transactions/$', views.bank_transactions, name="bank_transactions"),
+	url(r'^create/(?P<bank_transaction>\d{1,10})/$', views.create_transaction, name="create_transaction"),
+	url(r'^edit/(?P<this_type>[a-z_]{1,20})/$', views.edit, name="money_new"),
+	url(r'^edit/(?P<this_type>[a-z_]{1,20})/(?P<pk>\d{1,12})/$', views.edit, name="money_edit"),
 	url(r'^admin/category(?:/(?P<pk>\d{1,10}))?/$', views.category, name="money_admin_category"),
 	url(r'^admin/account(?:/(?P<pk>\d{1,10}))?/$', views.add_account, name="money_admin_add_account"),
 	url(r'^admin/subcategory(?:/(?P<pk>\d{1,10}))?/$', views.subcategory, name="money_admin_subcategory"),
