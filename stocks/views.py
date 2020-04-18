@@ -138,6 +138,27 @@ def details(request, ticker):
 				result = None
 			i['result'] = result
 
+		graph_num_stocks = []
+		graph_cost_stocks = []
+		graph_value_stocks = []
+		graph_labels = []
+
+		num_stocks = 0
+		cost_stocks = 0
+		value_stocks = 0
+
+		transactions = Transaction.objects.filter(ticker=ticker_object).order_by('date')
+		for t in transactions:
+			num_stocks += t.amount
+			cost_stocks += t.total_price
+			value_stocks = num_stocks * round(((t.total_price - t.brokerage) / t.amount), 2)
+
+			graph_num_stocks.append(int(num_stocks))
+			graph_cost_stocks.append(int(cost_stocks))
+			graph_value_stocks.append(int(value_stocks))
+			graph_labels.append(t.date)
+
+
 
 	except ObjectDoesNotExist:
 		set_redirect_session(request, 'app_stocks', {})
@@ -147,6 +168,10 @@ def details(request, ticker):
 			'view_data': view_data,
 			'result_total': result_total,
 			'header_text': header_text,
+			'graph_num_stocks': graph_num_stocks,
+			'graph_cost_stocks': graph_cost_stocks,
+			'graph_value_stocks': graph_value_stocks,
+			'graph_labels': graph_labels,
 		})
 
 
@@ -324,7 +349,7 @@ def remove_ticker(request, pk):
 def split_ticker(request, pk):
 	stock_name = Ticker.objects.get(pk=pk).company_name
 	description = "Split stocks for %s" % (stock_name)
-	
+
 	if request.method == "POST":
 		split_ratio = int(request.POST.get('split_ratio'))
 		if split_ratio <= 0:

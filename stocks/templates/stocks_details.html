@@ -10,6 +10,78 @@
 
 <h3>{{header_text.name}} ({{header_text.ticker}})</h3>
 
+<div class="row">
+	<div>
+		<canvas height="90" id="chart"></canvas>
+	</div>
+</div>
+
+
+
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
+var canvas = document.getElementById('chart');
+new Chart(canvas, {
+	"type": 'bar',
+	"data": {
+		"labels": [{% for l in graph_labels %}"{{l}}",{% endfor%}],
+		"datasets": [{
+			"type": 'line',
+			"data": {{graph_cost_stocks|safe}},
+			"label": 'Kjøpt for',
+			"yAxisID": 'B',
+			"fill": false,
+			"borderColor": 'rgba(0, 0, 0, 0.54)',
+			"borderWidth": 1,
+		},
+		{
+			"type": 'line',
+			"data": {{graph_value_stocks|safe}},
+			"label": 'Nåverdi',
+			"yAxisID": 'B',
+			"fill": false,
+			"borderColor": 'rgba(41, 112, 0, 0.41)',
+			"borderWidth": 3,
+		},
+		{
+			"type": 'bar',
+			"data": {{graph_num_stocks|safe}},
+			"label": 'Antall aksjer',
+			"yAxisID": 'A',
+			"barThickness": 15,
+			"maxBarThickness": 15,
+			"borderWidth": 1,
+			"backgroundColor": 'rgba(220, 220, 220, 0.6)',
+		}]
+	},
+	"options": {
+		"scales": {
+			"yAxes": [{
+				"id": 'A',
+				"type": 'linear',
+				"position": 'left',
+				"scaleLabel": {
+					"display": true,
+					"labelString": 'Antall aksjer'
+				},
+				"ticks": {
+					"min": 0
+				}
+			},
+			{
+				"id": 'B',
+				"type": 'linear',
+				"position": 'right',
+				"scaleLabel": {
+					"display": true,
+					"labelString": 'Verdi (NOK)'
+				},
+			}]
+		}
+	}
+});
+</script>
+
+
 <table class="table table-striped">
 	<thead>
 		<th></th>
@@ -27,7 +99,7 @@
 		<td>{{transaction.bought.amount|intcomma}} @ {{transaction.bought.average_stock_price|floatformat:"3"|intcomma}}</td>
 		<td>{{transaction.sold.date}}</a></td>
 		<td>{{transaction.sold.amount|intcomma}} {% if transaction.sold %}@{% endif %} {{transaction.sold.average_stock_price|floatformat:"3"|intcomma}}</td>
-		<td>{{transaction.result|floatformat:"0"|intcomma}}</td>		
+		<td>{{transaction.result|floatformat:"0"|intcomma}}</td>
 		<td>{% if transaction.sold %}<a href="{% url "stocks_transaction_edit" transaction.sold.pk %}"><i class="icon-pencil"></a>{% endif %}</td>
 
 	</tr>
@@ -45,4 +117,8 @@
 </table>
 
 {% endblock %}
-{% block javascript_append %}{% endblock %}
+
+{% block javascript_prepend %}
+	<script type="text/javascript" src="{{ STATIC_URL }}js/moment.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/chart.js"></script>
+{% endblock %}
