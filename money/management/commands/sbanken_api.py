@@ -25,7 +25,7 @@ class Command(BaseCommand):
 		CLIENTID = os.environ['SBANKEN_CLIENTID']
 		SECRET = os.environ['SBANKEN_SECRET']
 		HARDCODED_OWNER = User.objects.get(pk=1)
-		NUM_ASK_FOR_TRANSACTIONS = "30"
+		#NUM_ASK_FOR_TRANSACTIONS = "30"
 
 		LOG_EVENT_TYPE = "SBanken API"
 		log_message = ""
@@ -65,7 +65,7 @@ class Command(BaseCommand):
 			url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/"
 			headers = {
 				'customerId': CUSTOMERID,
-				'length': NUM_ASK_FOR_TRANSACTIONS,
+				#'length': NUM_ASK_FOR_TRANSACTIONS,
 				}
 			transactions = sbanken_get(http_session, url, headers)
 			return transactions
@@ -117,7 +117,7 @@ class Command(BaseCommand):
 					else:
 						counter_reservation += 1
 				# Done checking all the transactions returned
-				message = "%s: Fant %s/%s nye transaksjoner. %s reservasjoner. " % (a['name'], counter_successful, NUM_ASK_FOR_TRANSACTIONS, counter_reservation)
+				message = "%s: Fant %s nye transaksjoner. %s reservasjoner. " % (a['name'], counter_successful, counter_reservation)
 				print(message)
 				log_message += message
 		except:

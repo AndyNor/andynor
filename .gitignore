@@ -1,19 +1,11 @@
 # Secrets and database
-secrets.py
-secrets_dev.py
 db.sqlite3
-*.sql
-*.zip
 initial_data.json
-this_env.py
 
 # local
-dev.bat
 *.whl
 _media/
 _static/
-/mysite/static/img/users/
-/mysite/static/img/tvseries/
 migrations/
 
 # Byte-compiled / optimized / DLL files
