@@ -21,7 +21,7 @@ Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a cla
 <div id="div_message" class="alert alert-info">
 		<a class="close" data-dismiss="alert" href="#">×</a>
 		<h4 class="alert-heading">{{latest_synch.event_type}}</h4>
-		{{ latest_synch.opprettet|timesince }} siden.<br>{{ latest_synch.message }} <a href="http://localhost:8001/admin/mysite/applicationlog/?event_type=SBanken+API">(se historikk)</a>
+		{{ latest_synch.opprettet|timesince }} siden.<br>{{ latest_synch.message }} <a href="/admin/mysite/applicationlog/?event_type=SBanken+API">(se historikk)</a>
 	</div>
 
 
