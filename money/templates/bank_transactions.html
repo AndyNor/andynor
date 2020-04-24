@@ -28,6 +28,7 @@ Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a cla
 <table class="table table-condensed">
 	<thead>
 		<tr>
+			<th>Konto</th>
 			<th width="15%">Kjøpsdato</th>
 			<th>Beløp</th>
 			<th>Beskrivelse</th>
@@ -37,18 +38,32 @@ Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a cla
 	<tbody>
 		{% for t in transactions %}
 		<tr>
-			<td>{{t.accounting_date}}</a></td>
-			<td>{{t.amount}}</td>
+			<td><a href="{% url 'money_account' t.account.pk %}">{{t.account.name }}</a></td>
+			<td>{{t.accounting_date}}</td>
+
+		{% if t.isReservation %}
+			<td style="background-color: #ffe2e2;">
+		{% elif t.source == "Archive" %}
+			<td style="background-color: #d1ffd2;">
+		{% else %}
+			<td>
+		{% endif %}
+				{{t.adjusted_amount}}
+			</td>
 			<td>{{t.description}})</td>
 			<td>
 				{% if t.related_transaction %}
-					{% if t.amount == t.related_transaction.amount %}
-					<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn btn-success">Ja</a>
+					{% if t.adjusted_amount == t.related_transaction.amount %}
+						<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn btn-success">Ja</a>
 					{% else %}
-					<a href="{% url 'money_edit' this_type='expence' pk=t.related_transaction.pk %}" class="btn btn-warning">Forskjellig beløp</a>
+						<a href="{% url 'money_edit' this_type='expence' pk=t.related_transaction.pk %}" class="btn btn-warning">Forskjellig beløp</a>
+					{% endif %}
+					{% if t.source != "Archive" %}
+						<a href="{% url 'money_migrate' t.pk %}" class="btn btn-info">Migrer</a>
 					{% endif %}
 				{% else %}
 					<a href="{% url 'create_transaction' t.pk %}" class="btn btn-link">Opprett</a>
+					<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn btn-link">Skjul</a>
 				{% endif %}
 			</td>
 		</tr>

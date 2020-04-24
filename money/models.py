@@ -244,6 +244,12 @@ class TransactionForm(forms.Form):
 
 
 class BankTransaction(models.Model):
+	created = models.DateTimeField(
+		auto_now=True,
+		)
+	hidden = models.BooleanField(
+		default=False
+		)
 	eier = models.ForeignKey(
 		to=User,
 		on_delete=models.PROTECT,
@@ -258,6 +264,14 @@ class BankTransaction(models.Model):
 		verbose_name="Konto",
 		help_text=u"",
 		)
+	isReservation = models.BooleanField(
+		default=False
+		)
+	source = models.CharField(
+		max_length=50,
+		null=True,
+		blank=True,
+		)
 	accounting_date = models.DateField(
 		blank=False, null=False,
 		verbose_name="Transaksjonsdato",
@@ -270,14 +284,20 @@ class BankTransaction(models.Model):
 		verbose_name="Beløp",
 		help_text=u"",
 		)
-	description = models.TextField(
+	amount_factor = models.IntegerField(
+		default=1,
+		blank=False, null=False,
+		)
+	description = models.CharField(
 		blank=False, null=False,
 		verbose_name="Beskrivelse",
+		max_length=500,
 		help_text=u"",
 		)
 	related_transaction = models.OneToOneField(
 		to="Transaction",
 		on_delete=models.PROTECT,
+		related_name="bank_transaction",
 		blank=True, null=True,
 		verbose_name="Tilknyttet transaksjon",
 		help_text=u"",
@@ -288,6 +308,9 @@ class BankTransaction(models.Model):
 		null=False,
 		unique=True,
 		)
+
+	def adjusted_amount(self):
+		return self.amount * self.amount_factor
 
 	def __str__(self):
 		return u'%s' % (self.accounting_date)

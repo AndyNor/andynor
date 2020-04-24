@@ -264,14 +264,15 @@ def search(request):
 
 @login_required
 def profile(request):
-	profiles = UserProfile.objects.all().order_by('relation', 'surname')
+	profiles = UserProfile.objects.all().order_by('surname')
 	return render(request, 'profiles.html', {
 		'profiles': profiles,
 	})
 
 
 @permission_required('mysite.user_profile.can_add_user_profile', raise_exception=True)
-def profile_update(request, profile_id):
+def profile_update(request):
+	profile_id = request.user.profile.pk
 	profile_form = generate_form(request, UserProfile, UserProfileForm, profile_id, None)
 	if profile_form.is_valid():
 		try:

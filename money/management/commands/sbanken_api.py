@@ -62,7 +62,7 @@ class Command(BaseCommand):
 
 		def sbanken_transactions(http_session, accountID):
 			#https://api.sbanken.no/exec.bank/swagger/index.html?urls.primaryName=Transactions%20v1
-			url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/"
+			url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/" #?startDate=2019-12-15&endDate=2019-12-25"
 			headers = {
 				'customerId': CUSTOMERID,
 				#'length': NUM_ASK_FOR_TRANSACTIONS,
@@ -91,33 +91,49 @@ class Command(BaseCommand):
 				# lets add the new transactions. Sbanken API does not have a unique reference for each transaction. Therefore we make one.
 				transactions = sbanken_transactions(http_session, a['accountId'])
 				counter_successful = 0
-				counter_reservation = 0
+				counter_skipped = 0
+				all_hashes = [] # for identification of duplicates
+
 				for t in transactions['items']:
 					accounting_date = t['accountingDate']
 					amount = t['amount']
+					reservation = bool(t['isReservation'])
+					source = t['source']
 					description = "%s (%s)" % (t['text'], t['transactionTypeText'])
 					unique_text = "%s%s%s" % (accounting_date, amount, description)
 					unique_reference = sha256(unique_text.encode('utf-8')).hexdigest()
+					all_hashes.append(unique_reference)
 
-					if not t['isReservation']:
-						if not BankTransaction.objects.filter(unique_reference=unique_reference).exists():
-							accounting_date = datetime.datetime.strptime(accounting_date[0:10], "%Y-%m-%d").date()
-							BankTransaction.objects.create(
-									eier=HARDCODED_OWNER, # hardcoded to "andre"
-									account=internal_account,
-									accounting_date=accounting_date,
-									amount=amount,
-									description=description,
-									related_transaction=None,
-									unique_reference=unique_reference,
-								)
-							counter_successful += 1
-						else:
-							pass # It is already in the database
+					if not BankTransaction.objects.filter(unique_reference=unique_reference).exists():
+						accounting_date = datetime.datetime.strptime(accounting_date[0:10], "%Y-%m-%d").date()
+						BankTransaction.objects.create(
+								eier=HARDCODED_OWNER, # hardcoded to "andre"
+								account=internal_account,
+								accounting_date=accounting_date,
+								isReservation=reservation,
+								source=source,
+								amount=amount,
+								description=description,
+								related_transaction=None,
+								unique_reference=unique_reference,
+							)
+						counter_successful += 1
 					else:
-						counter_reservation += 1
+						counter_skipped += 1
+						pass # It is already in the database
 				# Done checking all the transactions returned
-				message = "%s: Fant %s nye transaksjoner. %s reservasjoner. " % (a['name'], counter_successful, counter_reservation)
+
+				# for all duplicates, modify transactions "amount_factor"
+				dupes = {i:all_hashes.count(i) for i in all_hashes}
+				for hash_value in dupes:
+					if dupes[hash_value] > 1:
+						bt = BankTransaction.objects.get(unique_reference=hash_value)
+						bt.amount_factor = dupes[hash_value]
+						bt.save()
+						#print("change %s to %s" % (hash_value, dupes[hash_value]))
+
+
+				message = "%s: Fant %s nye transaksjoner. %s eksisterte fra før. " % (a['name'], counter_successful, counter_skipped)
 				print(message)
 				log_message += message
 		except:

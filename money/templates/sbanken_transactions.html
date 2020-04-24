@@ -14,19 +14,23 @@ Viser {{transactions.items.count}} transaksjoner.
 <table class="table table-condensed">
 	<thead>
 		<tr>
-			<th width="20%">Dato accounting (purchase)</th>
+			<th width="20%">Dato accounting</th>
 			<th>Reservasjon</th>
+			<th>Kilde</th>
 			<th>Beløp</th>
 			<th>Beskrivelse</th>
+			<th>Transactionstype</th>
 		</tr>
 	</thead>
 	<tbody>
 		{% for t in transactions.items %}
 		<tr>
-			<td>{{t.accountingDate}}</a></td>
+			<td>{{t.accountingDate}}</td>
 			<td>{{t.isReservation|yesno:"Ja,Nei"}}</td>
+			<td>{{t.source}}</td>
 			<td>{{t.amount}}</td>
-			<td>{{t.text}} ({{t.transactionTypeText}})</td>
+			<td>{{t.text}}</td>
+			<td>{{t.transactionTypeText}}</td>
 		</tr>
 		{% endfor %}
 	</tbody>

@@ -17,6 +17,7 @@ from django.urls import reverse
 from django.views.decorators.cache import never_cache # avoid browser from caching content to disk
 from django.middleware import csrf
 
+
 APP_NAME = 'app_money'
 MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
@@ -313,7 +314,8 @@ def edit(request, this_type, pk=False):
 						# Updateing an existing transaction
 						t = form.save(commit=False)
 						t.save()
-					return HttpResponseRedirect(get_previous_page(request, APP_NAME))
+					return HttpResponseRedirect(reverse("bank_transactions"))
+
 
 	### transaction
 	elif this_type == u'transaction':
@@ -990,7 +992,7 @@ def sbanken_get(http_session, url, headers):
 def sbanken_accounts(request):
 	http_session = create_authenticated_http_session(CLIENTID, SECRET)
 	url = "https://api.sbanken.no/exec.bank/api/v1/Accounts"
-	headers = {'customerId': CUSTOMERID}
+	headers = {'customerId': CUSTOMERID,}
 	accounts = sbanken_get(http_session, url, headers)
 
 	return render(request, u'sbanken_accounts.html', {
@@ -1001,8 +1003,8 @@ def sbanken_accounts(request):
 @login_required
 def sbanken_transactions(request, accountID):
 	http_session = create_authenticated_http_session(CLIENTID, SECRET)
-	url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/"
-	headers = {'customerId': CUSTOMERID}
+	url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/" #?startDate=2019-12-15&endDate=2019-12-25"
+	headers = {'customerId': CUSTOMERID,}
 	transactions = sbanken_get(http_session, url, headers)
 
 	return render(request, u'sbanken_transactions.html', {
@@ -1012,7 +1014,7 @@ def sbanken_transactions(request, accountID):
 
 @login_required
 def bank_transactions(request):
-	transactions = BankTransaction.objects.filter(eier=request.user).order_by("-accounting_date")
+	transactions = BankTransaction.objects.filter(eier=request.user).filter(hidden=False).order_by("-accounting_date")[:100]
 	try:
 		latest_synch = ApplicationLog.objects.filter(event_type='SBanken API').order_by('-opprettet')[0]
 	except:
@@ -1024,29 +1026,29 @@ def bank_transactions(request):
 	})
 
 
-def transactions_similar(bank_transaction, user):
+def __transactions_similar(bank_transaction, user):
 	days_ago = bank_transaction.accounting_date - timedelta(days=15)
 	days_ahead = bank_transaction.accounting_date + timedelta(days=15)
 	valg = Transaction.objects.filter(owner=user)
 	valg = valg.filter(account=bank_transaction.account)
 	valg = valg.filter(date__range=(days_ago, days_ahead))
-	valg = valg.filter(amount__range=(bank_transaction.amount-50, bank_transaction.amount+50))
+	valg = valg.filter(amount__range=(bank_transaction.adjusted_amount()-50, bank_transaction.adjusted_amount()+50))
 	valg = valg.order_by('-date')
 	return valg
 
 
-def __create_new_transaction(request, bank_transaction, sub_category):
+def __create_new_transaction(request, bank_transaction, sub_category, comment):
 	try:
 		sub_category = SubCategory.objects.get(pk=sub_category)
 		category = sub_category.parent_category
 		t = Transaction.objects.create(
 				owner=request.user,
 				account=bank_transaction.account,
-				amount=bank_transaction.amount,
+				amount=bank_transaction.adjusted_amount(),
 				date=bank_transaction.accounting_date,
 				category=category,
 				sub_category=sub_category,
-				comment=bank_transaction.description,
+				comment=comment,
 				is_asset=False,
 			)
 		bank_transaction.related_transaction = t
@@ -1066,13 +1068,30 @@ def __link_transaction(request, bank_transaction, pk):
 	return
 
 
+
+def __migrate_transaction(request, source, destination):
+	from django.db import transaction
+	try:
+		with transaction.atomic():
+			related_transaction = source.related_transaction
+			source.related_transaction = None
+			source.hidden = True
+			source.save()
+			destination.related_transaction = related_transaction
+			destination.save()
+	except Exception as e:
+		messages.error(request, e)
+	return
+
+
 @login_required
 def create_transaction(request, bank_transaction):
 	bank_transaction = BankTransaction.objects.get(pk=bank_transaction)
 
 	if request.POST.get('action') == 'create_new':
 		sub_category = request.POST.get('sub_category')
-		__create_new_transaction(request, bank_transaction, sub_category)
+		comment = request.POST.get('comment')
+		__create_new_transaction(request, bank_transaction, sub_category, comment)
 		return HttpResponseRedirect(reverse("bank_transactions"))
 
 	if request.POST.get('action') == 'link_existing':
@@ -1082,15 +1101,44 @@ def create_transaction(request, bank_transaction):
 		return HttpResponseRedirect(reverse("bank_transactions"))
 
 	categories = Category.objects.all()
-	valg = transactions_similar(bank_transaction=bank_transaction, user=request.user)
+	valg = __transactions_similar(bank_transaction=bank_transaction, user=request.user)
 
 	return render(request, u'create_transaction.html', {
+		'request': request,
 		'valg': valg,
 		'categories': categories,
 		'bank_transaction': bank_transaction,
 	})
 
 
+def __migrations_choices(bank_transaction, user):
+	days_ago = bank_transaction.accounting_date - timedelta(days=1)
+	days_ahead = bank_transaction.accounting_date + timedelta(days=1)
+	valg = BankTransaction.objects.filter(eier=user)
+	valg = BankTransaction.objects.exclude(pk=bank_transaction.pk)
+	valg = valg.filter(account=bank_transaction.account)
+	valg = valg.filter(accounting_date__range=(days_ago, days_ahead))
+	valg = valg.filter(amount__range=(bank_transaction.adjusted_amount-10, bank_transaction.adjusted_amount+10))
+	valg = valg.order_by('-accounting_date')
+	return valg
 
+
+@login_required
+def migrate(request, bank_transaction):
+	source = BankTransaction.objects.get(pk=bank_transaction)
+
+	if request.POST.get('action') == 'migrate':
+		pk = request.POST.get('pk')
+		destination = BankTransaction.objects.get(pk=pk)
+		__migrate_transaction(request=request, source=source, destination=destination)
+		return HttpResponseRedirect(reverse("bank_transactions"))
+
+	valg = __migrations_choices(bank_transaction=source, user=request.user)
+
+	return render(request, u'migrate.html', {
+		'request': request,
+		'bank_transaction': source,
+		'valg': valg,
+	})
 
 

@@ -9,6 +9,7 @@ urlpatterns = [
 	url(r'^api/transactions/(?P<accountID>[A-F0-9]{32})/$', views.sbanken_transactions, name="sbanken_transactions"),
 	url(r'^bank/transactions/$', views.bank_transactions, name="bank_transactions"),
 	url(r'^create/(?P<bank_transaction>\d{1,10})/$', views.create_transaction, name="create_transaction"),
+	url(r'^migrate/(?P<bank_transaction>\d{1,10})/$', views.migrate, name="money_migrate"),
 	url(r'^edit/(?P<this_type>[a-z_]{1,20})/$', views.edit, name="money_new"),
 	url(r'^edit/(?P<this_type>[a-z_]{1,20})/(?P<pk>\d{1,12})/$', views.edit, name="money_edit"),
 	url(r'^admin/category(?:/(?P<pk>\d{1,10}))?/$', views.category, name="money_admin_category"),

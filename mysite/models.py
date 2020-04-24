@@ -62,16 +62,6 @@ class Counter(models.Model):
 
 
 class UserProfile(models.Model):
-	GENDER_CHOICES = (
-		('1', 'Male'),
-		('0', 'Female'),
-	)
-	RELATION_CHOICES = (
-		('0', 'Family'),
-		('1', 'Friends'),
-		('2', 'Acquaintances'),
-	)
-
 	user = models.OneToOneField(User, related_name="profile", on_delete=models.PROTECT, null=True)
 	name = models.CharField(max_length=40)
 	surname = models.CharField(max_length=40, blank=True, null=True)
@@ -80,6 +70,7 @@ class UserProfile(models.Model):
 	DEFAULT_DOWNPAYMENT_COMMENT = models.CharField(max_length=40, blank=True, null=True)
 	DEFAULT_SALARY_COMMENT = models.CharField(max_length=40, blank=True, null=True)
 
+	"""
 	def age(this):
 		birth = this.date_birth
 		if birth is None:
@@ -119,12 +110,12 @@ class UserProfile(models.Model):
 					next = compensate_leap_year(birth, today.year + 1)
 					return (next - today).days
 
-
 def compensate_leap_year(birth, to_year):
 	try:
 		return birth.replace(year=to_year)
 	except:
 		return birth.replace(year=to_year, day=birth.day - 1)
+	"""
 
 
 def make_custom_plugins(f):

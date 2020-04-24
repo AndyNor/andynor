@@ -10,9 +10,9 @@ admin.site.register(models.FastUtgift)
 
 @admin.register(models.BankTransaction)
 class BankTransactionAdmin(admin.ModelAdmin):
-	list_display = ('amount', 'account', 'eier', 'accounting_date', 'description', 'related_transaction', 'unique_reference')
+	list_display = ('amount', 'amount_factor', 'account', 'eier', 'accounting_date', 'description', 'related_transaction', 'unique_reference')
 	search_fields = ('description',)
-	list_filter = ('eier', 'account', 'amount',)
+	list_filter = ('eier', 'account',)
 	autocomplete_fields = ('related_transaction',)
 	ordering = ('-accounting_date',)
 

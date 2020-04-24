@@ -12,8 +12,6 @@ from django.utils.deprecation import MiddlewareMixin
 
 class CountVisitor(MiddlewareMixin):
 	def process_request(self, request):
-		if "/login/?next=" in request.build_absolute_uri(request.get_full_path()).lower(): # kill one particular agent doing strange stuff
-			return HttpResponseForbidden('<h1>Forbidden</h1>')
 		if 'visit_counted' not in request.session:
 			request.session['visit_counted'] = True
 

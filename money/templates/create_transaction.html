@@ -20,7 +20,7 @@
 	<tbody>
 		<tr>
 			<td>{{bank_transaction.accounting_date}}</a></td>
-			<td>{{bank_transaction.amount}}</td>
+			<td>{{bank_transaction.adjusted_amount}}</td>
 			<td>{{bank_transaction.description}})</td>
 		</tr>
 	</tbody>
@@ -28,16 +28,19 @@
 
 <form action="" method="post">{% csrf_token %}
 	<input type="hidden" name="action" value="create_new">
-	<select name="sub_category" class="chzn-select" data-placeholder="Velg kategori">
+	<select name="sub_category" class="chzn-select" data-placeholder="Velg kategori" selected="{{ request.user.profile.DEFAULT_EXPENCE_SUB_CATEGORY }}">
 
+		{% with default=request.user.profile.DEFAULT_EXPENCE_SUB_CATEGORY %}
 		{% for c in categories %}
 		<optgroup label="{{c.name}}">
 			{% for sc in c.subcategory_parent_category.all %}
-			<option value="{{sc.pk}}">{{sc.name}}</option>
+			<option value="{{sc.pk}}" {% if default == sc.pk %} selected {% endif %}>{{sc.name}}</option>
 			{% endfor %}
 		</optgroup>
 		{% endfor %}
+		{% endwith %}
 	</select>
+	<input type="text" name="comment" value="{{ bank_transaction.description }}">
 	<input class="btn btn-success" type="submit" value="Opprett ny">
 </form>
 
