@@ -1,14 +1,15 @@
 {% extends "money.html" %}
 {% load humanize %}
+{% load l10n %}
 
-{% block money_title %} Details for {{ month_name }} {{ year }} {% endblock %}
+{% block money_title %} Details for {{ month_name }} {{ year|unlocalize }} {% endblock %}
 {% block money_subtitle %}
 <ul class="pager">
-	<li class="previous"><a href="{% url "money_month" links.last.year links.last.month %}">&larr; Previous</a></li>
-	<li><a class="btn" href="{% url "app_money" %}">Main overview</a></li>
-	<li><a class="btn" href="{% url "money_year" year %}">Summary of {{ year }}</a></li>
-	<li><a class="btn" href="{% url "money_add_monthly_expences" year=year month=month %}"><b>Legg til faste utgifter</b></a></li>
-	<li class="next"><a href="{% url "money_month" links.next.year links.next.month %}">Next &rarr;</a></li>
+	<li class="previous"><a href="{% url 'money_month' links.last.year links.last.month %}">&larr; Previous</a></li>
+	<li><a class="btn" href="{% url 'app_money' %}">Main overview</a></li>
+	<li><a class="btn" href="{% url 'money_year' year %}">Summary of {{ year|unlocalize }}</a></li>
+	<li><a class="btn" href="{% url 'money_add_monthly_expences' year=year month=month %}"><b>Legg til faste utgifter</b></a></li>
+	<li class="next"><a href="{% url 'money_month' links.next.year links.next.month %}">Next &rarr;</a></li>
 </ul>
 {% endblock %}
 
@@ -29,7 +30,7 @@
 	<tbody>
 	{% for i in salary_data.tbody %}
 		<tr>
-			<td><a href="{% url "money_edit" "salary" i.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
+			<td><a href="{% url 'money_edit' 'salary' i.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
 			<td>{{ i.date|date:"jS" }}</td>
 			<td>{{ i.account }} {{ i.comment|default:'' }}</td>
 			<td class="money">{{ i.salary|intcomma }}</td>
@@ -58,7 +59,7 @@
 	<tbody>
 	{% for t in expence_data.tbody %}
 		<tr style="color:#{{ t.text_color }};">
-			<td><a href="{% url "money_edit" "expence" t.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
+			<td><a href="{% url 'money_edit' 'expence' t.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
 			<td>{{ t.date|date:"jS" }}</td>
 			<td>{{ t.account }}</td>
 			<td>{{ t.category }} {{ t.sub_category|default:"" }} {{ t.comment|default:"" }}</td>

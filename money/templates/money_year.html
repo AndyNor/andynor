@@ -1,13 +1,14 @@
 {% extends "money.html" %}
 {% load humanize %}
+{% load l10n %}
 
-{% block money_title %} Summary of {{ year }}{% endblock %}
+{% block money_title %} Summary of {{ year|unlocalize }}{% endblock %}
 
 {% block money_subtitle %}
 <ul class="pager">
-	<li class="previous"><a href="{% url "money_year" last_year %}">&larr; Previous</a></li>
-	<li><a class="btn" href="{% url "app_money" %}">Main overview</a></li>
-	<li class="next"><a href="{% url "money_year" next_year %}">Next &rarr;</a></li>
+	<li class="previous"><a href="{% url 'money_year' last_year %}">&larr; Previous</a></li>
+	<li><a class="btn" href="{% url 'app_money' %}">Main overview</a></li>
+	<li class="next"><a href="{% url 'money_year' next_year %}">Next &rarr;</a></li>
 </ul>
 {% endblock %}
 
@@ -38,7 +39,7 @@
 		<tbody>
 		{% for i in dp_data.payments %}
 			<tr style="color:#{{ i.destination_transaction.category.text_color|default:'A9A9A9' }};">
-				<td><a href="{% url "money_edit" "downpayment" i.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
+				<td><a href="{% url 'money_edit' 'downpayment' i.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
 				<td>{{ i.date }}</td>
 				<td>{{ i.source_account }}</td>
 				<td>{{ i.destination_account }}</td>
@@ -66,7 +67,7 @@
 		<tbody>
 			{% for item in asset_data %}
 			<tr style="color:#{{ item.category.text_color|default:'A9A9A9' }};">
-				<td><a href="{% url "money_edit" "expence" item.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
+				<td><a href="{% url 'money_edit' 'expence' item.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
 				<td>{{ item.date }}</td>
 				<td>{{ item.comment|default:'' }} ({{ item.sub_category }})</td>
 				<td>{{ item.amount|intcomma }}</td>
