@@ -1118,7 +1118,7 @@ def __migrations_choices(bank_transaction, user):
 	valg = BankTransaction.objects.exclude(pk=bank_transaction.pk)
 	valg = valg.filter(account=bank_transaction.account)
 	valg = valg.filter(accounting_date__range=(days_ago, days_ahead))
-	valg = valg.filter(amount__range=(bank_transaction.adjusted_amount-10, bank_transaction.adjusted_amount+10))
+	valg = valg.filter(amount__range=(bank_transaction.adjusted_amount()-10, bank_transaction.adjusted_amount()+10))
 	valg = valg.order_by('-accounting_date')
 	return valg
 
