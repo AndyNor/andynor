@@ -46,12 +46,6 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 				</a>
 
 				<div class="btn-group pull-right">
-					{% if user.is_authenticated %}
-						<a class="btn" href='{% url "user_logout" %}'>Log ut</a>
-					{% else %}
-						<a class="btn" href='{% url "user_login" %}'>Log inn</a>
-					{% endif %}
-
 					<a class="btn" href="{% url 'profile' %}"><i class="icon-user"></i>
 					{% if user.is_authenticated %}
 						{% if user.first_name %}
@@ -63,6 +57,13 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 						Gjest
 					{% endif %}
 					</a>
+
+					{% if user.is_authenticated %}
+						<a class="btn btn-danger" href='{% url "user_logout" %}'>Log ut</a>
+					{% else %}
+						<a class="btn btn-primary" href='{% url "user_login" %}'>Log inn</a>
+					{% endif %}
+
 				</div>
 
 				<div>

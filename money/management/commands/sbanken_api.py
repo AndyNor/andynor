@@ -62,7 +62,7 @@ class Command(BaseCommand):
 
 		def sbanken_transactions(http_session, accountID):
 			#https://api.sbanken.no/exec.bank/swagger/index.html?urls.primaryName=Transactions%20v1
-			url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/" #?startDate=2019-12-15&endDate=2019-12-25"
+			url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/?length=10" #?startDate=2019-12-15&endDate=2019-12-25"
 			headers = {
 				'customerId': CUSTOMERID,
 				#'length': NUM_ASK_FOR_TRANSACTIONS,
@@ -99,7 +99,7 @@ class Command(BaseCommand):
 					amount = t['amount']
 					reservation = bool(t['isReservation'])
 					source = t['source']
-					description = "%s (%s)" % (t['text'], t['transactionTypeText'])
+					description = "%s" % (t['text'])
 					unique_text = "%s%s%s" % (accounting_date, amount, description)
 					unique_reference = sha256(unique_text.encode('utf-8')).hexdigest()
 					all_hashes.append(unique_reference)

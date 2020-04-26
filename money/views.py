@@ -856,7 +856,7 @@ def balance(request):
 		).aggregate(sum=Sum('amount'))['sum']
 
 		if not a.balance in (None, Decimal(0)):
-			diff_balanse = a.balance - real_balance
+			diff_balanse = a.available - real_balance
 		else:
 			diff_balanse = None
 
