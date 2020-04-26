@@ -50,7 +50,7 @@ Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a cla
 		{% endif %}
 				{{t.adjusted_amount}}
 			</td>
-			<td>{{t.description}})</td>
+			<td>{{t.description}}</td>
 			<td>
 				{% if t.related_transaction %}
 					{% if t.adjusted_amount == t.related_transaction.amount %}
