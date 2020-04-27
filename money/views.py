@@ -1112,13 +1112,14 @@ def create_transaction(request, bank_transaction):
 
 
 def __migrations_choices(bank_transaction, user):
-	days_ago = bank_transaction.accounting_date - timedelta(days=1)
-	days_ahead = bank_transaction.accounting_date + timedelta(days=1)
+	days_ago = bank_transaction.accounting_date - timedelta(days=3)
+	days_ahead = bank_transaction.accounting_date + timedelta(days=3)
 	valg = BankTransaction.objects.filter(eier=user)
+	valg = BankTransaction.objects.filter(hidden=False)
 	valg = BankTransaction.objects.exclude(pk=bank_transaction.pk)
 	valg = valg.filter(account=bank_transaction.account)
 	valg = valg.filter(accounting_date__range=(days_ago, days_ahead))
-	valg = valg.filter(amount__range=(bank_transaction.adjusted_amount()-10, bank_transaction.adjusted_amount()+10))
+	valg = valg.filter(amount__range=(bank_transaction.adjusted_amount()-50, bank_transaction.adjusted_amount()+50))
 	valg = valg.order_by('-accounting_date')
 	return valg
 
