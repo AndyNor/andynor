@@ -20,53 +20,6 @@ from blog.views import generate_archive_links
 from blog.models import Tag  # for displaying tag cloud on front page
 
 
-def statistics(request):
-	blogs = Blog.objects.values('title', 'pk', 'created', 'updated').filter(published=True)
-	blogs_new = blogs.order_by('-created')[:10]
-	blogs_updated = blogs.order_by('-updated')[:10]
-	blogs_draft = Blog.objects.values('title', 'pk', 'created', 'updated').filter(published=False)
-	logs = SiteLog.objects.order_by('-pk')[:10]
-	latest_comments = Comment.objects.order_by('-pk')[:5]
-	# this won't work with SQLite
-	#visits_monthly = Counter.objects.extra(select={
-	#		'year': "year(time)",
-	#		'month': "month(time)"
-	#}).values('year', 'month').annotate(count=Count('time'))
-	num_last_days = 45
-	#visits_daily = count_query(num_last_days).extra(select={
-	#		'year': "EXTRACT(year FROM time)",
-	#		'month': "EXTRACT(month from time)",
-	#		'day': "EXTRACT(day from time)"
-	#}).values('year', 'month', 'day').annotate(count=Count('time'))
-	sessions = Session.objects.all()
-	session_users = []
-	for i in sessions:
-		uid = i.get_decoded().get('_auth_user_id')
-		active = False if (request.session.session_key != i.session_key) else True
-		try:
-			user = User.objects.get(pk=uid)
-			session_users.append({
-				#'session': i.session_key,
-				'user': user,
-				'active': active,
-			})
-		except:
-			pass
-	return render(request, 'statistics.html', {
-		'blogs_new': blogs_new,
-		'blogs_updated': blogs_updated,
-		'blogs_draft': blogs_draft,
-		'latest_comments': latest_comments,
-		#'visits_monthly': makeJSON(visits_monthly),
-		#'visits_daily': makeJSON(visits_daily),
-		'current_time': datetime.now(),
-		'sessions': sessions,
-		'session_count': sessions.count(),
-		'session_users': session_users,
-		'lays_days': num_last_days,
-		'logs': logs,
-	})
-
 def my_custom_permission_denied_view(request, exception):
 	messages.error(request, "Sorry, you don't have permission to perform this action.")
 	return render(request, '403.html', {})
@@ -136,19 +89,10 @@ def password_change(request):
 		messages.success(request, "Your password has been changed!")
 		return HttpResponseRedirect(get_previous_page(request, 'root'))
 
-	header_text = "Change password for %s" % request.user.get_full_name()
+	header_text = "Bytt passordet for %s" % request.user.get_full_name()
 	return render(request, 'form_simple.html', {
 		'form': form,
 		'header': header_text,
-	})
-
-@login_required
-def debug(request):
-	import operator
-	sorted_session_items = sorted(request.session.items(), key=operator.itemgetter(0), reverse=True)
-
-	return render(request, 'debug.html', {
-		'session_data': sorted_session_items,
 	})
 
 
@@ -264,9 +208,60 @@ def search(request):
 
 @login_required
 def profile(request):
+	import operator
+	from django.db.models.functions import TruncMonth
+	from django.db.models import Count
+
+	sorted_session_items = sorted(request.session.items(), key=operator.itemgetter(0), reverse=True)
 	profiles = UserProfile.objects.all().order_by('surname')
+
+	blogs = Blog.objects.values('title', 'pk', 'created', 'updated').filter(published=True)
+	blogs_new = blogs.order_by('-created')[:10]
+	blogs_updated = blogs.order_by('-updated')[:10]
+
+	blogs_draft = Blog.objects.values('title', 'pk', 'created', 'updated').filter(published=False)
+
+	logs = SiteLog.objects.order_by('-pk')[:10]
+	latest_comments = Comment.objects.order_by('-pk')[:7]
+	sessions = Session.objects.all()
+
+	visits = Counter.objects.annotate(month=TruncMonth('time')).values('month').annotate(count=Count('id'))
+	counter_months = []
+	counter_counts = []
+	print(visits)
+	for v in visits:
+		counter_months.append(v["month"].strftime("%Y-%m"))
+		counter_counts.append(v["count"])
+
+	session_users = []
+	for i in sessions:
+		uid = i.get_decoded().get('_auth_user_id')
+		active = False if (request.session.session_key != i.session_key) else True
+		try:
+			user = User.objects.get(pk=uid)
+			session_users.append({
+				#'session': i.session_key,
+				'user': user,
+				'active': active,
+			})
+		except:
+			pass
+
+
 	return render(request, 'profiles.html', {
 		'profiles': profiles,
+		'session_data': sorted_session_items,
+		'blogs_new': blogs_new,
+		'blogs_updated': blogs_updated,
+		'blogs_draft': blogs_draft,
+		'latest_comments': latest_comments,
+		'current_time': datetime.now(),
+		'sessions': sessions,
+		'session_count': sessions.count(),
+		'session_users': session_users,
+		'logs': logs,
+		'counter_months': counter_months,
+		'counter_counts': counter_counts,
 	})
 
 

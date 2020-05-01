@@ -20,9 +20,6 @@ urlpatterns = [
 	url(r'^return/$', views.go_back),
 	url(r'^profiles/$', views.profile, name='profile'),
 	url(r'^profiles/update/$', views.profile_update, name='profile_update'),
-	#url(r'^profiles/(?P<profile_id>\d{1,12})/delete/$', views.profile_delete, name='profile_delete'),
-	url(r'^statistics/$', views.statistics, name='statistics'),
-	url(r'^debug/$', views.debug, name='debug'),
 	url(r'^rss/$', LatestEntriesFeed(), name='rss'),
 	url(r'^robots\.txt$', RedirectView.as_view( url=settings.STATIC_URL + 'robots.txt')),
 ]

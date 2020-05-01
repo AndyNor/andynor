@@ -1,33 +1,206 @@
 {% extends "index.html" %}
+{% load upto %}
+{% load humanize %}
+{% load l10n %}
+
+
 {% block body_main %}
+<h3>Din profil</h3>
 
+<p>Server systemtid {{ current_time|date:"l j. F Y, H:i (O)" }}</p>
 
-<h4>Administrasjon</h4>
+<a class="btn btn-link" href='{% url "password_change" %}'>Bytt passord</a> |
+<a class="btn btn-link" href='{% url "profile_update" %}'>Rediger profil</a> |
+<a class="btn btn-link" href='{% url "list_files" %}'>Opplastede filer</a>
 
-<li><a href='{% url "statistics" %}'>Statistikk</a></li>
-<li><a href='{% url "list_files" %}'>Opplastede filer</a></li>
-<li><a href='{% url "debug" %}'>Debug</a></li>
-<li><a href='{% url "password_change" %}'>Bytt passord</a></li>
-<li><a href='{% url "profile_update" %}'>Oppdater profil</a></li>
+<hr>
+
+<div class="row">
+	<div class="span3">
+
+		{{ session_count }} aktiv sesjon <br>
+		<ul>
+		{% for s in sessions %}
+
+			<li>
+				Utløper {{s.expire_date|date:"H:i"}}
+			</li>
+		{% endfor %}
+		</ul>
+
+	</div>
+	<div class="span3">
+
+		Innloggede brukere
+		<ul>
+		{% for user in session_users %}
+			<li>{{ user.user }}
+			{% if user.active %}
+				<small>(deg)</small>
+			{% endif %}
+			</li>
+		{% endfor %}
+		</ul>
+
+	</div>
+	<div class="span6">
+
+		Siste innloggingsforsøk
+		<ol>
+		{% for log in logs %}
+		<li>
+			<span class="{{ log.color }}">{{ log.time|date:"D, d. M, Y - H:i" }} - {{  log.user }} - {{  log.message }} ({{  log.ip }})</span>
+		</li>
+		{% endfor %}
+		</ol>
+
+	</div>
+</div>
+
+<hr>
+
+<h5>Gjesteteller</h5>
+<div class="row">
+	<div class="col-sm-12">
+		<canvas height="80" id="chart"></canvas>
+	</div>
+</div>
+
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
+var chart_id = document.getElementById('chart').getContext('2d');
+var chart = new Chart(chart_id, {
+	// The data for our dataset
+	type: 'bar',
+	data: {
+		labels: {{ counter_months|safe }},
+		datasets: [{
+				label: 'Antall besøk per måned',
+				backgroundColor: 'rgb(239, 118, 118)',
+				data: {{ counter_counts|safe }},
+			},
+		]
+	},
+	// Configuration options go here
+	options: {
+		scales: {
+			yAxes: [
+				{
+					ticks: {
+						suggestedMin: 0,
+					},
+					scaleLabel: {
+						display: false,
+						labelString: 'Antall registrete av teller',
+					}
+				}
+			]
+		},
+	}
+});
+</script>
 
 
 <hr>
 
-<h4>Brukere</h4>
+
+<div class="row">
+	<div class="span3">
+
+		<i class="icon-pencil"></i> Drafts
+		<ol>
+		{% for blog in blogs_draft %}
+			<li>
+				<a href="{% url 'blog_show' blog.pk %}">{{ blog.title }}</a>
+				<small>{{ blog.created|timesince|upto:',' }}</small>
+			</li>
+		{% endfor %}
+		</ol>
+
+	</div>
+	<div class="span3">
+
+		<i class="icon-pencil"></i> Nylig publiserte
+		<ol>
+		{% for blog in blogs_new %}
+			<li>
+				<a href="{% url 'blog_show' blog.pk %}">{{ blog.title }}</a>
+				<small>{{ blog.created|timesince|upto:',' }}</small>
+			</li>
+		{% endfor %}
+		</ol>
+
+		<i class="icon-wrench"></i> Nylig oppdaterte
+		<ol>
+		{% for blog in blogs_updated %}
+			<li>
+				<a href="{% url 'blog_show' blog.pk %}">{{ blog.title }}</a>
+				<small>{{ blog.updated|timesince|upto:',' }}</small>
+			</li>
+		{% endfor %}
+		</ol>
+
+
+	</div>
+	<div class="span6">
+
+		Siste kommentarer (kommentarer er deaktivert)
+		<ol>
+		{% for comment in latest_comments %}
+		<li>
+			<b>{{ comment.poster }}</b> in
+			<a href="{% url "blog_show" comment.page.pk %}">{{ comment.page.title }}</a>
+			({{ comment.created|timesince|upto:',' }} ago):
+			<i>{{ comment.comment|linebreaks }}</i>
+		</li>
+		{% endfor %}
+		</ol>
+
+	</div>
+</div>
+
+
+<hr>
+
+<h4>Profiler i løsningen</h4>
 
 <table class="table">
 	<tr>
-		<th>Brukernavn</th>
+		<th>Tilkoblet brukernavn</th>
 		<th>Fornavn</th>
 		<th>Etternavn</th>
+		<th>Standard betalingskonto</th>
+		<th>Standard utgiftskategori</th>
+		<th>Standard nedbetalingstekst</th>
+		<th>Standard lønnstekst</th>
 	</tr>
 {% for profile in profiles %}
 	<tr>
 		<td>{{profile.user.username|default:"-"}}</td>
 		<td>{{profile.name|default:"-"}}</td>
 		<td>{{profile.surname|default:"-"}}</td>
+		<td>{{profile.DEFAULT_PAYMENT_ACCOUNT|default:"-"}}</td>
+		<td>{{profile.DEFAULT_EXPENCE_SUB_CATEGORY|default:"-"}}</td>
+		<td>{{profile.DEFAULT_DOWNPAYMENT_COMMENT|default:"-"}}</td>
+		<td>{{profile.DEFAULT_SALARY_COMMENT|default:"-"}}</td>
 	</tr>
 {% endfor %}
 </table>
 
+
+<hr>
+
+<h4>Mine sesjonsvariable</h4>
+
+{% for key, value in session_data %}
+	<p>{{ key }} = {{ value }}</p>
+{% endfor %}
+
+{% endblock %}
+
+
+
+
+{% block javascript_prepend %}
+	<script type="text/javascript" src="{{ STATIC_URL }}js/moment.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/chart.js"></script>
 {% endblock %}
