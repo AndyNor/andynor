@@ -228,7 +228,6 @@ def profile(request):
 	visits = Counter.objects.annotate(month=TruncMonth('time')).values('month').annotate(count=Count('id'))
 	counter_months = []
 	counter_counts = []
-	print(visits)
 	for v in visits:
 		counter_months.append(v["month"].strftime("%Y-%m"))
 		counter_counts.append(v["count"])
@@ -291,3 +290,15 @@ def profile_delete(request, profile_id):
 	entity = UserProfile.objects.get(pk=profile_id)
 	entity.delete()
 	return HttpResponseRedirect(reverse('profile'))
+
+
+@login_required
+def counter(request, year, month):
+	visitors = Counter.objects.filter(time__year=year).filter(time__month=month)
+
+	return render(request, 'counter.html', {
+		'visitors': visitors,
+		'year': year,
+		'month': month,
+	})
+

@@ -19,6 +19,7 @@ urlpatterns = [
 	url(r'^search/$', views.search, name='search'),
 	url(r'^return/$', views.go_back),
 	url(r'^profiles/$', views.profile, name='profile'),
+	path('counter/<int:year>/<int:month>/', views.counter, name='counter'),
 	url(r'^profiles/update/$', views.profile_update, name='profile_update'),
 	url(r'^rss/$', LatestEntriesFeed(), name='rss'),
 	url(r'^robots\.txt$', RedirectView.as_view( url=settings.STATIC_URL + 'robots.txt')),

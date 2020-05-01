@@ -20,6 +20,15 @@
 	<link rel="apple-touch-icon" href="{{ STATIC_URL }}favicon_apple.png">
 	{% endblock %}
 
+
+	<script src="{{ STATIC_URL }}js/jquery-1.12.3.min.js"></script>
+	<script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+	<script src="{{ STATIC_URL }}js/jscolor/jscolor.js"></script>
+	<script src="{{ STATIC_URL }}js/prettify/prettify.js"></script>
+	<script src="{{ STATIC_URL }}js/jquery-ui-1.10.1.custom.min.js"></script>
+	<script src="{{ STATIC_URL }}js/chosen.jquery.min.js"></script>
+	<script src="{{ STATIC_URL }}js/jquery.unveil.min.js"></script>
+	<script src="{{ STATIC_URL }}js/site-wide-javascript.js"></script>
 	{% block javascript_prepend %}{% endblock %}
 
 	{% block feeds %}
@@ -119,15 +128,6 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 	{% endblock %}
 
 </div>
-
-<script src="{{ STATIC_URL }}js/jquery-1.12.3.min.js"></script>
-<script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
-<script src="{{ STATIC_URL }}js/jscolor/jscolor.js"></script>
-<script src="{{ STATIC_URL }}js/prettify/prettify.js"></script>
-<script src="{{ STATIC_URL }}js/jquery-ui-1.10.1.custom.min.js"></script>
-<script src="{{ STATIC_URL }}js/chosen.jquery.min.js"></script>
-<script src="{{ STATIC_URL }}js/jquery.unveil.min.js"></script>
-<script src="{{ STATIC_URL }}js/site-wide-javascript.js"></script>
 
 {% block javascript_append %}{% endblock %}
 

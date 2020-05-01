@@ -1,0 +1,32 @@
+{% extends "index.html" %}
+{% load humanize %}
+{% load l10n %}
+
+{% block body_main %}
+
+<h3>Besøkslogg for {{year|unlocalize}}-{{month|unlocalize}}</h3>
+
+<a class="btn btn-link" href='{% url "profile" %}'>Tilbake til profil</a>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>IP</th>
+			<th>Tid</th>
+			<th>Agent</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for v in visitors %}
+		<tr>
+			<td>{{v.ip}}</td>
+			<td>{{v.time}}</td>
+			<td>{{v.agent|truncatechars:100}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+
+{% endblock %}
+
