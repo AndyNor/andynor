@@ -864,7 +864,7 @@ def balance(request):
 			'pk': a.pk,
 			'account': a.name,
 			'real': real_balance,
-			'real_bank': a.balance,
+			'real_bank': a.available,
 			'planned': planned_balance,
 			'diff_balanse': diff_balanse,
 		})
