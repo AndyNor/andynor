@@ -30,6 +30,7 @@ Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a cla
 		<tr>
 			<th>Konto</th>
 			<th width="15%">Kjøpsdato</th>
+			<th>Faktor</th>
 			<th>Beløp</th>
 			<th>Beskrivelse</th>
 			<th width="25%">Behandlet?</th>
@@ -40,6 +41,7 @@ Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a cla
 		<tr>
 			<td><a href="{% url 'money_account' t.account.pk %}">{{t.account.name }}</a></td>
 			<td>{{t.accounting_date}}</td>
+			<td {% if t.amount_factor > 1 %} style="background-color: #ffe2e2;" {% endif %}>{{t.amount_factor}}</td>
 
 		{% if t.isReservation %}
 			<td style="background-color: #ffe2e2;">
