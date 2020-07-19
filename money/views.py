@@ -1072,10 +1072,24 @@ def __create_new_transaction(request, bank_transaction, sub_category, comment):
 
 
 def __link_transaction(request, bank_transaction, pk):
+	from django.db import transaction
 	try:
-		t = Transaction.objects.get(pk=pk)
-		bank_transaction.related_transaction = t
-		bank_transaction.save()
+		with transaction.atomic():
+			t = Transaction.objects.get(pk=pk) # the one we are linking to
+			print(t)
+			print(bank_transaction)
+			# t could be linked before. Need to remove it just in case
+			try:
+				existing_bank_transaction = t.bank_transaction
+				print(existing_bank_transaction)
+				existing_bank_transaction.related_transaction = None
+				existing_bank_transaction.save()
+			except:
+				pass  # just continue..
+
+			# assign the new t
+			bank_transaction.related_transaction = t
+			bank_transaction.save()
 	except Exception as e:
 		messages.error(request, e)
 	return

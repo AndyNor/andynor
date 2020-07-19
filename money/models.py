@@ -313,7 +313,7 @@ class BankTransaction(models.Model):
 		return self.amount * self.amount_factor
 
 	def __str__(self):
-		return u'%s' % (self.accounting_date)
+		return u'%s %s %s' % (self.accounting_date, self.amount, self.description)
 
 	class Meta:
 		verbose_name_plural = "Banktransaksjoner"
