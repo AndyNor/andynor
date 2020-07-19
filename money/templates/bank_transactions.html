@@ -42,27 +42,23 @@ Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a cla
 			<td><a href="{% url 'money_account' t.account.pk %}">{{t.account.name }}</a></td>
 
 			<td>{{t.accounting_date}}</td>
-
-			<td {% if t.amount_factor > 1 %} style="background-color: #ffe2e2;" {% endif %}>
+			<td style="text-align: center; {% if t.amount_factor > 1 %} background-color: #ffe2e2; {% endif %}">
 				{{t.amount_factor}}
 			</td>
-
-			<td {% if t.isReservation %} style="background-color: #ffe2e2;" {% endif %}>
-				{{t.adjusted_amount}}
-			</td>
-
+			<td style="{% if t.isReservation %} background-color: #ffe2e2; {% endif %}">{{t.adjusted_amount}}</td>
 			<td>{{t.description}}</td>
-
 			<td>
 				{% if t.related_transaction %}
-					{% if t.adjusted_amount == t.related_transaction.amount %}
-						<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn btn-success">Ja</a>
-					{% else %}
-						<a href="{% url 'money_edit' this_type='expence' pk=t.related_transaction.pk %}" class="btn btn-warning">Forskjellig beløp</a>
+					<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn">Rediger</a>
+					{% if t.related_transaction %}
+						{% if t.adjusted_amount == t.related_transaction.amount %}
+							<a href="{% url 'money_edit' this_type='expence' pk=t.related_transaction.pk %}?next=/money/bank/transactions/" class="btn btn-success">Koblet</a>
+						{% else %}
+							<a href="{% url 'money_edit' this_type='expence' pk=t.related_transaction.pk %}?next=/money/bank/transactions/" class="btn btn-warning">Forskjellig beløp</a>
+						{% endif %}
 					{% endif %}
-					{% if t.source != "Archive" %}
-						<a href="{% url 'money_migrate' t.pk %}" class="btn btn-info">Migrer</a>
-					{% endif %}
+					<a href="{% url 'money_migrate' t.pk %}" class="btn btn-info">Migrer</a>
+
 				{% else %}
 					<a href="{% url 'create_transaction' t.pk %}" class="btn btn-link">Opprett</a>
 					<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn btn-link">Skjul</a>
