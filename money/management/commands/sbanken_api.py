@@ -24,6 +24,7 @@ class Command(BaseCommand):
 		CUSTOMERID = os.environ['SBANKEN_CUSTOMERID']
 		CLIENTID = os.environ['SBANKEN_CLIENTID']
 		SECRET = os.environ['SBANKEN_SECRET']
+		print("Kobler opp med clientID %s*** og secret %s***" % (CLIENTID[0:2], SECRET[0:2]))
 		HARDCODED_OWNER = User.objects.get(pk=1)
 		#NUM_ASK_FOR_TRANSACTIONS = "30"
 
@@ -136,8 +137,8 @@ class Command(BaseCommand):
 				message = "%s: Fant %s nye transaksjoner. %s eksisterte fra før. " % (a['name'], counter_successful, counter_skipped)
 				print(message)
 				log_message += message
-		except:
-			pass
+		except Exception as e:
+			print("Kunne ikke koble til: %s" % e)
 
 		runtime_t1 = time.time()
 		logg_total_runtime = runtime_t1 - runtime_t0
