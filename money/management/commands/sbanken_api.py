@@ -66,7 +66,7 @@ class Command(BaseCommand):
 
 		def sbanken_transactions(http_session, accountID):
 			#https://api.sbanken.no/exec.bank/swagger/index.html?urls.primaryName=Transactions%20v1
-			url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/?length=50" #?startDate=2019-12-15&endDate=2019-12-25"
+			url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/?length=200" #?startDate=2019-12-15&endDate=2019-12-25"
 			#1000 is maximum
 			headers = {
 				'customerId': CUSTOMERID,
