@@ -48,8 +48,8 @@ Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a cla
 			<td style="{% if t.isReservation %} background-color: #ffe2e2; {% endif %}">{{t.adjusted_amount}}</td>
 			<td>{{t.description}}</td>
 			<td>
+				<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn">Rediger</a>
 				{% if t.related_transaction %}
-					<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn">Rediger</a>
 					{% if t.related_transaction %}
 						{% if t.adjusted_amount == t.related_transaction.amount %}
 							<a href="{% url 'money_edit' this_type='expence' pk=t.related_transaction.pk %}?next=/money/bank/transactions/" class="btn btn-success">Koblet</a>

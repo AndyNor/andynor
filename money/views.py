@@ -1112,8 +1112,8 @@ def create_transaction(request, bank_transaction):
 
 
 def __migrations_choices(bank_transaction, user):
-	days_ago = bank_transaction.accounting_date - timedelta(days=7)
-	days_ahead = bank_transaction.accounting_date + timedelta(days=7)
+	days_ago = bank_transaction.accounting_date - timedelta(days=1)
+	days_ahead = bank_transaction.accounting_date + timedelta(days=6)
 	valg = BankTransaction.objects.filter(eier=user)
 	valg = BankTransaction.objects.filter(hidden=False)
 	valg = BankTransaction.objects.exclude(pk=bank_transaction.pk)
