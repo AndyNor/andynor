@@ -456,10 +456,15 @@ def edit(request, this_type, pk=False):
 	if this_type == u'bank_transaction':
 		head_text = "Rediger importert banktransaksjon"
 
+	try:
+		back_link = request.session['redirect_url']
+	except:
+		back_link = None
+
 	return render(request, u'money_edit.html', {
 		'type': this_type,
 		'form': form,
-		'back_link': request.session['redirect_url'],
+		'back_link': back_link,
 		'head_text': head_text
 	})
 
@@ -1027,12 +1032,12 @@ def bank_transactions(request):
 
 
 def __transactions_similar(bank_transaction, user):
-	days_ago = bank_transaction.accounting_date - timedelta(days=15)
-	days_ahead = bank_transaction.accounting_date + timedelta(days=15)
+	days_ago = bank_transaction.accounting_date - timedelta(days=14)
+	days_ahead = bank_transaction.accounting_date + timedelta(days=14)
 	valg = Transaction.objects.filter(owner=user)
 	valg = valg.filter(account=bank_transaction.account)
 	valg = valg.filter(date__range=(days_ago, days_ahead))
-	valg = valg.filter(amount__range=(bank_transaction.adjusted_amount()-50, bank_transaction.adjusted_amount()+50))
+	valg = valg.filter(amount__range=(bank_transaction.adjusted_amount() * Decimal(0.97), bank_transaction.adjusted_amount() * Decimal(1.03)))
 	valg = valg.order_by('-date')
 	return valg
 
@@ -1115,8 +1120,8 @@ def __migrations_choices(bank_transaction, user):
 	days_ago = bank_transaction.accounting_date - timedelta(days=1)
 	days_ahead = bank_transaction.accounting_date + timedelta(days=6)
 	valg = BankTransaction.objects.filter(eier=user)
-	valg = BankTransaction.objects.filter(hidden=False)
-	valg = BankTransaction.objects.exclude(pk=bank_transaction.pk)
+	valg = valg.filter(hidden=False)
+	valg = valg.exclude(pk=bank_transaction.pk)
 	valg = valg.filter(account=bank_transaction.account)
 	valg = valg.filter(accounting_date__range=(days_ago, days_ahead))
 	valg = valg.filter(amount__range=(bank_transaction.adjusted_amount() * Decimal(0.97), bank_transaction.adjusted_amount() * Decimal(1.03)))
