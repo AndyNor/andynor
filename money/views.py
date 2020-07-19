@@ -1014,7 +1014,7 @@ def sbanken_transactions(request, accountID):
 
 @login_required
 def bank_transactions(request):
-	transactions = BankTransaction.objects.filter(eier=request.user).filter(hidden=False).order_by("-accounting_date")[:100]
+	transactions = BankTransaction.objects.filter(eier=request.user).filter(hidden=False).order_by("-accounting_date")[:200]
 	try:
 		latest_synch = ApplicationLog.objects.filter(event_type='SBanken API').order_by('-opprettet')[0]
 	except:
