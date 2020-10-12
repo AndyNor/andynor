@@ -41,20 +41,25 @@ class Command(BaseCommand):
 				)
 				return session
 			except Exception as e:
+				print("Klarte ikke koble til med oppgitte autentiseringsparametre")
 				print("Error: %s" % e)
 
 
 
 		def sbanken_get(http_session, url, headers):
-			response = http_session.get(url, headers=headers)
-			return response.json()
+			if http_session:
+				response = http_session.get(url, headers=headers)
+				return response.json()
 
-			if not response["isError"]:
-				return response
+				#if not response["isError"]:
+				#	return response.json()
+				#else:
+				#	log_message += ("%s %s" % (response["errorType"], response["errorMessage"]))
+				#	raise RuntimeError("{} {}".format(response["errorType"], response["errorMessage"]))
 			else:
-				log_message += ("%s %s" % (response["errorType"], response["errorMessage"]))
-				raise RuntimeError("{} {}".format(response["errorType"], response["errorMessage"]))
-
+				print("Ingen tilkobling, avbryter..")
+				import sys
+				sys.exit()
 
 		def sbanken_accounts(http_session):
 			#https://api.sbanken.no/exec.bank/swagger/index.html?urls.primaryName=Accounts%20v1

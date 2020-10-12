@@ -10,10 +10,14 @@ if THIS_ENVIRONMENT == "PROD":
     SITE_URL = "https://andynor.net"
     ALLOWED_HOSTS = ['.andynor.net']
     DEBUG = False
+    from secrets_prod import load_secrets
+    load_secrets()
 if THIS_ENVIRONMENT == "DEV":
     SITE_URL = "localhost:8001"
     ALLOWED_HOSTS = ['localhost',]
     DEBUG = True
+    from secrets_dev import load_secrets
+    load_secrets()
 
 WSGI_APPLICATION = 'wsgi.application'
 ROOT_URLCONF = 'mysite.urls'
