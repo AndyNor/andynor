@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'databases',
     'calc',
     'stocks',
+    'conan',
 )
 
 SECRET_KEY = os.environ['SECRET_KEY']

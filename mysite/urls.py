@@ -34,6 +34,7 @@ urlpatterns += [
 	path('databases/', include('databases.urls'), name="databases"),
 	path('calc/', include('calc.urls'), name="calc"),
 	path('stocks/', include('stocks.urls'), name="stocks"),
+	path('conan/', include('conan.urls'), name="conan"),
 ]
 
 

@@ -115,6 +115,7 @@ class Command(BaseCommand):
 
 			for t in transactions['items']:
 				accounting_date = t['accountingDate']
+				accounting_date = datetime.datetime.strptime(accounting_date[0:10], "%Y-%m-%d").date()
 				amount = t['amount']
 				reservation = bool(t['isReservation'])
 				source = t['source']
@@ -123,8 +124,7 @@ class Command(BaseCommand):
 				unique_reference = sha256(unique_text.encode('utf-8')).hexdigest()
 				all_hashes.append(unique_reference)
 
-				if not BankTransaction.objects.filter(unique_reference=unique_reference).exists():
-					accounting_date = datetime.datetime.strptime(accounting_date[0:10], "%Y-%m-%d").date()
+				if not BankTransaction.objects.filter(accounting_date=accounting_date, amount=amount, description=description).exists():
 					BankTransaction.objects.create(
 							eier=HARDCODED_OWNER, # hardcoded to "andre"
 							account=internal_account,
@@ -144,12 +144,16 @@ class Command(BaseCommand):
 
 			# for all duplicates, modify transactions "amount_factor"
 			dupes = {i:all_hashes.count(i) for i in all_hashes}
+			#print(dupes)
 			for hash_value in dupes:
 				if dupes[hash_value] > 1:
-					bt = BankTransaction.objects.get(unique_reference=hash_value)
-					bt.amount_factor = dupes[hash_value]
-					bt.save()
-					#print("change %s to %s" % (hash_value, dupes[hash_value]))
+					try:
+						bt = BankTransaction.objects.get(unique_reference=hash_value)
+						bt.amount_factor = dupes[hash_value]
+						bt.save()
+						#print("change %s to %s" % (hash_value, dupes[hash_value]))
+					except:
+						pass
 
 
 			message = "%s: Fant %s nye transaksjoner. %s eksisterte fra før. " % (a['name'], counter_successful, counter_skipped)
