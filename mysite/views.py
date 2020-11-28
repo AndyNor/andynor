@@ -206,7 +206,7 @@ def search(request):
 	})
 
 
-@login_required
+@permission_required('blog.blog.can_add_blog', raise_exception=True)
 def profile(request):
 	import operator
 	from django.db.models.functions import TruncMonth

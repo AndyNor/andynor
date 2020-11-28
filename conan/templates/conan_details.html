@@ -13,10 +13,13 @@
 
 	{% include "include_show_item_details.html" with items=item %}
 
-	<h4>Material breakdown</h4>
-	{% for line in calculation %}
-		<li>{{ line.amount }} {{ line.item }} ({{ line.price }} silver)</li>
-	{% endfor %}
+	{% if calculation %}
+		<h4>Material breakdown</h4>
+		{% for line in calculation %}
+			<li>{{ line.amount }} {{ line.item }} ({{ line.price }} silver)</li>
+		{% endfor %}
+	<hr>
+	{% endif %}
 
 	{% for recipe in item.0.all_recipes.all %}
 	<h4>Recipe #{{forloop.counter}}</h4>
