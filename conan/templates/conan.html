@@ -1,34 +1,17 @@
 {% extends "index.html" %}
 
+{% block navigation_menu %}{% endblock%}
+
+{% block search_bar %}{% endblock%}
+
 {% block body_main %}
 
 	{% block blog_content %}
 
 	<div class="row">
-		<table id="conan_items" width="100%">
-			<thead>
-				<tr>
-					<th>Name of item</th>
-					<th>Type of item</th>
-					<th>Has recipe?</th>
-					<th>Stack size</th>
-					<th>Cost of item (Silver)</th>
-					<th>Cost of stack (Silver)</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for item in items %}
-				<tr>
-					<td>{{ item }}</td>
-					<td>{{ item.itemtype }}</td>
-					<td>{{ item.elementary|yesno:"Yes, No" }}</td>
-					<td>{{ item.stacksize }}</td>
-					<td>{{ item.itemprice }}</td>
-					<td>{{ item.price }}</td>
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
+
+		{% include "include_show_item_details.html" with items=items %}
+
 	</div>
 
 	{% endblock %}

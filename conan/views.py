@@ -35,16 +35,31 @@ def determine_price(item):
 		for r in result:
 			total_cost_recipe += r["price"]
 
-		return total_cost_recipe * item.stacksize
+		calculated_stackprice = total_cost_recipe * item.stacksize
 
+		return {"calculated_stackprice": calculated_stackprice, "result": result,}
+	return {"calculated_stackprice": None, "result": None,} # default
 
 
 def index(request):
 	items = Item.objects.all()
 	for item in items:
 		if item.price == 0:
-			item.price = determine_price(item)
+			item.price = determine_price(item)["calculated_stackprice"]
 
 	return render(request, u'conan.html', {
 		'items': items,
+	})
+
+
+def item_details(request, pk):
+	item = Item.objects.get(pk=pk)
+	calculations = determine_price(item)
+	print(calculations)
+	if item.price == 0:
+		item.price = calculations["calculated_stackprice"]
+
+	return render(request, u'conan_details.html', {
+		'item': (item,), # converting to a set in order to make it iterable for the template
+		'calculation': calculations["result"],
 	})

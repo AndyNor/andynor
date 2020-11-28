@@ -75,6 +75,7 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
 				</div>
 
+				{% block navigation_menu %}
 				<div>
 					<a class="brand" href='{% url "root" %}'>Forside</a>
 					<div class="nav-collapse">
@@ -91,6 +92,7 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 						</ul>
 					</div>
 				</div>
+				{% endblock %}
 
 
 
@@ -105,6 +107,7 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
 <div role="main" class="container">
 
+	{% block search_bar %}
 	<div class="row-fluid">
 
 		{% block messages %}
@@ -123,6 +126,7 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 			</button>
 		</form>
 	</div>
+	{% endblock %}
 
 	{% block body_main %}
 	{% endblock %}

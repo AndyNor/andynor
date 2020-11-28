@@ -1,0 +1,50 @@
+{% extends "index.html" %}
+
+{% block navigation_menu %}{% endblock%}
+{% block search_bar %}{% endblock%}
+
+{% block body_main %}
+
+	{% block blog_content %}
+
+	<a class="btn btn-small btn-primary" href="{% url 'app_conan' %}">Back to all items</a>
+
+	<h2>{{item.0}}</h2>
+
+	{% include "include_show_item_details.html" with items=item %}
+
+	<h4>Material breakdown</h4>
+	{% for line in calculation %}
+		<li>{{ line.amount }} {{ line.item }} ({{ line.price }} silver)</li>
+	{% endfor %}
+
+	{% for recipe in item.0.all_recipes.all %}
+	<h4>Recipe #{{forloop.counter}}</h4>
+	<a class="btn btn-small" href="/admin/conan/recipe/{{ recipe.pk }}/change/">✎ Edit recipe</a>
+	<a class="btn btn-small" href="/admin/conan/recipe/{{ recipe.pk }}/delete/">❌ Delete recipe</a>
+	<a class="btn btn-small" href="/admin/conan/recipepart/add/?recipe={{recipe.pk}}">Add ingredient</a>
+	<p>This recipe gives {{ recipe.output_factor }} {{recipe.item}}</p>
+		<table id="conan_items" class="table" width="100%">
+			<thead>
+				<tr>
+					<th>Edit</th>
+					<th>Required item</th>
+					<th>Amount</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for part in recipe.all_recipe_parts.all %}
+				<tr>
+					<td><a class="btn btn-small" href="/admin/conan/recipepart/{{ part.pk }}/change/">✎ Edit</a></td>
+					<td>{{ part.item }}</td>
+					<td>{{ part.amount }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<hr>
+	{% endfor %}
+
+	{% endblock %}
+
+{% endblock %}

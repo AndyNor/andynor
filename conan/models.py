@@ -1,7 +1,7 @@
 from django.db import models
 
-MAX_DIGITS = 15
-DECIMAL_PLACES = 2
+MAX_DIGITS = 10
+DECIMAL_PLACES = 4
 
 # Here we are trying to model how materials in Conan Exiles are converted to items via recipes.
 # The "Item"-class is any item. Basic resource or a final product. Typically a resource must go through several transformations in order to become a useful final product.
@@ -51,8 +51,11 @@ class Item(models.Model):
 		verbose_name="Stack size",
 		)
 
-	def elementary(self):
+	def has_recipe(self):
 		return False if len(self.all_recipes.all()) == 0 else True
+
+	def number_of_recipes(self):
+		return len(self.all_recipes.all())
 
 	def itemprice(self):
 		try:

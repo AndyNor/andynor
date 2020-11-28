@@ -1,0 +1,26 @@
+<table id="conan_items" class="table" width="100%">
+<thead>
+	<tr>
+		<th>Edit</th>
+		<th><a class="btn btn-small" href="/admin/conan/item/add/">Add item</a><br>Name of item</th>
+		<th><a class="btn btn-small" href="/admin/conan/itemtypechoice/">Categories</a><br>Type of item</th>
+		<th>Has recipe?</th>
+		<th>Cost of item (Silver)</th>
+		<th>Stack size</th>
+		<th>Cost of stack (Silver)</th>
+	</tr>
+</thead>
+<tbody>
+	{% for item in items %}
+	<tr>
+		<td><a href="/admin/conan/item/{{ item.pk }}/change/">✎</a></td>
+		<td><a href="{% url 'item_details' item.pk %}">{{ item }}</a></td>
+		<td>{{ item.itemtype }}</td>
+		<td>{{ item.has_recipe|yesno:"Yes, No" }} {% if item.has_recipe %} ({{ item.number_of_recipes }}) {% endif %}</td>
+		<td>{{ item.itemprice }}</td>
+		<td>{{ item.stacksize }}</td>
+		<td>{{ item.price }}</td>
+	</tr>
+	{% endfor %}
+</tbody>
+</table>
