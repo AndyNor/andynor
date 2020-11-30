@@ -1,4 +1,5 @@
 from django.db import models
+from decimal import Decimal
 
 MAX_DIGITS = 10
 DECIMAL_PLACES = 2
@@ -52,16 +53,54 @@ class Item(models.Model):
 		)
 
 	def has_recipe(self):
-		return False if len(self.all_recipes.all()) == 0 else True
-
-	def number_of_recipes(self):
-		return len(self.all_recipes.all())
+		return True if hasattr(self, 'recipe') else False
 
 	def itemprice(self):
 		try:
 			return (self.price / self.stacksize)
 		except:
 			return "Not a number"
+
+	def parts(self, amount_needed=1):
+		parts = []
+		for part in self.recipe.parts.all():
+			output_adjusted_amount = (part.amount * amount_needed) / Decimal(part.recipe.output_factor)
+			output_adjusted_price = (part.item.itemprice() * amount_needed) / Decimal(part.recipe.output_factor)
+			parts.append({"item": part.item, "amount": output_adjusted_amount, "price": output_adjusted_price})
+		return parts
+
+
+	def breakdown(self):
+		item_queue = []
+		items_needed = []
+
+		for part in self.parts():
+			item_queue.append(part) # what if it yields more than 1?
+
+		while item_queue:
+			this_part = item_queue.pop()
+
+			if not this_part["item"].has_recipe():
+				items_needed.append(this_part)
+				#for part in current_part["item"].parts():
+				#	adjusted_amount = (current_part["amount"] * part.amount) / Decimal(all_recipes.output_factor)
+				#	items_needed.append({"item": part["item"], "amount": adjusted_amount})
+
+			else: # need to nest more
+				for next_part in this_part["item"].parts(this_part["amount"]):
+					item_queue.append(next_part)
+				#part_price = current_part["item"].itemprice() * current_part["amount"]
+				#cost_breakdown.append({"item": current_part["item"], "amount": current_part["amount"], "price": part_price})
+		return items_needed
+
+
+	def calculated_price(self):
+		total_cost = Decimal(0)
+		items_needed = self.breakdown()
+		for item in items_needed:
+			total_cost += item["price"]
+		return total_cost
+
 
 	def __str__(self):
 		return u'%s' % (self.name)
@@ -71,9 +110,9 @@ class Item(models.Model):
 		default_permissions = ('add', 'change', 'delete', 'view')
 
 class Recipe(models.Model):
-	item = models.ForeignKey(
+	item = models.OneToOneField(
 		to=Item,
-		related_name='all_recipes',
+		related_name='recipe',
 		on_delete=models.CASCADE,
 		)
 	output_factor = models.IntegerField(
@@ -98,7 +137,7 @@ class Recipe(models.Model):
 class RecipePart(models.Model):
 	recipe = models.ForeignKey(
 		to=Recipe,
-		related_name='all_recipe_parts',
+		related_name='parts',
 		on_delete=models.CASCADE,
 	)
 	item = models.ForeignKey(

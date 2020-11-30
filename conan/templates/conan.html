@@ -14,10 +14,9 @@
 			<tr>
 				<th><a class="btn btn-small btn-primary" href="/admin/conan/item/add/">New item</a><br>Name of item</th>
 				<th><a class="btn btn-small btn-primary" href="/admin/conan/itemtypechoice/">Edit categories</a><br>Type of item</th>
-				<th>Number of recipes</th>
-				<th>Cost of item (Silver)</th>
+				<th>Has recipe?</th>
+				<th>Price of item (Silver)</th>
 				<th>Stack size</th>
-				<th>Cost of stack (Silver)</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -25,10 +24,15 @@
 			<tr>
 				<td><a href="{% url 'item_details' item.pk %}">{{ item }}</a></td>
 				<td>{{ item.itemtype }}</td>
-				<td>{{ item.number_of_recipes }}</td>
-				<td>{{ item.itemprice }}</td>
+				<td>{{ item.has_recipe|yesno:"Yes, No" }}</td>
+				<td>
+					{% if item.has_recipe %}
+						{{ item.calculated_price }} (calculated)
+					{% else %}
+						{{ item.itemprice }} (set manually)</td>
+					{% endif %}
+				<td></td>
 				<td>{{ item.stacksize }}</td>
-				<td>{{ item.price }}</td>
 			</tr>
 			{% endfor %}
 		</tbody>

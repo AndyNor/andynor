@@ -10,35 +10,31 @@
 	<a class="btn btn-small btn-primary" href="{% url 'app_conan' %}">Back to all items</a>
 
 	<h2><a class="btn btn-small" href="/admin/conan/item/{{ item.pk }}/change/">✎ Edit item</a> {{ item }}</h2>
-	A {{ item.itemtype }}. One item cost {{ item.itemprice }} silver.<br>
-	It comes in stacks of {{ item.stacksize }} and one stack would cost {{ item.price }} silver.
+	A {{ item.itemtype }}. One item cost {{ item.calculated_price }} silver. It comes in stacks of {{ item.stacksize }}.
 
-
-	{% if calculation %}
-		<h4>Total material breakdown</h4>
-		{% for line in calculation %}
-			<li>{{ line.amount }} {{ line.item }} ({{ line.price }} silver)</li>
-		{% endfor %}
+	{% if not item.has_recipe %}
+	<a class="btn btn-small" href="/admin/conan/recipe/add/?item={{ item.pk }}">Add recipe</a>
 	{% endif %}
 
-	<hr>
-	<a class="btn btn-small" href="/admin/conan/recipe/add/?item={{ item.pk }}">Add recipe</a>
+	<p><a href="/admin/conan/recipe/{{ item.recipe.pk }}/change/">Recipe</a> gives {{ item.recipe.output_factor }} {{ item.recipe }}
+		<a href="/admin/conan/recipe/{{ item.recipe.pk }}/delete/"> (❌)</a><br>
+	</p>
 
-	{% for recipe in item.all_recipes.all %}
-	<h4>
-		<a href="/admin/conan/recipe/{{ recipe.pk }}/change/">Recipe #{{forloop.counter}}: Outputs {{ recipe.output_factor }} {{ recipe }}</a>
-		<a href="/admin/conan/recipe/{{ recipe.pk }}/delete/"> (❌)</a>
-	</h4>
-
-	{% for part in recipe.all_recipe_parts.all %}
+	{% for part in item.recipe.parts.all %}
 		<li>
 			<a href="{% url 'item_details' part.item.pk %}">{{ part.amount }} {{ part.item }}</a> (<a href="/admin/conan/recipepart/{{ part.pk }}/change/">✎</a>)
 		</li>
 	{% endfor %}
 
-		(<a href="/admin/conan/recipepart/add/?recipe={{recipe.pk}}">Add ingredient</a>)
-		<hr>
+		<br>(<a href="/admin/conan/recipepart/add/?recipe={{recipe.pk}}">Add ingredient</a>)
+
+	<hr>
+
+	<h4>Total material breakdown</h4>
+	{% for part in item.breakdown %}
+		<p>{{ part.amount }} {{ part.item }} for {{ part.price }} silver</p>
 	{% endfor %}
+
 
 	{% endblock %}
 
