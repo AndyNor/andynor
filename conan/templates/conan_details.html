@@ -26,7 +26,7 @@
 
 	{% for recipe in item.all_recipes.all %}
 	<h4>
-		<a href="/admin/conan/recipe/{{ recipe.pk }}/change/">Recipe #{{forloop.counter}}: Outputs {{ recipe.output_factor }} {{recipe.item}}</a>
+		<a href="/admin/conan/recipe/{{ recipe.pk }}/change/">Recipe #{{forloop.counter}}: Outputs {{ recipe.output_factor }} {{ recipe }}</a>
 		<a href="/admin/conan/recipe/{{ recipe.pk }}/delete/"> (❌)</a>
 	</h4>
 

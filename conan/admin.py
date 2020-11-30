@@ -40,8 +40,12 @@ class ItemAdmin(admin.ModelAdmin):
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
 	list_display = ('item',)
-	search_fields = ('item',)
+	search_fields = ('item__name',)
 	#list_filter = ('',)
+
+	autocomplete_fields = (
+		'item',
+		)
 
 	def response_add(self, request, obj, post_url_continue=None):
 		if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
@@ -58,6 +62,11 @@ class RecipePartAdmin(admin.ModelAdmin):
 	list_display = ('recipe', 'item', 'amount')
 	search_fields = ('recipe', 'item')
 	#list_filter = ('',)
+
+	autocomplete_fields = (
+		'recipe',
+		'item',
+		)
 
 	def response_add(self, request, obj, post_url_continue=None):
 		if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):

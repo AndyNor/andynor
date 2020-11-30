@@ -88,7 +88,7 @@ class Recipe(models.Model):
 		)
 
 	def __str__(self):
-		return u'%s %s' % (self.item, self.recipe_comment) if self.recipe_comment else u'%s' % (self.item)
+		return u'%s (%s)' % (self.item, self.recipe_comment) if self.recipe_comment else u'%s' % (self.item)
 
 	class Meta:
 		verbose_name_plural = "Recipes"
