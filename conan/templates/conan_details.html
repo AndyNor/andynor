@@ -10,7 +10,7 @@
 	<a class="btn btn-small btn-primary" href="{% url 'app_conan' %}">Back to all items</a>
 
 	<h2><a class="btn btn-small" href="/admin/conan/item/{{ item.pk }}/change/">✎ Edit item</a> {{ item }}</h2>
-	A {{ item.itemtype }}. One item cost {{ item.calculated_price }} silver. It comes in stacks of {{ item.stacksize }}.
+	A {{ item.itemtype }}. One item cost {{ item.calculated_price|floatformat }} silver. It comes in stacks of {{ item.stacksize }}.
 
 	{% if not item.has_recipe %}
 	<a class="btn btn-small" href="/admin/conan/recipe/add/?item={{ item.pk }}">Add recipe</a>
@@ -32,7 +32,7 @@
 
 	<h4>Total material breakdown</h4>
 	{% for part in item.breakdown %}
-		<p>{{ part.amount }} {{ part.item }} for {{ part.price }} silver</p>
+		<p>{{ part.amount|floatformat }} {{ part.item }} for {{ part.price|floatformat }} silver</p>
 	{% endfor %}
 
 

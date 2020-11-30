@@ -27,7 +27,7 @@
 				<td>{{ item.has_recipe|yesno:"Yes, No" }}</td>
 				<td>
 					{% if item.has_recipe %}
-						{{ item.calculated_price }} (calculated)
+						{{ item.calculated_price|floatformat }} (calculated)
 					{% else %}
 						{{ item.itemprice }} (set manually)</td>
 					{% endif %}
