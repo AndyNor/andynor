@@ -1,7 +1,7 @@
 from django.db import models
 
 MAX_DIGITS = 10
-DECIMAL_PLACES = 4
+DECIMAL_PLACES = 2
 
 # Here we are trying to model how materials in Conan Exiles are converted to items via recipes.
 # The "Item"-class is any item. Basic resource or a final product. Typically a resource must go through several transformations in order to become a useful final product.

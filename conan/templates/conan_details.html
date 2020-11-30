@@ -9,42 +9,34 @@
 
 	<a class="btn btn-small btn-primary" href="{% url 'app_conan' %}">Back to all items</a>
 
-	<h2>{{item.0}}</h2>
+	<h2><a class="btn btn-small" href="/admin/conan/item/{{ item.pk }}/change/">✎ Edit item</a> {{ item }}</h2>
+	A {{ item.itemtype }}. One item cost {{ item.itemprice }} silver.<br>
+	It comes in stacks of {{ item.stacksize }} and one stack would cost {{ item.price }} silver.
 
-	{% include "include_show_item_details.html" with items=item %}
 
 	{% if calculation %}
-		<h4>Material breakdown</h4>
+		<h4>Total material breakdown</h4>
 		{% for line in calculation %}
 			<li>{{ line.amount }} {{ line.item }} ({{ line.price }} silver)</li>
 		{% endfor %}
-	<hr>
 	{% endif %}
 
-	{% for recipe in item.0.all_recipes.all %}
-	<h4>Recipe #{{forloop.counter}}</h4>
-	<a class="btn btn-small" href="/admin/conan/recipe/{{ recipe.pk }}/change/">✎ Edit recipe</a>
-	<a class="btn btn-small" href="/admin/conan/recipe/{{ recipe.pk }}/delete/">❌ Delete recipe</a>
-	<a class="btn btn-small" href="/admin/conan/recipepart/add/?recipe={{recipe.pk}}">Add ingredient</a>
-	<p>This recipe gives {{ recipe.output_factor }} {{recipe.item}}</p>
-		<table id="conan_items" class="table" width="100%">
-			<thead>
-				<tr>
-					<th>Edit</th>
-					<th>Required item</th>
-					<th>Amount</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for part in recipe.all_recipe_parts.all %}
-				<tr>
-					<td><a class="btn btn-small" href="/admin/conan/recipepart/{{ part.pk }}/change/">✎ Edit</a></td>
-					<td>{{ part.item }}</td>
-					<td>{{ part.amount }}</td>
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
+	<hr>
+	<a class="btn btn-small" href="/admin/conan/recipe/add/?item={{ item.pk }}">Add recipe</a>
+
+	{% for recipe in item.all_recipes.all %}
+	<h4>
+		<a href="/admin/conan/recipe/{{ recipe.pk }}/change/">Recipe #{{forloop.counter}}: Outputs {{ recipe.output_factor }} {{recipe.item}}</a>
+		<a href="/admin/conan/recipe/{{ recipe.pk }}/delete/"> (❌)</a>
+	</h4>
+
+	{% for part in recipe.all_recipe_parts.all %}
+		<li>
+			<a href="{% url 'item_details' part.item.pk %}">{{ part.amount }} {{ part.item }}</a> (<a href="/admin/conan/recipepart/{{ part.pk }}/change/">✎</a>)
+		</li>
+	{% endfor %}
+
+		(<a href="/admin/conan/recipepart/add/?recipe={{recipe.pk}}">Add ingredient</a>)
 		<hr>
 	{% endfor %}
 

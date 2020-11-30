@@ -2,17 +2,18 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from conan.models import *
 
+from mysite.site_wide_functions import get_previous_page, set_redirect_session
+
 # This function really only wants to figyre out what one stack of the items would cost in silver, based on all underlying recipes.
 # TODO: It is possible to model loops. Loop protection (hard limit or detection) is not implemented yet.
 def determine_price(item):
 	print("\nlookup of price for %s" % (item))
 	recipes = item.all_recipes.all()
 	for recipe in recipes:
-		print("Følger oppskrift %s" % (recipe))
 		items_needed = []
 		result = []
 		for part in recipe.all_recipe_parts.all():
-			print("%s %s" % (part.item, part.amount))
+			print("%s: %s %s" % (recipe, part.amount, part.item))
 			items_needed.append({"item": part.item, "amount": part.amount})
 
 		while items_needed:
@@ -27,10 +28,9 @@ def determine_price(item):
 				# there might be more, we only support one at the moment, hence [0] first item
 				for part in all_recipes[0].all_recipe_parts.all():
 					adjusted_amount = required_amount * part.amount
-					print("%s %s" % (part.item, adjusted_amount))
+					print("%s: %s %s" % (item_part, adjusted_amount, part.item))
 					items_needed.append({"item": part.item, "amount": adjusted_amount})
 
-		print(result)
 		total_cost_recipe = 0
 		for r in result:
 			total_cost_recipe += r["price"]
@@ -42,7 +42,7 @@ def determine_price(item):
 
 
 def index(request):
-	items = Item.objects.all()
+	items = Item.objects.all().order_by('-itemtype')
 	for item in items:
 		if item.price == 0:
 			item.price = determine_price(item)["calculated_stackprice"]
@@ -53,13 +53,13 @@ def index(request):
 
 
 def item_details(request, pk):
+	set_redirect_session(request, 'item_details', {'pk': pk})
 	item = Item.objects.get(pk=pk)
 	calculations = determine_price(item)
-	print(calculations)
 	if item.price == 0:
 		item.price = calculations["calculated_stackprice"]
 
 	return render(request, u'conan_details.html', {
-		'item': (item,), # converting to a set in order to make it iterable for the template
+		'item': item, # converting to a set in order to make it iterable for the template
 		'calculation': calculations["result"],
 	})

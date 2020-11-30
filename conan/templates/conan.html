@@ -1,7 +1,6 @@
 {% extends "index.html" %}
 
 {% block navigation_menu %}{% endblock%}
-
 {% block search_bar %}{% endblock%}
 
 {% block body_main %}
@@ -10,7 +9,30 @@
 
 	<div class="row">
 
-		{% include "include_show_item_details.html" with items=items %}
+		<table id="conan_items" class="table" width="100%">
+		<thead>
+			<tr>
+				<th><a class="btn btn-small btn-primary" href="/admin/conan/item/add/">New item</a><br>Name of item</th>
+				<th><a class="btn btn-small btn-primary" href="/admin/conan/itemtypechoice/">Edit categories</a><br>Type of item</th>
+				<th>Number of recipes</th>
+				<th>Cost of item (Silver)</th>
+				<th>Stack size</th>
+				<th>Cost of stack (Silver)</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for item in items %}
+			<tr>
+				<td><a href="{% url 'item_details' item.pk %}">{{ item }}</a></td>
+				<td>{{ item.itemtype }}</td>
+				<td>{{ item.number_of_recipes }}</td>
+				<td>{{ item.itemprice }}</td>
+				<td>{{ item.stacksize }}</td>
+				<td>{{ item.price }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+		</table>
 
 	</div>
 

@@ -29,12 +29,12 @@ class ItemAdmin(admin.ModelAdmin):
 
 	def response_add(self, request, obj, post_url_continue=None):
 		if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
-			return redirect(reverse('app_conan'))
+			return redirect(reverse('item_details', kwargs={'pk': obj.item.pk}))
 		return super().response_add(request, obj, post_url_continue)
 
 	def response_change(self, request, obj):
 		if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
-			return redirect(reverse('app_conan'))
+			return redirect(reverse('item_details', kwargs={'pk': obj.item.pk}))
 		return super().response_change(request, obj)
 
 @admin.register(models.Recipe)
@@ -61,10 +61,10 @@ class RecipePartAdmin(admin.ModelAdmin):
 
 	def response_add(self, request, obj, post_url_continue=None):
 		if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
-			return redirect(reverse('item_details', kwargs={'pk': obj.item.pk}))
+			return redirect('/return/')
 		return super().response_add(request, obj, post_url_continue)
 
 	def response_change(self, request, obj):
 		if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
-			return redirect(reverse('item_details', kwargs={'pk': obj.item.pk}))
+			return redirect('/return/')
 		return super().response_change(request, obj)
