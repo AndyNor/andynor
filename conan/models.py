@@ -1,6 +1,8 @@
 from django.db import models
 from decimal import Decimal
 
+from rest_framework import serializers
+
 MAX_DIGITS = 10
 DECIMAL_PLACES = 2
 
@@ -29,6 +31,7 @@ class ItemTypeChoice(models.Model):
 		default_permissions = ('add', 'change', 'delete', 'view')
 
 
+
 class Item(models.Model):
 	name = models.CharField(
 		max_length=200,
@@ -40,7 +43,7 @@ class Item(models.Model):
 		null=True,
 		blank=True,
 		)
-	price = models.DecimalField(
+	stack_price_silver = models.DecimalField(
 		max_digits=MAX_DIGITS,
 		decimal_places=DECIMAL_PLACES,
 		default=0,
@@ -57,16 +60,22 @@ class Item(models.Model):
 
 	def itemprice(self):
 		try:
-			return (self.price / self.stacksize)
+			return (self.stack_price_silver / self.stacksize)
 		except:
 			return "Not a number"
 
 	def parts(self, amount_needed=1):
 		parts = []
-		for part in self.recipe.parts.all():
-			output_adjusted_amount = (part.amount * amount_needed) / Decimal(part.recipe.output_factor)
-			output_adjusted_price = (part.item.itemprice() * amount_needed) / Decimal(part.recipe.output_factor)
-			parts.append({"item": part.item, "amount": output_adjusted_amount, "price": output_adjusted_price})
+		if hasattr(self, 'recipe'):
+			for part in self.recipe.parts.all():
+				output_adjusted_amount = (part.amount * amount_needed) / Decimal(part.recipe.output_factor)
+
+				if part.item.has_recipe():
+					output_adjusted_price = part.item.calculated_price()
+				else:
+					output_adjusted_price = (part.item.itemprice() * amount_needed) / Decimal(part.recipe.output_factor)
+
+				parts.append({"item": part.item, "amount": output_adjusted_amount, "price": output_adjusted_price})
 		return parts
 
 
@@ -82,15 +91,11 @@ class Item(models.Model):
 
 			if not this_part["item"].has_recipe():
 				items_needed.append(this_part)
-				#for part in current_part["item"].parts():
-				#	adjusted_amount = (current_part["amount"] * part.amount) / Decimal(all_recipes.output_factor)
-				#	items_needed.append({"item": part["item"], "amount": adjusted_amount})
 
 			else: # need to nest more
 				for next_part in this_part["item"].parts(this_part["amount"]):
 					item_queue.append(next_part)
-				#part_price = current_part["item"].itemprice() * current_part["amount"]
-				#cost_breakdown.append({"item": current_part["item"], "amount": current_part["amount"], "price": part_price})
+
 		return items_needed
 
 
@@ -105,9 +110,13 @@ class Item(models.Model):
 	def __str__(self):
 		return u'%s' % (self.name)
 
+	def to_dict(self):
+		return {"name": self.name}
+
 	class Meta:
 		verbose_name_plural = "Items"
 		default_permissions = ('add', 'change', 'delete', 'view')
+
 
 class Recipe(models.Model):
 	item = models.OneToOneField(
@@ -134,6 +143,7 @@ class Recipe(models.Model):
 		default_permissions = ('add', 'change', 'delete', 'view')
 
 
+
 class RecipePart(models.Model):
 	recipe = models.ForeignKey(
 		to=Recipe,
@@ -154,6 +164,7 @@ class RecipePart(models.Model):
 
 	def __str__(self):
 		return u'%s' % (self.item)
+
 
 	class Meta:
 		verbose_name_plural = "Recipe Parts"

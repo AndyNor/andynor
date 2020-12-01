@@ -23,7 +23,7 @@ class ItemTypeChoiceAdmin(admin.ModelAdmin):
 
 @admin.register(models.Item)
 class ItemAdmin(admin.ModelAdmin):
-	list_display = ('name', 'itemtype', 'price', 'stacksize',)
+	list_display = ('name', 'itemtype', 'stack_price_silver', 'stacksize',)
 	search_fields = ('name',)
 	#list_filter = ('',)
 

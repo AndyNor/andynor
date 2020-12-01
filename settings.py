@@ -30,6 +30,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'rest_framework',
     'mysite',
     'money',
     'power',
@@ -39,6 +40,13 @@ INSTALLED_APPS = (
     'stocks',
     'conan',
 )
+
+
+REST_FRAMEWORK = {
+	'DEFAULT_PERMISSION_CLASSES': (
+		'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+	)
+}
 
 SECRET_KEY = os.environ['SECRET_KEY']
 SECURE_BROWSER_XSS_FILTER = True
