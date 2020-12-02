@@ -33,14 +33,15 @@ def item_details_api(request, pk):
 		return serialized_data
 
 	item = Item.objects.get(pk=pk)
-	item_breakdown = JSONserialize(item.breakdown())
-	item_recipe = JSONserialize(item.parts())
+	item_breakdown = JSONserialize(item.breakdown()) if item.breakdown() != [] else None
+	item_recipe = JSONserialize(item.parts()) if item.parts() != [] else None
 
 	data = {
 		"item_id": item.pk,
 		"item_name": item.name,
 		"item_calculated_price": item.calculated_price(),
 		"item_recipe": item_recipe,
+		"item_recipe_output": item.recipe_output_factor(),
 		"item_breakdown": item_breakdown,
 		}
 	return JsonResponse(data, safe=False)

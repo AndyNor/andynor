@@ -106,6 +106,12 @@ class Item(models.Model):
 			total_cost += item["price"] * item["amount"]
 		return total_cost
 
+	def recipe_output_factor(self):
+		if self.has_recipe():
+			return self.recipe.output_factor
+		else:
+			return None
+
 
 	def __str__(self):
 		return u'%s' % (self.name)
