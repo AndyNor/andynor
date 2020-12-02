@@ -71,9 +71,9 @@ class Item(models.Model):
 				output_adjusted_amount = (part.amount * amount_needed) / Decimal(part.recipe.output_factor)
 
 				if part.item.has_recipe():
-					output_adjusted_price = part.item.calculated_price() * amount_needed
+					output_adjusted_price = part.item.calculated_price()
 				else:
-					output_adjusted_price = (part.item.itemprice() * amount_needed) / Decimal(part.recipe.output_factor)
+					output_adjusted_price = part.item.itemprice() / Decimal(part.recipe.output_factor)
 
 				parts.append({"item": part.item, "amount": output_adjusted_amount, "price": output_adjusted_price})
 		return parts
@@ -103,7 +103,7 @@ class Item(models.Model):
 		total_cost = Decimal(0)
 		items_needed = self.breakdown()
 		for item in items_needed:
-			total_cost += item["price"]
+			total_cost += item["price"] * item["amount"]
 		return total_cost
 
 
