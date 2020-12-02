@@ -14,27 +14,30 @@
 
 	{% if not item.has_recipe %}
 	<a class="btn btn-small" href="/admin/conan/recipe/add/?item={{ item.pk }}">Add recipe</a>
+
+	{% else %}
+
+
+		<p><a href="/admin/conan/recipe/{{ item.recipe.pk }}/change/">Recipe</a> gives {{ item.recipe.output_factor }} {{ item.recipe }}
+			<a href="/admin/conan/recipe/{{ item.recipe.pk }}/delete/"> (❌)</a><br>
+		</p>
+
+		{% for part in item.recipe.parts.all %}
+			<li>
+				<a href="{% url 'item_details' part.item.pk %}">{{ part.amount }} {{ part.item }}</a> (<a href="/admin/conan/recipepart/{{ part.pk }}/change/">✎</a>)
+			</li>
+		{% endfor %}
+
+			<br>(<a href="/admin/conan/recipepart/add/?recipe={{item.recipe.pk}}">Add ingredient</a>)
+
+		<hr>
+
+		<h4>Total material breakdown</h4>
+		{% for part in item.breakdown %}
+			<p>{{ part.amount|floatformat }} {{ part.item }} for {{ part.price|floatformat }} silver</p>
+		{% endfor %}
+
 	{% endif %}
-
-	<p><a href="/admin/conan/recipe/{{ item.recipe.pk }}/change/">Recipe</a> gives {{ item.recipe.output_factor }} {{ item.recipe }}
-		<a href="/admin/conan/recipe/{{ item.recipe.pk }}/delete/"> (❌)</a><br>
-	</p>
-
-	{% for part in item.recipe.parts.all %}
-		<li>
-			<a href="{% url 'item_details' part.item.pk %}">{{ part.amount }} {{ part.item }}</a> (<a href="/admin/conan/recipepart/{{ part.pk }}/change/">✎</a>)
-		</li>
-	{% endfor %}
-
-		<br>(<a href="/admin/conan/recipepart/add/?recipe={{recipe.pk}}">Add ingredient</a>)
-
-	<hr>
-
-	<h4>Total material breakdown</h4>
-	{% for part in item.breakdown %}
-		<p>{{ part.amount|floatformat }} {{ part.item }} for {{ part.price|floatformat }} silver</p>
-	{% endfor %}
-
 
 	{% endblock %}
 
