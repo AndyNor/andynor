@@ -71,7 +71,7 @@ class Item(models.Model):
 				output_adjusted_amount = (part.amount * amount_needed) / Decimal(part.recipe.output_factor)
 
 				if part.item.has_recipe():
-					output_adjusted_price = part.item.calculated_price()
+					output_adjusted_price = part.item.calculated_price() * amount_needed
 				else:
 					output_adjusted_price = (part.item.itemprice() * amount_needed) / Decimal(part.recipe.output_factor)
 
