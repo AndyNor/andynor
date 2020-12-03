@@ -20,7 +20,22 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% for item in items %}
+			{% for item in important_items %}
+			<tr>
+				<td><a href="{% url 'item_details' item.pk %}">{{ item }}</a></td>
+				<td>{{ item.itemtype }}</td>
+				<td>{{ item.has_recipe|yesno:"Yes, No" }}</td>
+				<td>
+					{% if item.has_recipe %}
+						{{ item.calculated_price|floatformat }} (calculated)
+					{% else %}
+						{{ item.itemprice }} (set manually)</td>
+					{% endif %}
+				<td></td>
+				<td>{{ item.stacksize }}</td>
+			</tr>
+			{% endfor %}
+			{% for item in lesser_items %}
 			<tr>
 				<td><a href="{% url 'item_details' item.pk %}">{{ item }}</a></td>
 				<td>{{ item.itemtype }}</td>

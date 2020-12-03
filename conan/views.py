@@ -8,9 +8,11 @@ from .serializers import *
 from mysite.site_wide_functions import set_redirect_session
 
 def index(request):
-	items = Item.objects.all().order_by('-itemtype')
+	important_items = Item.objects.filter(itemtype__important=True).order_by('name')
+	lesser_items = Item.objects.filter(itemtype__important=False).order_by('name')
 	return render(request, u'conan.html', {
-		'items': items,
+		'important_items': important_items,
+		'lesser_items': lesser_items,
 	})
 
 def item_details(request, pk):

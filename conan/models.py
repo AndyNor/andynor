@@ -23,6 +23,11 @@ class ItemTypeChoice(models.Model):
 		max_length=200,
 		verbose_name="Item type choice",
 		)
+	important = models.BooleanField(
+		default=True,
+		blank=False, null=False,
+		verbose_name="Important type?",
+		)
 	def __str__(self):
 		return u'%s' % (self.name)
 
