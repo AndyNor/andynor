@@ -85,15 +85,15 @@ class OrderAdmin(admin.ModelAdmin):
 	search_fields = ('recipe_comment',)
 	#list_filter = ('',)
 
-	#def response_add(self, request, obj, post_url_continue=None):
-	#	if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
-	#		return redirect('/return/')
-	#	return super().response_add(request, obj, post_url_continue)
+	def response_add(self, request, obj, post_url_continue=None):
+		if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
+			return redirect('/return/')
+		return super().response_add(request, obj, post_url_continue)
 
-	#def response_change(self, request, obj):
-	#	if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
-	#		return redirect('/return/')
-	#	return super().response_change(request, obj)
+	def response_change(self, request, obj):
+		if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
+			return redirect('/return/')
+		return super().response_change(request, obj)
 
 @admin.register(models.OrderPart)
 class OrderPartAdmin(admin.ModelAdmin):
@@ -107,12 +107,12 @@ class OrderPartAdmin(admin.ModelAdmin):
 	#search_fields = ('recipe_comment')
 	#list_filter = ('',)
 
-	#def response_add(self, request, obj, post_url_continue=None):
-	#	if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
-	#		return redirect('/return/')
-	#	return super().response_add(request, obj, post_url_continue)
+	def response_add(self, request, obj, post_url_continue=None):
+		if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
+			return redirect('/return/')
+		return super().response_add(request, obj, post_url_continue)
 
-	#def response_change(self, request, obj):
-	#	if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
-	#		return redirect('/return/')
-	#	return super().response_change(request, obj)
+	def response_change(self, request, obj):
+		if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
+			return redirect('/return/')
+		return super().response_change(request, obj)
