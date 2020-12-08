@@ -10,17 +10,28 @@ from mysite.site_wide_functions import set_redirect_session
 def index(request):
 	important_items = Item.objects.filter(itemtype__important=True).order_by('name')
 	lesser_items = Item.objects.filter(itemtype__important=False).order_by('name')
+	orders = Order.objects.all()
 	return render(request, u'conan.html', {
 		'important_items': important_items,
 		'lesser_items': lesser_items,
+		'orders': orders,
 	})
+
+
+#def orders(request):
+#	orders = Order.objects.all()
+#	return render(request, u'conan_orders.html', {
+#		'orders': orders,
+#	})
+
 
 def item_details(request, pk):
 	set_redirect_session(request, 'item_details', {'pk': pk})
 	item = Item.objects.get(pk=pk)
 	return render(request, u'conan_details.html', {
-		'item': item, # converting to a set in order to make it iterable for the template
+		'item': item,
 	})
+
 
 def item_details_api(request, pk):
 	from django.http import JsonResponse

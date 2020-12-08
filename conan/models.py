@@ -2,6 +2,8 @@ from django.db import models
 from decimal import Decimal
 
 from rest_framework import serializers
+from functools import lru_cache
+
 
 MAX_DIGITS = 10
 DECIMAL_PLACES = 2
@@ -69,6 +71,7 @@ class Item(models.Model):
 		except:
 			return "Not a number"
 
+	@lru_cache(maxsize=512)
 	def parts(self, amount_needed=1):
 		parts = []
 		if hasattr(self, 'recipe'):
@@ -83,7 +86,7 @@ class Item(models.Model):
 				parts.append({"item": part.item, "amount": output_adjusted_amount, "price": output_adjusted_price})
 		return parts
 
-
+	@lru_cache(maxsize=512)
 	def breakdown(self):
 		item_queue = []
 		items_needed = []
@@ -104,6 +107,7 @@ class Item(models.Model):
 		return items_needed
 
 
+	@lru_cache(maxsize=512)
 	def calculated_price(self):
 		total_cost = Decimal(0)
 		items_needed = self.breakdown()
@@ -179,4 +183,60 @@ class RecipePart(models.Model):
 
 	class Meta:
 		verbose_name_plural = "Recipe Parts"
+		default_permissions = ('add', 'change', 'delete', 'view')
+
+
+class Order(models.Model):
+	recipe_comment = models.CharField(
+		max_length=500,
+		verbose_name="Description",
+		blank=False, null=False,
+		)
+	payout_silver = models.IntegerField(
+		default=1,
+		blank=False, null=False,
+	)
+
+	def cost(self):
+		total_cost = Decimal(0)
+		for part in self.parts.all():
+			total_cost += (part.item.calculated_price() * part.amount)
+		return total_cost
+
+
+
+	def __str__(self):
+		return u'%s for %s silver' % (self.recipe_comment, self.payout_silver)
+
+	class Meta:
+		verbose_name_plural = "Orders"
+		default_permissions = ('add', 'change', 'delete', 'view')
+
+
+class OrderPart(models.Model):
+	order = models.ForeignKey(
+		to=Order,
+		related_name='parts',
+		on_delete=models.CASCADE,
+		null=False,
+		blank=False,
+	)
+	item = models.ForeignKey(
+		to=Item,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=False,
+	)
+	amount = models.IntegerField(
+		default=1,
+		blank=False, null=False,
+	)
+
+
+	def __str__(self):
+		return u'%s %s' % (self.amount, self.item)
+
+
+	class Meta:
+		verbose_name_plural = "Order Parts"
 		default_permissions = ('add', 'change', 'delete', 'view')

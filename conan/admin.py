@@ -77,3 +77,42 @@ class RecipePartAdmin(admin.ModelAdmin):
 		if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
 			return redirect('/return/')
 		return super().response_change(request, obj)
+
+
+@admin.register(models.Order)
+class OrderAdmin(admin.ModelAdmin):
+	list_display = ('recipe_comment', 'payout_silver')
+	search_fields = ('recipe_comment',)
+	#list_filter = ('',)
+
+	#def response_add(self, request, obj, post_url_continue=None):
+	#	if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
+	#		return redirect('/return/')
+	#	return super().response_add(request, obj, post_url_continue)
+
+	#def response_change(self, request, obj):
+	#	if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
+	#		return redirect('/return/')
+	#	return super().response_change(request, obj)
+
+@admin.register(models.OrderPart)
+class OrderPartAdmin(admin.ModelAdmin):
+	list_display = ('order', 'item', 'amount')
+
+	autocomplete_fields = (
+		'order',
+		'item',
+		)
+
+	#search_fields = ('recipe_comment')
+	#list_filter = ('',)
+
+	#def response_add(self, request, obj, post_url_continue=None):
+	#	if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
+	#		return redirect('/return/')
+	#	return super().response_add(request, obj, post_url_continue)
+
+	#def response_change(self, request, obj):
+	#	if not any(header in ('_addanother', '_continue', '_popup') for header in request.POST):
+	#		return redirect('/return/')
+	#	return super().response_change(request, obj)
