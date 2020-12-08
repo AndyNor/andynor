@@ -8,7 +8,7 @@ from .serializers import *
 from mysite.site_wide_functions import set_redirect_session
 
 def index(request):
-	set_redirect_session(request, 'item_details', {'pk': pk})
+	set_redirect_session(request, 'app_conan', None)
 	important_items = Item.objects.filter(itemtype__important=True).order_by('name')
 	lesser_items = Item.objects.filter(itemtype__important=False).order_by('name')
 	orders = Order.objects.all()
