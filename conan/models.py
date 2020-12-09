@@ -71,7 +71,7 @@ class Item(models.Model):
 		except:
 			return "Not a number"
 
-	@lru_cache(maxsize=512)
+	#@lru_cache(maxsize=512)
 	def parts(self, amount_needed=1):
 		parts = []
 		if hasattr(self, 'recipe'):
@@ -86,7 +86,7 @@ class Item(models.Model):
 				parts.append({"item": part.item, "amount": output_adjusted_amount, "price": output_adjusted_price})
 		return parts
 
-	@lru_cache(maxsize=512)
+	#@lru_cache(maxsize=512)
 	def breakdown(self):
 		item_queue = []
 		items_needed = []
@@ -107,7 +107,7 @@ class Item(models.Model):
 		return items_needed
 
 
-	@lru_cache(maxsize=512)
+	#@lru_cache(maxsize=512)
 	def calculated_price(self):
 		total_cost = Decimal(0)
 		items_needed = self.breakdown()
