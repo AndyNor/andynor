@@ -1,7 +1,9 @@
 # Secrets and database
 db.sqlite3
-initial_data.json
+*.json
 this_env.py
+secrets_dev.py
+secrets_prod.py
 
 # local
 *.whl
