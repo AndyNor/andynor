@@ -2,8 +2,9 @@
 db.sqlite3
 *.json
 this_env.py
-secrets_dev.py
-secrets_prod.py
+secrets.*.py
+backup_script
+*.7z
 
 # local
 *.whl
