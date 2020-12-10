@@ -12,10 +12,18 @@ def index(request):
 	important_items = Item.objects.filter(itemtype__important=True).order_by('name')
 	lesser_items = Item.objects.filter(itemtype__important=False).order_by('name')
 	orders = Order.objects.all()
+
+	parts = Item.parts.cache_info()
+	breakdown = Item.breakdown.cache_info()
+	calculated_price = Item.calculated_price.cache_info()
+
 	return render(request, u'conan.html', {
 		'important_items': important_items,
 		'lesser_items': lesser_items,
 		'orders': orders,
+		'parts_cache': parts,
+		'breakdown_cache': breakdown,
+		'calculated_price_cache': calculated_price,
 	})
 
 

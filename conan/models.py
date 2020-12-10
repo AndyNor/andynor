@@ -71,7 +71,7 @@ class Item(models.Model):
 		except:
 			return "Not a number"
 
-	#@lru_cache(maxsize=512)
+	@lru_cache(maxsize=512)
 	def parts(self, amount_needed=1):
 		parts = []
 		if hasattr(self, 'recipe'):
@@ -86,7 +86,8 @@ class Item(models.Model):
 				parts.append({"item": part.item, "amount": output_adjusted_amount, "price": output_adjusted_price})
 		return parts
 
-	#@lru_cache(maxsize=512)
+
+	@lru_cache(maxsize=512)
 	def breakdown(self):
 		item_queue = []
 		items_needed = []
@@ -107,8 +108,9 @@ class Item(models.Model):
 		return items_needed
 
 
-	#@lru_cache(maxsize=512)
+	@lru_cache(maxsize=512)
 	def calculated_price(self):
+		print("price for %s" % self)
 		total_cost = Decimal(0)
 		items_needed = self.breakdown()
 		for item in items_needed:
@@ -121,6 +123,11 @@ class Item(models.Model):
 		else:
 			return None
 
+	def clear_lru_cache(self):
+		self.parts.cache_clear()
+		self.breakdown.cache_clear()
+		self.calculated_price.cache_clear()
+
 
 	def __str__(self):
 		return u'%s' % (self.name)
@@ -131,6 +138,10 @@ class Item(models.Model):
 	class Meta:
 		verbose_name_plural = "Items"
 		default_permissions = ('add', 'change', 'delete', 'view')
+
+	def save(self, *args, **kwargs):
+		self.clear_lru_cache()
+		return super(Item, self).save(*args, **kwargs)
 
 
 class Recipe(models.Model):
@@ -156,6 +167,10 @@ class Recipe(models.Model):
 	class Meta:
 		verbose_name_plural = "Recipes"
 		default_permissions = ('add', 'change', 'delete', 'view')
+
+	def save(self, *args, **kwargs):
+		self.item.clear_lru_cache()
+		return super(Recipe, self).save(*args, **kwargs)
 
 
 
@@ -185,6 +200,10 @@ class RecipePart(models.Model):
 		verbose_name_plural = "Recipe Parts"
 		default_permissions = ('add', 'change', 'delete', 'view')
 
+	def save(self, *args, **kwargs):
+		self.recipe.item.clear_lru_cache()
+		return super(RecipePart, self).save(*args, **kwargs)
+
 
 class Order(models.Model):
 	recipe_comment = models.CharField(
@@ -203,14 +222,13 @@ class Order(models.Model):
 			total_cost += (part.item.calculated_price() * part.amount)
 		return total_cost
 
-
-
 	def __str__(self):
 		return u'%s for %s silver' % (self.recipe_comment, self.payout_silver)
 
 	class Meta:
 		verbose_name_plural = "Orders"
 		default_permissions = ('add', 'change', 'delete', 'view')
+
 
 
 class OrderPart(models.Model):
