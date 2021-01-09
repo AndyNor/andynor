@@ -219,7 +219,10 @@ class Order(models.Model):
 	def cost(self):
 		total_cost = Decimal(0)
 		for part in self.parts.all():
-			total_cost += (part.item.calculated_price() * part.amount)
+			if hasattr(part.item, 'recipe'):
+				total_cost += (part.item.calculated_price() * part.amount)
+			else:
+				total_cost += (part.item.itemprice() * part.amount)
 		return total_cost
 
 	def __str__(self):
