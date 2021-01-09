@@ -85,7 +85,7 @@ class Item(models.Model):
 
 				parts.append({"item": part.item, "amount": output_adjusted_amount, "price": output_adjusted_price})
 		else:
-			parts.append({"item": item, "amount": amount_needed, "price": item.itemprice()})
+			parts.append({"item": self, "amount": amount_needed, "price": self.itemprice()})
 		return parts
 
 
@@ -95,7 +95,7 @@ class Item(models.Model):
 		items_needed = []
 
 		for part in self.parts():
-			item_queue.append(part) # what if it yields more than 1?
+			item_queue.append(part)
 
 		while item_queue:
 			this_part = item_queue.pop()
@@ -103,7 +103,7 @@ class Item(models.Model):
 			if not this_part["item"].has_recipe():
 				items_needed.append(this_part)
 
-			else: # need to nest more
+			else:
 				for next_part in this_part["item"].parts(this_part["amount"]):
 					item_queue.append(next_part)
 
