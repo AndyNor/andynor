@@ -84,6 +84,8 @@ class Item(models.Model):
 					output_adjusted_price = part.item.itemprice() / Decimal(part.recipe.output_factor)
 
 				parts.append({"item": part.item, "amount": output_adjusted_amount, "price": output_adjusted_price})
+		else:
+			parts.append({"item": item, "amount": amount_needed, "price": item.itemprice()})
 		return parts
 
 
@@ -219,10 +221,10 @@ class Order(models.Model):
 	def cost(self):
 		total_cost = Decimal(0)
 		for part in self.parts.all():
-			if hasattr(part.item, 'recipe'):
-				total_cost += (part.item.calculated_price() * part.amount)
-			else:
-				total_cost += (part.item.itemprice() * part.amount)
+			#if hasattr(part.item, 'recipe'):
+			total_cost += (part.item.calculated_price() * part.amount)
+			#else:
+				#total_cost += (part.item.itemprice() * part.amount)
 		return total_cost
 
 	def __str__(self):
