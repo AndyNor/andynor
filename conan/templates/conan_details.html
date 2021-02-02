@@ -34,7 +34,7 @@
 
 		<h4>Total material breakdown</h4>
 		{% for part in item.breakdown %}
-			<p>{{ part.amount|floatformat }} {{ part.item }} for {{ part.price|floatformat }} silver</p>
+			<p>{{ part.amount|floatformat }} {{ part.item }} for {{ part.price|floatformat }} silver each</p>
 		{% endfor %}
 
 	{% endif %}
