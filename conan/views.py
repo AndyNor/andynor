@@ -11,7 +11,7 @@ def index(request):
 	set_redirect_session(request, 'app_conan', None)
 	important_items = Item.objects.filter(itemtype__important=True).order_by('name')
 	lesser_items = Item.objects.filter(itemtype__important=False).order_by('name')
-	items_missing_type = Item.objects.filter(itemtype=None).order_by('name')
+	#items_missing_type = Item.objects.filter(itemtype=None).order_by('name')
 	orders = Order.objects.all()
 
 	parts = Item.parts.cache_info()
@@ -21,7 +21,7 @@ def index(request):
 	return render(request, u'conan.html', {
 		'important_items': important_items,
 		'lesser_items': lesser_items,
-		'items_missing_type': items_missing_type,
+		#'items_missing_type': items_missing_type,
 		'orders': orders,
 		'parts_cache': parts,
 		'breakdown_cache': breakdown,
