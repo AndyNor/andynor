@@ -46,7 +46,7 @@ class Item(models.Model):
 		)
 	itemtype = models.ForeignKey(
 		to=ItemTypeChoice,
-		on_delete=models.SET_NULL,
+		on_delete=models.PROTECT,
 		null=True,
 		blank=True,
 		)
@@ -77,7 +77,6 @@ class Item(models.Model):
 		if hasattr(self, 'recipe'):
 			for part in self.recipe.parts.all():
 				output_adjusted_amount = (part.amount * amount_needed) / Decimal(part.recipe.output_factor)
-
 				if part.item.has_recipe():
 					output_adjusted_price = part.item.calculated_price()
 				else:
@@ -184,8 +183,8 @@ class RecipePart(models.Model):
 	)
 	item = models.ForeignKey(
 		to=Item,
-		on_delete=models.SET_NULL,
-		null=True,
+		on_delete=models.PROTECT,
+		null=False,
 		blank=False,
 	)
 	amount = models.IntegerField(
@@ -246,7 +245,7 @@ class OrderPart(models.Model):
 	)
 	item = models.ForeignKey(
 		to=Item,
-		on_delete=models.SET_NULL,
+		on_delete=models.PROTECT,
 		null=True,
 		blank=False,
 	)
