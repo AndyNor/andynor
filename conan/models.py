@@ -47,8 +47,8 @@ class Item(models.Model):
 	itemtype = models.ForeignKey(
 		to=ItemTypeChoice,
 		on_delete=models.PROTECT,
-		null=True,
-		blank=True,
+		null=False,
+		blank=False,
 		)
 	stack_price_silver = models.DecimalField(
 		max_digits=MAX_DIGITS,
