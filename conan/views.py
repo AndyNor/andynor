@@ -9,9 +9,7 @@ from mysite.site_wide_functions import set_redirect_session
 
 def index(request):
 	set_redirect_session(request, 'app_conan', None)
-	important_items = Item.objects.filter(itemtype__important=True).order_by('name')
-	lesser_items = Item.objects.filter(itemtype__important=False).order_by('name')
-	items_missing_type = Item.objects.filter(itemtype=None).order_by('name')
+	items = Item.objects.order_by('itemtype', 'name')
 	orders = Order.objects.all()
 
 	parts = Item.parts.cache_info()
@@ -19,9 +17,7 @@ def index(request):
 	calculated_price = Item.calculated_price.cache_info()
 
 	return render(request, u'conan.html', {
-		'important_items': important_items,
-		'lesser_items': lesser_items,
-		'items_missing_type': items_missing_type,
+		'items': items,
 		'orders': orders,
 		'parts_cache': parts,
 		'breakdown_cache': breakdown,
