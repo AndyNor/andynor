@@ -67,7 +67,7 @@
 					{% if item.has_recipe %}
 						{{ item.calculated_price|floatformat }} (calculated)
 					{% else %}
-						{{ item.itemprice }} (set manually)</td>
+						{{ item.itemprice|floatformat }} (set manually)</td>
 					{% endif %}
 				<td></td>
 				<td>{{ item.stacksize }}</td>
