@@ -40,7 +40,7 @@
 			<h4>Total material breakdown</h4>
 			{% if item.has_recipe %}
 				{% for part in item.breakdown %}
-					<p>{{ part.amount|floatformat }} {{ part.item }} for {{ part.price|floatformat }} silver each</p>
+					<p>{{ part.amount|floatformat }} <a href="{% url 'item_details' part.item.pk %}">{{ part.item }}</a> for {{ part.price|floatformat }} silver each</p>
 				{% endfor %}
 			{% else %}
 				<a class="btn btn-small" href="/admin/conan/recipe/add/?item={{ item.pk }}">Add recipe</a>
@@ -50,7 +50,7 @@
 		<div class="span4">
 			<h4>Used in</h4>
 			{% for part in item.usedin %}
-				<li>{{ part.recipe }}</li>
+				<li><a href="{% url 'item_details' part.recipe.item.pk %}">{{ part.recipe }}</a></li>
 			{% endfor %}
 		</div>
 
