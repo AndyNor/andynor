@@ -8,53 +8,23 @@
 	{% block blog_content %}
 
 
-
 	<div class="row">
-	<h4>All orders</h4>
-	<a class="btn btn-small btn-primary" href="/admin/conan/order/add/">New order</a>
+		<br style="line-height: 80px;">
+		<a class="btn btn-success" href="{% url 'orders' %}">View orders</a>
+		<h4>Conan: Resources and gear
+		<a class="btn btn-small" href="/admin/conan/item/add/">New item</a>
+		<a class="btn btn-small" href="/admin/conan/itemtypechoice/">Edit categories</a>
+		</h4>
+		<p>An item is something found or created in Conan Exiles (Brutal Sun)</p>
 
-		<table id="conan_items" class="table" width="100%">
-		<thead>
-			<tr>
-				<th>Description</th>
-				<th>Cost</th>
-				<th>Payout</th>
-				<th>Requires</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for order in orders %}
-			<tr>
-				<td><a href="/admin/conan/order/{{order.pk}}/change/">{{ order.recipe_comment }}</a></td>
-				<td>{{ order.cost|floatformat }} silver</td>
-				<td>{{ order.payout_silver }} silver</td>
-				<td>
-					{% for part in order.parts.all %}
-						<a href="/admin/conan/orderpart/{{part.pk}}/change/">{{part}}</a><br>
-					{% endfor %}
-					(<a href="/admin/conan/orderpart/add/?order={{order.pk}}">Add items</a>)
-
-				</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-		</table>
-	</div>
-
-
-	<div class="row">
-		<h4>All items</h4>
-		<a class="btn btn-small btn-primary" href="/admin/conan/item/add/">New item</a>
-		<a class="btn btn-small btn-primary" href="/admin/conan/itemtypechoice/">Edit categories</a>
-
-		<table id="conan_items" class="table" width="100%">
+		<table id="conan_items" class="table tablesorter floatheader" width="100%">
 		<thead>
 			<tr>
 				<th>Name of item</th>
 				<th>Type of item</th>
 				<th>Has recipe?</th>
-				<th>Price of item (Silver)</th>
-				<th>Stack size</th>
+				<th>Price of item (silver)</th>
+				<th>Stack cost (silver</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -69,8 +39,7 @@
 					{% else %}
 						{{ item.itemprice|floatformat }} (set manually)</td>
 					{% endif %}
-				<td></td>
-				<td>{{ item.stacksize }}</td>
+				<td>{{item.stackprice|floatformat}} (for {{ item.stacksize }})</td>
 			</tr>
 			{% endfor %}
 		</tbody>
@@ -78,11 +47,13 @@
 
 	</div>
 
+	{% comment %}
 	<hr>
 	<b>LRU cache statistics</b><br>
 	parts(): {{parts_cache}}<br>
 	breakdown(): {{breakdown_cache}}<br>
 	calculated_price(): {{calculated_price_cache}}
+	{% endcomment %}
 
 	{% endblock %}
 

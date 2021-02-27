@@ -10,18 +10,24 @@ from mysite.site_wide_functions import set_redirect_session
 def index(request):
 	set_redirect_session(request, 'app_conan', None)
 	items = Item.objects.order_by('itemtype', 'name')
-	orders = Order.objects.all()
-
 	parts = Item.parts.cache_info()
 	breakdown = Item.breakdown.cache_info()
 	calculated_price = Item.calculated_price.cache_info()
 
 	return render(request, u'conan.html', {
 		'items': items,
-		'orders': orders,
 		'parts_cache': parts,
 		'breakdown_cache': breakdown,
 		'calculated_price_cache': calculated_price,
+	})
+
+
+def orders(request):
+	set_redirect_session(request, 'orders', None)
+	orders = Order.objects.all()
+
+	return render(request, u'orders.html', {
+		'orders': orders,
 	})
 
 

@@ -1,0 +1,50 @@
+{% extends "index.html" %}
+
+{% block navigation_menu %}{% endblock%}
+{% block search_bar %}{% endblock%}
+
+{% block body_main %}
+
+	{% block blog_content %}
+
+	<div class="row">
+	<br style="line-height: 80px;">
+	<a class="btn btn-success" href="{% url 'app_conan' %}">Items and recipes</a>
+	<h4>Conan: All orders
+		<a class="btn btn-small" href="/admin/conan/order/add/">New order</a>
+	</h4>
+	<p>Orders are collections of items for sale</p>
+
+
+		<table id="conan_items" class="table tablesorter floatheader" width="100%">
+		<thead>
+			<tr>
+				<th>Description</th>
+				<th>Calculated cost</th>
+				<th>Our set price / Payout</th>
+				<th>Items required</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for order in orders %}
+			<tr>
+				<td><a href="/admin/conan/order/{{order.pk}}/change/">{{ order.recipe_comment }}</a></td>
+				<td>{{ order.cost|floatformat }} silver</td>
+				<td>{{ order.payout_silver }} silver</td>
+				<td>
+					{% for part in order.parts.all %}
+						<a href="{% url 'item_details' part.item.pk %}">{{ part }}</a> <a href="/admin/conan/orderpart/{{part.pk}}/change/">(✎)</a><br>
+					{% endfor %}
+					(<a href="/admin/conan/orderpart/add/?order={{order.pk}}">Add another</a>)
+
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+		</table>
+	</div>
+
+
+	{% endblock %}
+
+{% endblock %}

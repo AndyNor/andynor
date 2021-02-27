@@ -141,6 +141,7 @@ CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'", 'https://www.youtube.com', 'https://s.ytimg.com', 'https://www.youtube-nocookie.com')
 CSP_FRAME_SRC = ("'self'", 'https://www.youtube.com', 'https://www.youtube-nocookie.com')
 CSP_STYLE_SRC = ("'unsafe-inline'", "'self'")
+CSP_IMG_SRC = ("'self' data:")
 CSP_INCLUDE_NONCE_IN = ['script-src']
 SECURE_CONTENT_TYPE_NOSNIFF = True  # requires "SecurityMiddleware"
 

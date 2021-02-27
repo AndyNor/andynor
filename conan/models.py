@@ -71,6 +71,16 @@ class Item(models.Model):
 		except:
 			return "Not a number"
 
+	def stackprice(self):
+		print("%s %s %s" % (self, self.calculated_price(), self.stacksize))
+		try:
+			return (self.calculated_price() * self.stacksize)
+		except:
+			return "Not a number"
+
+	def usedin(self):
+		return RecipePart.objects.filter(item=self)
+
 	@lru_cache(maxsize=512)
 	def parts(self, amount_needed=1):
 		parts = []
@@ -111,7 +121,7 @@ class Item(models.Model):
 
 	@lru_cache(maxsize=512)
 	def calculated_price(self):
-		print("price for %s" % self)
+		#print("price for %s" % self)
 		total_cost = Decimal(0)
 		items_needed = self.breakdown()
 		for item in items_needed:

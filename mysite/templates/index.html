@@ -18,10 +18,12 @@
 	<link rel="stylesheet" href="{{ STATIC_URL }}css/custom_style.css">
 	<link rel="shortcut icon" href="{{ STATIC_URL }}favicon.png">
 	<link rel="apple-touch-icon" href="{{ STATIC_URL }}favicon_apple.png">
+	<link rel="stylesheet" href="{{ STATIC_URL }}tablesorter/theme.default.css">
+	<link rel="stylesheet" href="{{ STATIC_URL }}tablesorter/filter.formatter.css">
 	{% endblock %}
 
 
-	<script src="{{ STATIC_URL }}js/jquery-1.12.3.min.js"></script>
+	<script src="{{ STATIC_URL }}js/jquery-3.3.1.min.js"></script>
 	<script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
 	<script src="{{ STATIC_URL }}js/jscolor/jscolor.js"></script>
 	<script src="{{ STATIC_URL }}js/prettify/prettify.js"></script>
@@ -29,7 +31,28 @@
 	<script src="{{ STATIC_URL }}js/chosen.jquery.min.js"></script>
 	<script src="{{ STATIC_URL }}js/jquery.unveil.min.js"></script>
 	<script src="{{ STATIC_URL }}js/site-wide-javascript.js"></script>
+	<script src="{{ STATIC_URL }}tablesorter/jquery.tablesorter.js"></script>
+	<script src="{{ STATIC_URL }}tablesorter/jquery.tablesorter.widgets.js"></script>
+	<script src="{{ STATIC_URL }}floatThead/jquery.floatThead.min.js"></script>
 	{% block javascript_prepend %}{% endblock %}
+
+	<script type="text/javascript" nonce="{{request.csp_nonce}}">
+	$(document).ready(function(){
+		$(".tablesorter").tablesorter({
+			theme: 'default',
+			widgets : ["filter",],
+			widgetOptions : {
+				filter_liveSearch : true,
+				filter_searchFiltered: true,
+				filter_placeholder: { search : '' },
+				filter_columnFilters: true,
+				filter_ignoreCase : true,
+				filter_startsWith : false,
+			}
+		})
+		$(".floatheader").floatThead({top: 40});
+	})
+	</script>
 
 	{% block feeds %}
 	<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss/">
