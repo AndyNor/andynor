@@ -40,7 +40,7 @@
 			<h4>Total material breakdown</h4>
 			{% if item.has_recipe %}
 				{% for part in item.breakdown %}
-					<p>{{ part.amount|floatformat }} <a href="{% url 'item_details' part.item.pk %}">{{ part.item }}</a> for {{ part.price|floatformat }} silver each</p>
+					<p>{{ part.amount|floatformat:2 }} <a href="{% url 'item_details' part.item.pk %}">{{ part.item }}</a> for {{ part.price|floatformat:2 }} silver each</p>
 				{% endfor %}
 			{% else %}
 				<a class="btn btn-small" href="/admin/conan/recipe/add/?item={{ item.pk }}">Add recipe</a>

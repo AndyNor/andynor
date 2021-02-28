@@ -72,7 +72,7 @@ class Item(models.Model):
 			return "Not a number"
 
 	def stackprice(self):
-		print("%s %s %s" % (self, self.calculated_price(), self.stacksize))
+		#print("%s %s %s" % (self, self.calculated_price(), self.stacksize))
 		try:
 			return (self.calculated_price() * self.stacksize)
 		except:
@@ -81,7 +81,7 @@ class Item(models.Model):
 	def usedin(self):
 		return RecipePart.objects.filter(item=self)
 
-	@lru_cache(maxsize=512)
+	#@lru_cache(maxsize=512) # disabled because it results in strange calculations..
 	def parts(self, amount_needed=1):
 		parts = []
 		if hasattr(self, 'recipe'):
@@ -116,7 +116,26 @@ class Item(models.Model):
 				for next_part in this_part["item"].parts(this_part["amount"]):
 					item_queue.append(next_part)
 
-		return items_needed
+
+		compacted = []
+		print("There are %s rounds to be run" % len(items_needed))
+		cnt = 1
+		for n in items_needed:
+			print("round %s for %s item %s" % (cnt, n["amount"], n["item"]))
+			idx = next((c for c, item in enumerate(compacted) if item["item"] == n["item"]), None)
+			if idx is None:
+				print("New, adding")
+				compacted.append(n)
+			else:
+				compacted[idx]["amount"] += n["amount"]
+				print("New value for %s is %s" % (compacted[idx]["item"], compacted[idx]["amount"]))
+			cnt += 1
+		return sorted(compacted, key=lambda i: i["item"].name)
+
+
+
+
+		#return sorted(items_needed, key=lambda i: i["item"].name)
 
 
 	@lru_cache(maxsize=512)
