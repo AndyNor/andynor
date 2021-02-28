@@ -154,7 +154,7 @@ class Item(models.Model):
 			return None
 
 	def clear_lru_cache(self):
-		self.parts.cache_clear()
+		#self.parts.cache_clear()
 		self.breakdown.cache_clear()
 		self.calculated_price.cache_clear()
 
