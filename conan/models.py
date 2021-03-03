@@ -118,17 +118,17 @@ class Item(models.Model):
 
 
 		compacted = []
-		print("There are %s rounds to be run" % len(items_needed))
+		#print("There are %s rounds to be run" % len(items_needed))
 		cnt = 1
 		for n in items_needed:
-			print("round %s for %s item %s" % (cnt, n["amount"], n["item"]))
+			#print("round %s for %s item %s" % (cnt, n["amount"], n["item"]))
 			idx = next((c for c, item in enumerate(compacted) if item["item"] == n["item"]), None)
 			if idx is None:
-				print("New, adding")
+				#print("New, adding")
 				compacted.append(n)
 			else:
 				compacted[idx]["amount"] += n["amount"]
-				print("New value for %s is %s" % (compacted[idx]["item"], compacted[idx]["amount"]))
+				#print("New value for %s is %s" % (compacted[idx]["item"], compacted[idx]["amount"]))
 			cnt += 1
 		return sorted(compacted, key=lambda i: i["item"].name)
 
