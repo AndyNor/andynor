@@ -61,6 +61,7 @@ def item_details_api(request, pk):
 	item = Item.objects.get(pk=pk)
 	item_breakdown = JSONserialize(item.breakdown()) if item.breakdown() != [] else None
 	item_recipe = JSONserialize(item.parts()) if item.parts() != [] else None
+	usedin = [{"item": recipepart.recipe.item.pk, "item_name": recipepart.recipe.item.name} for recipepart in item.usedin()]
 
 	data = {
 		"item_id": item.pk,
@@ -69,6 +70,7 @@ def item_details_api(request, pk):
 		"item_recipe": item_recipe,
 		"item_recipe_output": item.recipe_output_factor(),
 		"item_breakdown": item_breakdown,
+		"used_in": usedin,
 		}
 	return JsonResponse(data, safe=False)
 
