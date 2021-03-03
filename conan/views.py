@@ -47,7 +47,14 @@ def item_details(request, pk):
 
 
 def item_details_api(request, pk):
+	from django.core.serializers.json import DjangoJSONEncoder
 	from django.http import JsonResponse
+
+	class MyDjangoJSONEncoder(DjangoJSONEncoder):
+		def default(self, o):
+			if isinstance(o, Decimal):
+				return float(o)
+			return super().default(o)
 
 	def JSONserialize(data):
 		serialized_data = []
@@ -80,7 +87,7 @@ def item_details_api(request, pk):
 		"item_breakdown": item_breakdown,
 		"used_in": usedin,
 		}
-	return JsonResponse(data, safe=False)
+	return JsonResponse(encoder=MyDjangoJSONEncoder, data=data, safe=False)
 
 class ItemViewSet(viewsets.ModelViewSet):
 	queryset = Item.objects.all().order_by('name')
