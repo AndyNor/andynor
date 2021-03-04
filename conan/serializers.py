@@ -24,3 +24,21 @@ class RecipePartSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = RecipePart
 		fields = ('id', 'recipe', 'item', 'amount')
+
+class ItemTypeChoiceSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = ItemTypeChoice
+		fields = ('id', 'name', 'important')
+
+class OrderSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Order
+		fields = ('id', 'recipe_comment', 'payout_silver')
+
+
+class OrderPartSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = OrderPart
+		fields = ('id', 'order', 'item', 'amount')
+
+

@@ -111,3 +111,16 @@ class RecipePartViewSet(viewsets.ModelViewSet):
 	queryset = RecipePart.objects.all()
 	serializer_class = RecipePartSerializer
 
+class ItemTypeChoiceViewSet(viewsets.ModelViewSet):
+	queryset = ItemTypeChoice.objects.all()
+	serializer_class = ItemTypeChoiceSerializer
+
+class OrderSerializerViewSet(viewsets.ModelViewSet):
+	queryset = Order.objects.all()
+	serializer_class = OrderSerializer
+
+
+class OrderPartSerializerViewSet(viewsets.ModelViewSet):
+	queryset = OrderPart.objects.all()
+	serializer_class = OrderPartSerializer
+
