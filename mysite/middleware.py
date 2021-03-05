@@ -65,6 +65,7 @@ class SecurityHeaders(MiddlewareMixin):
 		#response['Content-Security-Policy'] = "default-src 'self'; style-src 'unsafe-inline' 'self'; script-src 'nonce-%s' 'self' https://www.youtube.com https://s.ytimg.com https://www.youtube-nocookie.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com" % (csrf_token)
 		#response['X-Content-Type-Options'] = "nosniff"
 		#response['Cache-Control'] = "max-age=0, no-cache, no-store"
+		response['Server'] = "Dude, I don't know"
 
 		#certificate_pin_current = 'pin-sha256="ntaa4dzdzEmjCVMrlFOJTlfUQJKu3LoMqi1qlyCjoek=";'
 		#certificate_backup1 = 'pin-sha256="orne4NMB+gRZ5FIMhpzlzLZQ/M6Xk6ml0Fd/c6qp2lQ=";'
