@@ -11,7 +11,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Item
-		fields = ('id', 'name', 'stack_price_silver', 'stacksize') #'has_recipe', 'itemprice', 'calculated_price', 'parts', 'breakdown')
+		fields = ('id', 'name', 'stack_price_silver', 'stacksize', 'itemtype', 'properties') #'has_recipe', 'itemprice', 'calculated_price', 'parts', 'breakdown')
 
 
 class RecipeSerializer(serializers.ModelSerializer):

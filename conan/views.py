@@ -60,6 +60,7 @@ def order_details_api(request, pk):
 	order_items = [
 				{
 				"item_id": order_part.item.pk,
+				"item_type": order_part.item.itemtype.name,
 				"item_name": order_part.item.name,
 				"amount_wanted": order_part.amount,
 				"item_cost_silver": order_part.item.calculated_price(),
@@ -104,6 +105,7 @@ def item_details_api(request, pk):
 
 	data = {
 		"item_id": item.pk,
+		"item_type": item.itemtype.name,
 		"item_name": item.name,
 		"item_calculated_price": float(item.calculated_price()),
 		"item_recipe": item_recipe,

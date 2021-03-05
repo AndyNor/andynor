@@ -61,6 +61,10 @@ class Item(models.Model):
 		blank=False, null=False,
 		verbose_name="Stack size",
 		)
+	properties = models.TextField(
+		blank=True, null=True,
+		verbose_name="Attributes of the item",
+		)
 
 	def has_recipe(self):
 		return True if hasattr(self, 'recipe') else False
