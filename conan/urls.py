@@ -8,5 +8,6 @@ urlpatterns = [
 	url(r'orders/$', views.orders, name='orders'),
 	url(r'details/(?P<pk>\d{1,20})/?format=json$', views.item_details_api, name='item_details_api_json'),
 	url(r'details/api/(?P<pk>\d{1,20})/$', views.item_details_api, name='item_details_api'),
+	url(r'orders/api/(?P<pk>\d{1,20})/$', views.order_details_api, name='order_details_api'),
 	path('api/', include('conan.apiurls')),
 ]

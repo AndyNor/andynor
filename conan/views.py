@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
 from .models import *
 from .serializers import *
+from django.core.serializers.json import DjangoJSONEncoder
+from django.http import JsonResponse
 
 
 from mysite.site_wide_functions import set_redirect_session
@@ -46,15 +48,37 @@ def item_details(request, pk):
 	})
 
 
-def item_details_api(request, pk):
-	from django.core.serializers.json import DjangoJSONEncoder
-	from django.http import JsonResponse
+class MyDjangoJSONEncoder(DjangoJSONEncoder):
+	def default(self, o):
+		if isinstance(o, Decimal):
+			return float(o)
+		return super().default(o)
 
-	class MyDjangoJSONEncoder(DjangoJSONEncoder):
-		def default(self, o):
-			if isinstance(o, Decimal):
-				return float(o)
-			return super().default(o)
+
+def order_details_api(request, pk):
+	order = Order.objects.get(pk=pk)
+	order_items = [
+				{
+				"item_id": order_part.item.pk,
+				"item_name": order_part.item.name,
+				"amount_wanted": order_part.amount,
+				"item_cost_silver": order_part.item.calculated_price(),
+				"total_cost_silver": order_part.amount * order_part.item.calculated_price(),
+				} for order_part in order.parts.all()
+			]
+
+	data = {
+		"order_id": order.pk,
+		"order_recipe_comment": order.recipe_comment,
+		"order_payout_silver": order.payout_silver,
+		"order_material_cost": order.cost(),
+		"order_parts": order_items,
+
+		}
+	return JsonResponse(encoder=MyDjangoJSONEncoder, data=data, safe=False)
+
+
+def item_details_api(request, pk):
 
 	def JSONserialize(data):
 		serialized_data = []
