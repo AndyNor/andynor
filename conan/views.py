@@ -62,6 +62,7 @@ def all_items(request):
 		data.append({
 			"item_id": item.pk,
 			"item_type": item.itemtype.name,
+			"item_type_id": item.itemtype.pk,
 			"item_name": item.name,
 			"item_unit_price": item.calculated_price(),
 			"item_stacksize": item.stacksize,
