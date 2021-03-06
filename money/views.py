@@ -787,7 +787,7 @@ def year(request, year):  # "2013"
 
 @login_required
 @never_cache
-def account(request, account, page):
+def account(request, account, page=None):
 	if page is None:
 		page = 0
 
