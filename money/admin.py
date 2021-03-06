@@ -26,6 +26,6 @@ class AccountAdmin(admin.ModelAdmin):
 
 @admin.register(models.Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-	list_display = ('amount', 'account', 'owner', 'date', 'category', 'sub_category', 'comment', 'is_asset',)
+	list_display = ('owner', 'account', 'amount', 'date', 'sub_category', 'comment', 'is_asset',)
 	search_fields = ('amount', 'comment',)
 	list_filter = ('owner','account', 'is_asset')
