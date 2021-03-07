@@ -59,6 +59,9 @@ def all_items(request):
 	data = []
 	all_items = Item.objects.all()
 	for item in all_items:
+
+		related_recipe = [item.recipe.id] if item.has_recipe() else None
+
 		data.append({
 			"item_id": item.pk,
 			"item_type": item.itemtype.name,
@@ -67,6 +70,7 @@ def all_items(request):
 			"item_unit_price": item.calculated_price(),
 			"item_stacksize": item.stacksize,
 			"item_stackcost": item.calculated_price() * item.stacksize,
+			"related_recipe": related_recipe,
 			})
 	return JsonResponse(encoder=MyDjangoJSONEncoder, data=data, safe=False)
 
@@ -134,6 +138,10 @@ def item_details_api(request, pk):
 class ItemViewSet(viewsets.ModelViewSet):
 	queryset = Item.objects.all().order_by('name')
 	serializer_class = ItemSerializer
+
+
+	#name of category
+
 	"""
 	detail_serializer_class = ItemDetailSerializer
 

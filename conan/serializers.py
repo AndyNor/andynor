@@ -3,15 +3,17 @@ from rest_framework import serializers
 from .models import *
 
 class ItemSerializer(serializers.ModelSerializer):
-	#has_recipe = serializers.ReadOnlyField()
-	#itemprice = serializers.ReadOnlyField()
-	#parts = serializers.ReadOnlyField()
-	#breakdown = serializers.ReadOnlyField()
-	#calculated_price = serializers.ReadOnlyField()
+	has_recipe = serializers.SerializerMethodField('_get_has_recipe')
+	def _get_has_recipe(self, item):
+		return item.has_recipe()
+
+	itemtype_str = serializers.SerializerMethodField('_get_itemtype_str')
+	def _get_itemtype_str(self, item):
+		return item.itemtype.name if hasattr(item, 'itemtype') else None
 
 	class Meta:
 		model = Item
-		fields = ('id', 'name', 'stack_price_silver', 'stacksize', 'itemtype', 'properties') #'has_recipe', 'itemprice', 'calculated_price', 'parts', 'breakdown')
+		fields = ('id', 'name', 'stack_price_silver', 'stacksize', 'itemtype', 'itemtype_str', 'properties', 'has_recipe') #'has_recipe', 'itemprice', 'calculated_price', 'parts', 'breakdown')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
