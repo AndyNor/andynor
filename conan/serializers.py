@@ -11,9 +11,13 @@ class ItemSerializer(serializers.ModelSerializer):
 	def _get_itemtype_str(self, item):
 		return item.itemtype.name if hasattr(item, 'itemtype') else None
 
+	related_recipe = serializers.SerializerMethodField('_get_related_recipe')
+	def _get_related_recipe(self, item):
+		return [item.recipe.id] if item.has_recipe() else None
+
 	class Meta:
 		model = Item
-		fields = ('id', 'name', 'stack_price_silver', 'stacksize', 'itemtype', 'itemtype_str', 'properties', 'has_recipe') #'has_recipe', 'itemprice', 'calculated_price', 'parts', 'breakdown')
+		fields = ('id', 'name', 'stack_price_silver', 'stacksize', 'itemtype', 'itemtype_str', 'properties', 'has_recipe', 'related_recipe') #'has_recipe', 'itemprice', 'calculated_price', 'parts', 'breakdown')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
