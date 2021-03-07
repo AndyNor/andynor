@@ -46,7 +46,8 @@ INSTALLED_APPS = (
 REST_FRAMEWORK = {
 	'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
-	)
+        #'rest_framework.authentication.BasicAuthentication',
+	),
 }
 
 SECRET_KEY = os.environ['SECRET_KEY']
