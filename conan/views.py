@@ -60,7 +60,7 @@ def all_items(request):
 	all_items = Item.objects.all()
 	for item in all_items:
 
-		related_recipe = [item.recipe.id] if item.has_recipe() else None
+		#related_recipe = [item.recipe.id] if item.has_recipe() else None
 
 		data.append({
 			"item_id": item.pk,
@@ -70,7 +70,7 @@ def all_items(request):
 			"item_unit_price": item.calculated_price(),
 			"item_stacksize": item.stacksize,
 			"item_stackcost": item.calculated_price() * item.stacksize,
-			"related_recipe": related_recipe,
+			#"related_recipe": related_recipe,
 			})
 	return JsonResponse(encoder=MyDjangoJSONEncoder, data=data, safe=False)
 
