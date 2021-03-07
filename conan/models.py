@@ -96,9 +96,9 @@ class Item(models.Model):
 				else:
 					output_adjusted_price = part.item.itemprice() / Decimal(part.recipe.output_factor)
 
-				parts.append({"item": part.item, "amount": output_adjusted_amount, "price": output_adjusted_price})
+				parts.append({"item": part.item, "amount": output_adjusted_amount, "price": output_adjusted_price, "recipepart_id": part.pk})
 		else:
-			parts.append({"item": self, "amount": amount_needed, "price": self.itemprice()})
+			parts.append({"item": self, "amount": amount_needed, "price": self.itemprice(), "recipepart_id": None})
 		return parts
 
 

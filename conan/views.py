@@ -113,6 +113,7 @@ def item_details_api(request, pk):
 				i["item"] = instance.pk
 				i["name"] = instance.name
 
+			i["recipepart_id"] = i['recipepart_id']
 			i["price"] = i['price']
 			i["amount"] = i['amount']
 			serialized_data.append(i)
