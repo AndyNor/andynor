@@ -103,8 +103,8 @@ def item_details_api(request, pk):
 
 	def JSONserialize(data):
 		serialized_data = []
-		output = {}
 		for i in data:
+			output = {}
 			if type(i["item"]) != int:
 				item = i["item"]
 				output["item"] = item.pk
@@ -122,6 +122,7 @@ def item_details_api(request, pk):
 		return serialized_data
 
 	item = Item.objects.get(pk=pk)
+	print(item.breakdown())
 	item_breakdown = JSONserialize(item.breakdown()) if item.breakdown() != [] else None
 	item_recipe = JSONserialize(item.parts()) if item.parts() != [] else None
 	usedin = [{"item": recipepart.recipe.item.pk, "item_name": recipepart.recipe.item.name} for recipepart in item.usedin()]
