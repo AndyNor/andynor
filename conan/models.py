@@ -96,7 +96,7 @@ class Item(models.Model):
 	#@lru_cache(maxsize=512) # disabled because it results in strange calculations..
 	def parts(self, amount_needed=1):
 		parts = []
-		if hasattr(self, 'recipe'):
+		if self.has_recipe():
 			for part in self.recipe.parts.all():
 				output_adjusted_amount = (part.amount * amount_needed) / Decimal(part.recipe.output_factor)
 				if part.item.has_recipe():
