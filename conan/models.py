@@ -67,7 +67,15 @@ class Item(models.Model):
 		)
 
 	def has_recipe(self):
+		has_recipe = hasattr(self, 'recipe')
+		if has_recipe:
+			if len(self.recipe.parts.all()) > 0:
+				return True
+		return False
+
+	def has_recipe_gui(self):
 		return True if hasattr(self, 'recipe') else False
+
 
 	def itemprice(self):
 		try:

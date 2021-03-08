@@ -24,7 +24,7 @@
 		One item cost {{ item.calculated_price|floatformat }} silver<br>
 		It comes in stacks of {{ item.stacksize }}.
 
-		{% if item.has_recipe %}
+		{% if item.has_recipe_gui %}
 			<p>The recipe yilds {{ item.recipe.output_factor }} {{ item.recipe }}
 				<a href="/admin/conan/recipe/{{ item.recipe.pk }}/change/">(✎ edit)</a><br></p>
 			{% for part in item.recipe.parts.all %}
@@ -38,7 +38,7 @@
 
 		<div class="span4">
 			<h4>Total material breakdown</h4>
-			{% if item.has_recipe %}
+			{% if item.has_recipe_gui %}
 				{% for part in item.breakdown %}
 					<p>{{ part.amount|floatformat:2 }} <a href="{% url 'item_details' part.item.pk %}">{{ part.item }}</a> for {{ part.price|floatformat:2 }} silver each</p>
 				{% endfor %}
