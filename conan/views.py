@@ -103,20 +103,22 @@ def item_details_api(request, pk):
 
 	def JSONserialize(data):
 		serialized_data = []
+		output = {}
 		for i in data:
 			if type(i["item"]) != int:
 				item = i["item"]
-				i["item"] = item.pk
-				i["name"] = item.name
+				output["item"] = item.pk
+				output["name"] = item.name
 			else:
 				instance = Item.objects.get(pk=i["item"])
-				i["item"] = instance.pk
-				i["name"] = instance.name
+				output["item"] = instance.pk
+				output["name"] = instance.name
 
-			i["recipepart_id"] = i['recipepart_id']
-			i["price"] = i['price']
-			i["amount"] = i['amount']
-			serialized_data.append(i)
+			output["recipepart_id"] = i['recipepart_id']
+			output["recipe_id"] = i['recipe_id']
+			output["price"] = i['price']
+			output["amount"] = i['amount']
+			serialized_data.append(output)
 		return serialized_data
 
 	item = Item.objects.get(pk=pk)

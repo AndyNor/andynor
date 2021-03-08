@@ -60,7 +60,7 @@ class RecipeAdmin(admin.ModelAdmin):
 @admin.register(models.RecipePart)
 class RecipePartAdmin(admin.ModelAdmin):
 	list_display = ('recipe', 'item', 'amount')
-	search_fields = ('recipe', 'item')
+	search_fields = ('item__name', 'recipe__item__name')
 	#list_filter = ('',)
 
 	autocomplete_fields = (
