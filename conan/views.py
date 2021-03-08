@@ -55,6 +55,20 @@ class MyDjangoJSONEncoder(DjangoJSONEncoder):
 		return super().default(o)
 
 
+def all_orders(request):
+	data = []
+	all_orders = Order.objects.all()
+	for order in all_orders:
+
+		data.append({
+			"order_id": order.pk,
+			"order_recipe_comment": order.recipe_comment,
+			"order_payout_silver": order.payout_silver,
+			"order_material_cost": order.cost(),
+			})
+	return JsonResponse(encoder=MyDjangoJSONEncoder, data=data, safe=False)
+
+
 def all_items(request):
 	data = []
 	all_items = Item.objects.all()
@@ -79,6 +93,7 @@ def order_details_api(request, pk):
 	order = Order.objects.get(pk=pk)
 	order_items = [
 				{
+				"orderpart_id": order_part.pk,
 				"item_id": order_part.item.pk,
 				"item_type": order_part.item.itemtype.name,
 				"item_name": order_part.item.name,
