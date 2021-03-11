@@ -201,7 +201,7 @@ def edit(request, this_type, pk=False):
 			if request.method == 'POST':
 				form = SalaryForm(request.POST, instance=instance)
 		# Restrict options shown for account
-		form.fields['account'].queryset = Account.objects.filter(owner=request.user)
+		form.fields['account'].queryset = Account.objects.exclude(account_type=2).filter(owner=request.user)
 		if request.method == 'POST':
 			if form.is_valid():
 				if form.cleaned_data:
@@ -377,8 +377,8 @@ def edit(request, this_type, pk=False):
 			form = DownpaymentForm(instance=instance)
 			if request.method == 'POST':
 				form = DownpaymentForm(request.POST, instance=instance)
-		form.fields['source_account'].queryset = Account.objects.exclude(account_type=2).filter(owner=request.user)
-		form.fields['destination_account'].queryset = Account.objects.filter(account_type=2, owner=request.user)
+		form.fields['source_account'].queryset = Account.objects.filter(owner=request.user)
+		form.fields['destination_account'].queryset = Account.objects.filter(owner=request.user)
 		if request.method == 'POST':
 			if form.is_valid():
 				if form.cleaned_data:
