@@ -7,6 +7,6 @@ class TransactionAdmin(admin.ModelAdmin):
 	list_filter = ('ticker',)
 
 
-admin.site.register(Ticker)
-admin.site.register(TickerHistory)
+admin.site.register(models.Ticker)
+admin.site.register(models.TickerHistory)
 
