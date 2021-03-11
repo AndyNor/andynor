@@ -30,7 +30,7 @@ class TickerForm(forms.ModelForm):
 		fields = ('company_name', 'ticker_name')
 
 class Transaction(models.Model):
-	ticker = models.ForeignKey('Ticker', on_delete=models.PROTECT)
+	ticker = models.ForeignKey('Ticker', on_delete=models.CASCADE)
 	date = models.DateField(validators=[validate_not_future])
 	amount = models.IntegerField(help_text=u'Antall aksjer. Negativt hvis salg.')
 	total_price = models.DecimalField(max_digits=18, decimal_places=3, help_text=u'Kjøpesum inkludert kurtasje. Negativt hvis salg.')
@@ -52,7 +52,7 @@ class TransactionForm(forms.ModelForm):
 
 
 class TickerHistory(models.Model):
-	ticker = models.ForeignKey(Ticker, on_delete=models.PROTECT)
+	ticker = models.ForeignKey(Ticker, on_delete=models.CASCADE)
 	date = models.DateField(validators=[validate_not_future])
 	price = models.DecimalField(max_digits=9, decimal_places=3, validators=[validate_positive_number])
 	def __str__(self):
