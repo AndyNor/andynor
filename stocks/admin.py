@@ -1,5 +1,5 @@
 from django.contrib import admin
-from stocks.models import Transaction, Ticker, TickerHistory
+from stocks import models
 
 @admin.register(models.Transaction)
 class TransactionAdmin(admin.ModelAdmin):
