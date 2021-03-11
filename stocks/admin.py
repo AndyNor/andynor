@@ -1,7 +1,12 @@
 from django.contrib import admin
 from stocks.models import Transaction, Ticker, TickerHistory
 
-admin.site.register(Transaction)
+@admin.register(models.Transaction)
+class TransactionAdmin(admin.ModelAdmin):
+	list_display = ('pk', 'ticker', 'date', 'amount', 'total_price', 'brokerage')
+	list_filter = ('ticker',)
+
+
 admin.site.register(Ticker)
 admin.site.register(TickerHistory)
 
