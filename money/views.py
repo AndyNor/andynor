@@ -377,8 +377,8 @@ def edit(request, this_type, pk=False):
 			form = DownpaymentForm(instance=instance)
 			if request.method == 'POST':
 				form = DownpaymentForm(request.POST, instance=instance)
-		form.fields['source_account'].queryset = Account.objects.filter(owner=request.user)
-		form.fields['destination_account'].queryset = Account.objects.filter(owner=request.user)
+		form.fields['source_account'].queryset = Account.objects.exclude(account_type=2).filter(owner=request.user)
+		form.fields['destination_account'].queryset = Account.objects.filter(account_type=2, owner=request.user)
 		if request.method == 'POST':
 			if form.is_valid():
 				if form.cleaned_data:
