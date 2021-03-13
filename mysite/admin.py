@@ -11,3 +11,10 @@ class BankTransactionAdmin(admin.ModelAdmin):
 	list_display = ('opprettet', 'event_type', 'message',)
 	search_fields = ('message',)
 	list_filter = ('event_type',)
+
+
+@admin.register(models.SiteLog)
+class SiteLogAdmin(admin.ModelAdmin):
+	list_display = ('ip', 'priority', 'time', 'user', 'message')
+	search_fields = ('message',)
+	list_filter = ('time', 'priority', 'user',)
