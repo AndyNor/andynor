@@ -25,6 +25,8 @@ Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a cla
 	</div>
 
 
+<p>Sum av transaksjoner som er reservert {{sum_reservert}}.</p>
+
 <table class="table table-condensed">
 	<thead>
 		<tr>
@@ -60,8 +62,10 @@ Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a cla
 					<a href="{% url 'money_migrate' t.pk %}" class="btn btn-info">Migrer</a>
 
 				{% else %}
+					{% if not t.isReservation %}
 					<a href="{% url 'create_transaction' t.pk %}" class="btn btn-link">Opprett</a>
 					<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn btn-link">Skjul</a>
+					{% endif %}
 				{% endif %}
 			</td>
 		</tr>

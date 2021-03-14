@@ -5,7 +5,7 @@
 {% block body_main %}
 
 <ul class="pager">
-	<li><a class="btn" href="{% url "app_stocks" %}">Tilbake</a></li>
+	<li><a class="btn" href="{% url 'app_stocks' %}">Tilbake</a></li>
 </ul>
 
 <h3>{{header_text.name}} ({{header_text.ticker}})</h3>
@@ -21,59 +21,76 @@
 <script type="text/javascript" nonce="{{request.csp_nonce}}">
 var canvas = document.getElementById('chart');
 new Chart(canvas, {
-	"type": 'bar',
-	"data": {
-		"labels": [{% for l in graph_labels %}"{{l}}",{% endfor%}],
-		"datasets": [{
-			"type": 'line',
-			"data": {{graph_cost_stocks|safe}},
-			"label": 'Kjøpt for',
-			"yAxisID": 'B',
-			"fill": false,
-			"borderColor": 'rgba(0, 0, 0, 0.54)',
-			"borderWidth": 1,
-		},
-		{
-			"type": 'line',
-			"data": {{graph_value_stocks|safe}},
-			"label": 'Nåverdi',
-			"yAxisID": 'B',
-			"fill": false,
-			"borderColor": 'rgba(41, 112, 0, 0.41)',
-			"borderWidth": 3,
-		},
-		{
-			"type": 'bar',
-			"data": {{graph_num_stocks|safe}},
-			"label": 'Antall aksjer',
-			"yAxisID": 'A',
-			"barThickness": 15,
-			"maxBarThickness": 15,
-			"borderWidth": 1,
-			"backgroundColor": 'rgba(220, 220, 220, 0.6)',
-		}]
-	},
-	"options": {
-		"scales": {
-			"yAxes": [{
-				"id": 'A',
-				"type": 'linear',
-				"position": 'left',
-				"scaleLabel": {
-					"display": true,
-					"labelString": 'Antall aksjer'
-				},
-				"ticks": {
-					"min": 0
-				}
+	type: 'bar',
+	data: {
+		labels: [
+			{% for l in graph_labels %}"{{l}}",{% endfor%}
+		],
+		datasets: [
+			{
+				type: 'line',
+				data: {{ graph_cost_stocks|safe }},
+				label: 'Kjøpt for',
+				yAxisID: 'B',
+				fill: false,
+				borderColor: 'rgba(0, 0, 0, 0.54)',
+				borderWidth: 2,
+				pointStyle: "cross",
 			},
 			{
-				"id": 'B',
-				"type": 'linear',
-				"position": 'right',
-				"scaleLabel": {
-					"display": true,
-					"labelString": 'Verdi (NOK)'
+				type: 'line',
+				data: {{ graph_value_stocks|safe }},
+				label: 'Nåverdi',
+				yAxisID: 'B',
+				fill: false,
+				borderColor: 'rgba(3, 15, 252, 0.5)',
+				borderWidth: 2,
+				pointStyle: "cross",
+			},
+			{
+				type: 'bar',
+				data: {{ graph_num_stocks|safe }},
+				label: 'Antall aksjer',
+				yAxisID: 'A',
+				barThickness: 3,
+				maxBarThickness: 3,
+				borderWidth: 0,
+				backgroundColor: 'rgba(0, 0, 0, 0.2)',
+			}
+		]
+	},
+	options: {
+		scales: {
+			xAxes: [{
+				gridLines: {
+					drawOnChartArea: false
+				},
+			}],
+			yAxes: [{
+				id: 'A',
+				type: 'linear',
+				position: 'left',
+				scaleLabel: {
+					display: true,
+					labelString: 'Antall aksjer'
+				},
+				ticks: {
+					min: 0
+				},
+				gridLines: {
+					display: false
+				},
+			},
+			{
+				id: 'B',
+				type: 'linear',
+				position: 'right',
+				scaleLabel: {
+					display: true,
+					labelString: 'Verdi (NOK)'
+				},
+				gridLines: {
+					display: false
 				},
 			}]
 		}
@@ -94,13 +111,13 @@ new Chart(canvas, {
 	</thead>
 {% for transaction in view_data %}
 	<tr>
-		<td>{% if transaction.bought %}<a href="{% url "stocks_transaction_edit" transaction.bought.pk %}"><i class="icon-pencil"></a>{% endif %}</td>
+		<td>{% if transaction.bought %}<a href="{% url 'stocks_transaction_edit' transaction.bought.pk %}"><i class="icon-pencil"></a>{% endif %}</td>
 		<td>{{transaction.bought.date}}</a></td>
 		<td>{{transaction.bought.amount|intcomma}} @ {{transaction.bought.average_stock_price|floatformat:"3"|intcomma}}</td>
 		<td>{{transaction.sold.date}}</a></td>
 		<td>{{transaction.sold.amount|intcomma}} {% if transaction.sold %}@{% endif %} {{transaction.sold.average_stock_price|floatformat:"3"|intcomma}}</td>
 		<td>{{transaction.result|floatformat:"0"|intcomma}}</td>
-		<td>{% if transaction.sold %}<a href="{% url "stocks_transaction_edit" transaction.sold.pk %}"><i class="icon-pencil"></a>{% endif %}</td>
+		<td>{% if transaction.sold %}<a href="{% url 'stocks_transaction_edit' transaction.sold.pk %}"><i class="icon-pencil"></a>{% endif %}</td>
 
 	</tr>
 {% endfor %}

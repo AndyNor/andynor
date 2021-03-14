@@ -861,7 +861,7 @@ def balance(request):
 		).aggregate(sum=Sum('amount'))['sum']
 
 		if not a.balance in (None, Decimal(0)):
-			diff_balanse = a.available - real_balance
+			diff_balanse = real_balance - a.available
 		else:
 			diff_balanse = None
 
@@ -968,10 +968,6 @@ import requests
 import requests
 import os
 
-CUSTOMERID = os.environ['SBANKEN_CUSTOMERID']
-CLIENTID = os.environ['SBANKEN_CLIENTID']
-SECRET = os.environ['SBANKEN_SECRET']
-
 
 def create_authenticated_http_session(client_id, client_secret):
 	oauth2_client = BackendApplicationClient(client_id=urllib.parse.quote(client_id))
@@ -995,6 +991,10 @@ def sbanken_get(http_session, url, headers):
 
 @login_required
 def sbanken_accounts(request):
+	CUSTOMERID = request.user.profile.BANK_CUSTOMERID
+	CLIENTID = request.user.profile.BANK_CLIENTID
+	SECRET = request.user.profile.BANK_SECRET
+
 	http_session = create_authenticated_http_session(CLIENTID, SECRET)
 	url = "https://api.sbanken.no/exec.bank/api/v1/Accounts"
 	headers = {'customerId': CUSTOMERID,}
@@ -1007,6 +1007,11 @@ def sbanken_accounts(request):
 
 @login_required
 def sbanken_transactions(request, accountID):
+	CUSTOMERID = request.user.profile.BANK_CUSTOMERID
+	CLIENTID = request.user.profile.BANK_CLIENTID
+	SECRET = request.user.profile.BANK_SECRET
+
+
 	http_session = create_authenticated_http_session(CLIENTID, SECRET)
 	url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/" #?startDate=2019-12-15&endDate=2019-12-25"
 	headers = {'customerId': CUSTOMERID,}
@@ -1019,7 +1024,13 @@ def sbanken_transactions(request, accountID):
 
 @login_required
 def bank_transactions(request):
+	from django.db.models import Sum
 	transactions = BankTransaction.objects.filter(eier=request.user).filter(hidden=False).order_by("-accounting_date")[:200]
+	alle_reservert = BankTransaction.objects.filter(eier=request.user).filter(hidden=False)
+	sum_reservert = 0
+	for transaksjon in alle_reservert:
+		sum_reservert += transaksjon.amount * transaksjon.amount_factor
+
 	try:
 		latest_synch = ApplicationLog.objects.filter(event_type='SBanken API').order_by('-opprettet')[0]
 	except:
@@ -1028,6 +1039,7 @@ def bank_transactions(request):
 	return render(request, u'bank_transactions.html', {
 		'transactions': transactions,
 		'latest_synch': latest_synch,
+		'sum_reservert': sum_reservert,
 	})
 
 

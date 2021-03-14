@@ -156,7 +156,7 @@ def details(request, ticker):
 			graph_num_stocks.append(int(num_stocks))
 			graph_cost_stocks.append(int(cost_stocks))
 			graph_value_stocks.append(int(value_stocks))
-			graph_labels.append(t.date)
+			graph_labels.append(t.date.isoformat())
 
 
 

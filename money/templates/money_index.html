@@ -67,9 +67,15 @@
 			{% for item in balance_data.data %}
 				<tr>
 					<td><a class="btn btn-link" href='{% url "money_account" item.pk %}'>{{ item.account }}</a></td>
-					<td class="money">{{ item.real|floatformat:"0"|intcomma }}</td>
-					<td class="money">{{ item.real_bank|floatformat:"0"|intcomma }}</td>
-					<td class="money">{{ item.diff_balanse|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.real|floatformat:"0"|intcomma }}
+					</td>
+					<td class="money">{{ item.real_bank|floatformat:"0"|intcomma }}
+					</td>
+					<td>
+					{% if item.diff_balanse %}
+						{{ item.diff_balanse|floatformat:"0"|intcomma|default:"-" }}
+					{% endif %}
+					</td>
 					<td class="money">{{ item.planned|floatformat:"0"|intcomma }}</td>
 				</tr>
 			{% endfor %}

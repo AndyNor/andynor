@@ -30,7 +30,7 @@ class RecipePartSerializer(serializers.ModelSerializer):
 class ItemTypeChoiceSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ItemTypeChoice
-		fields = ('id', 'name', 'important')
+		fields = ('id', 'name', 'important', 'color',)
 
 class OrderSerializer(serializers.ModelSerializer):
 	class Meta:

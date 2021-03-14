@@ -1,5 +1,6 @@
 {% load bbcodes %}
 {% load upto %}
+{% load l10n %}
 {% load humanize %}
 
 <div class="box">
@@ -19,7 +20,7 @@
 						<span class="date-day">{{ blog_active.origin.day }}</span>
 					</div>
 					<div class="box-content-icon">
-						{{ blog_active.origin|date:"N" }} {{ blog_active.origin.year }}
+						{{ blog_active.origin|date:"N" }} {{ blog_active.origin.year|unlocalize }}
 					</div>
 				</div>
 			</div>

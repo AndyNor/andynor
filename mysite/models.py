@@ -69,6 +69,12 @@ class UserProfile(models.Model):
 	DEFAULT_EXPENCE_SUB_CATEGORY = models.IntegerField(blank=True, null=True)
 	DEFAULT_DOWNPAYMENT_COMMENT = models.CharField(max_length=40, blank=True, null=True)
 	DEFAULT_SALARY_COMMENT = models.CharField(max_length=40, blank=True, null=True)
+	BANK_CUSTOMERID = models.CharField(max_length=512, blank=True, null=True)
+	BANK_CLIENTID = models.CharField(max_length=512, blank=True, null=True)
+	BANK_SECRET = models.CharField(max_length=512, blank=True, null=True)
+
+	def __str__(self):
+		return u'%s %s' % (self.name, self.surname)
 
 	"""
 	def age(this):

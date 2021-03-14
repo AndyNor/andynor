@@ -30,6 +30,10 @@ class ItemTypeChoice(models.Model):
 		blank=False, null=False,
 		verbose_name="Important type?",
 		)
+	color = models.CharField(
+		max_length=100,
+		verbose_name="Item type color",
+		)
 	def __str__(self):
 		return u'%s' % (self.name)
 
