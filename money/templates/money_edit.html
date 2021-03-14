@@ -1,11 +1,6 @@
 {% extends "money.html" %}
 {% block money_title %}
 	{{ head_text }}
-	<div class="pull-right">
-		<a class="btn btn-mini btn-info" href="{% url 'money_admin_add_account' %}">Edit accounts</a>
-		<a class="btn btn-mini btn-info" href="{% url 'money_admin_category' %}">Edit categories</a>
-		<a class="btn btn-mini btn-info" href="{% url 'money_admin_subcategory' %}">Edit subcategories</a>
-	</div>
 {% endblock %}
 
 {% block money_actions %}{% endblock %}

@@ -16,6 +16,7 @@ from mysite.search import get_query
 from django.urls import reverse
 from django.views.decorators.cache import never_cache # avoid browser from caching content to disk
 from django.middleware import csrf
+from django.db.models import Q
 
 
 APP_NAME = 'app_money'
@@ -92,7 +93,7 @@ def add_account(request, pk=False):
 	return render(request, 'money_edit.html', {
 		'form': account_form,
 		'entries': entries,
-		'head_text': "Edit accounts"
+		'head_text': "Rediger konto"
 	})
 
 
@@ -116,7 +117,7 @@ def category(request, pk=False):
 	return render(request, 'money_edit.html', {
 		'form': category_form,
 		'entries': entries,
-		'head_text': "Edit categories"
+		'head_text': "Rediger kategorier"
 	})
 
 
@@ -141,7 +142,7 @@ def subcategory(request, pk=False):
 	return render(request, 'money_edit.html', {
 		'form': category_form,
 		'entries': entries,
-		'head_text': "Edit subcategories"
+		'head_text': "Rediger underkategorier"
 	})
 
 
@@ -446,13 +447,13 @@ def edit(request, this_type, pk=False):
 	# add text for headers
 	head_text = "No title"
 	if this_type == u'salary':
-		head_text = "Add a new salary"
+		head_text = "Legg til lønn"
 	if this_type == u'expence':
-		head_text = "Register money spent"
+		head_text = "Manuell registrering"
 	if this_type == u'transaction':
-		head_text = "Transfer money between accounts"
+		head_text = "Overfør mellom kontoer"
 	if this_type == u'downpayment':
-		head_text = "Pay back a loan"
+		head_text = "Nedbetaling lån"
 	if this_type == u'bank_transaction':
 		head_text = "Rediger importert banktransaksjon"
 
@@ -969,6 +970,7 @@ import requests
 import os
 
 
+"""
 def create_authenticated_http_session(client_id, client_secret):
 	oauth2_client = BackendApplicationClient(client_id=urllib.parse.quote(client_id))
 	session = OAuth2Session(client=oauth2_client)
@@ -978,8 +980,9 @@ def create_authenticated_http_session(client_id, client_secret):
 		client_secret=urllib.parse.quote(client_secret)
 	)
 	return session
+"""
 
-
+"""
 def sbanken_get(http_session, url, headers):
 	response = http_session.get(url, headers=headers).json()
 
@@ -987,8 +990,17 @@ def sbanken_get(http_session, url, headers):
 		return response
 	else:
 		return {"errorType": response["errorType"], "errorMessage": response["errorMessage"]}
+"""
 
+@login_required
+def sbanken_sync(request):
 
+	from django.core import management
+	management.call_command("sbanken_api")
+
+	return HttpResponseRedirect(reverse('bank_transactions'))
+
+"""
 @login_required
 def sbanken_accounts(request):
 	CUSTOMERID = request.user.profile.BANK_CUSTOMERID
@@ -1003,8 +1015,9 @@ def sbanken_accounts(request):
 	return render(request, u'sbanken_accounts.html', {
 		'accounts': accounts,
 	})
+"""
 
-
+"""
 @login_required
 def sbanken_transactions(request, accountID):
 	CUSTOMERID = request.user.profile.BANK_CUSTOMERID
@@ -1020,16 +1033,18 @@ def sbanken_transactions(request, accountID):
 	return render(request, u'sbanken_transactions.html', {
 		'transactions': transactions,
 	})
+"""
 
 
 @login_required
 def bank_transactions(request):
 	from django.db.models import Sum
 	transactions = BankTransaction.objects.filter(eier=request.user).filter(hidden=False).order_by("-accounting_date")[:200]
-	alle_reservert = BankTransaction.objects.filter(eier=request.user).filter(hidden=False)
+	alle_reservert = BankTransaction.objects.filter(eier=request.user).filter(hidden=False).filter(Q(related_transaction=None))
 	sum_reservert = 0
 	for transaksjon in alle_reservert:
-		sum_reservert += transaksjon.amount * transaksjon.amount_factor
+		print(transaksjon)
+		sum_reservert += (transaksjon.amount * transaksjon.amount_factor)
 
 	try:
 		latest_synch = ApplicationLog.objects.filter(event_type='SBanken API').order_by('-opprettet')[0]

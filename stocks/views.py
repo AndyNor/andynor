@@ -146,18 +146,37 @@ def details(request, ticker):
 		num_stocks = 0
 		cost_stocks = 0
 		value_stocks = 0
+		date_tracker = None
 
 		transactions = Transaction.objects.filter(ticker=ticker_object).order_by('date')
 		for t in transactions:
+			if date_tracker == None:
+				date_tracker = t.date.isoformat()
+
 			num_stocks += t.amount
 			cost_stocks += t.total_price
 			value_stocks = num_stocks * round(((t.total_price - t.brokerage) / t.amount), 2)
 
-			graph_num_stocks.append(int(num_stocks))
-			graph_cost_stocks.append(int(cost_stocks))
-			graph_value_stocks.append(int(value_stocks))
-			graph_labels.append(t.date.isoformat())
+			if t.date.isoformat() != date_tracker:
+				graph_num_stocks.append(int(num_stocks))
+				graph_cost_stocks.append(int(cost_stocks))
+				graph_value_stocks.append(int(value_stocks))
+				graph_labels.append(t.date.isoformat())
 
+			date_tracker = t.date.isoformat()
+
+
+		#nåverdi
+		import datetime
+		try:
+			latest_price = TickerHistory.objects.filter(ticker=ticker_object).order_by('date')[0].price
+		except:
+			latest_price = 0
+
+		graph_num_stocks.append(int(num_stocks)) #the same
+		graph_cost_stocks.append(int(cost_stocks)) #the same
+		graph_value_stocks.append(int(num_stocks * latest_price)) # current ticker price times the amount
+		graph_labels.append(datetime.date.today().isoformat())
 
 
 	except ObjectDoesNotExist:

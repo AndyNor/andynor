@@ -1,5 +1,6 @@
 {% extends "index.html" %}
 {% load breadcrumbs %}
+{% load humanize %}
 
 {% block search %}
 	{% url "money_search" as action %} {% include "search_form.html" with action=action %}
@@ -10,22 +11,14 @@
 <h3>Transaksjoner fra Sbanken</h3>
 
 <div class="pull-right">
-<a class="btn btn-small btn-danger"
-	href='{% url "money_new" "expence" %}?next={{ request.get_full_path|urlencode }}'>
-	Legg manuell utgift</a>
+	<a class="btn btn-small" href='{% url "sbanken_sync" %}'>Synkroniser nå</a>
 </div>
 
-
-Viser {{transactions.count}} transaksjoner. For reserverte beløp gå til <a class="btn btn-info" href='{% url "sbanken_accounts" %}'>BankAPI</a>
-
-<div id="div_message" class="alert alert-info">
-		<a class="close" data-dismiss="alert" href="#">×</a>
-		<h4 class="alert-heading">{{latest_synch.event_type}}</h4>
-		{{ latest_synch.opprettet|timesince }} siden.<br>{{ latest_synch.message }} <a href="/admin/mysite/applicationlog/?event_type=SBanken+API">(se historikk)</a>
-	</div>
-
-
-<p>Sum av transaksjoner som er reservert {{sum_reservert}}.</p>
+<ul>
+	<li>Sist synkronisering for {{ latest_synch.opprettet|timesince }} siden.</li>
+	<li>API-nøkkel utløper om {{ request.user.profile.BANK_SECRET_EXPIRE|timeuntil }}.</li>
+</ul>
+<p>Viser de siste {{transactions.count}} transaksjonene. Sum av reserverte transaksjoner er {{sum_reservert}}.</p>
 
 <table class="table table-condensed">
 	<thead>

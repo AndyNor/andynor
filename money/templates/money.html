@@ -8,36 +8,36 @@
 {% block body_main %}
 <div class="row" style="margin-top: 10px">
 	<div class="span12">
+		<h3>{% block money_title %}{% endblock %}</h3>
 		{% block money_actions %}
 		<div class="pull-right">
-			<a class="btn btn-small btn-danger"
+			<a class="btn btn-small"
 				href='{% url "bank_transactions" %}?next={{ request.get_full_path|urlencode }}'>
-				Legg til utgift</a>
-			<a class="btn btn-small btn-danger"
+				Håndter transaksjoner</a>
+			<a class="btn btn-small"
+				href='{% url "money_new" "expence" %}?next={{ request.get_full_path|urlencode }}'>
+				Legg til manuell utgift</a>
+			<a class="btn btn-small"
 				href='{% url "money_new" "downpayment" %}?next={{ request.get_full_path|urlencode }}'>
 				Innbetaling lån</a>
-			<a class="btn btn-small btn-success"
+			<a class="btn btn-small"
 				href='{% url "money_new" "salary" %}?next={{ request.get_full_path|urlencode }}'>
 				Legg til lønn</a>
-			<a class="btn btn-small btn-success"
+			<a class="btn btn-small"
 				href='{% url "money_new" "transaction" %}?next={{ request.get_full_path|urlencode }}'>
 				Overfør mellom konto</a>
-			<br>
-			<a class="btn btn-mini btn-link"
+		<br><br>
+			<a class="btn btn-link"
 				href="{% url 'money_admin_add_account' %}">
 				Kontoer</a>
-			<a class="btn btn-mini btn-link"
+			<a class="btn btn-link"
 				href="{% url 'money_admin_category' %}">
 				Kategorier</a>
-			<a class="btn btn-mini btn-link"
+			<a class="btn btn-link"
 				href="{% url 'money_admin_subcategory' %}">
 				Subkategorier</a>
-			<a class="btn btn-small btn-link"
-				href='{% url "sbanken_accounts" %}?next={{ request.get_full_path|urlencode }}'>
-				Bank API</a>
 		</div>
 		{% endblock %}
-		<h3>{% block money_title %}{% endblock %}</h3>
 	</div>
 	<div class="span12">
 		{% block money_subtitle %}{% endblock%}<hr>

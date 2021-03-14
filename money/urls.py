@@ -5,8 +5,9 @@ from money import views
 #now = datetime.datetime.now()
 
 urlpatterns = [
-	url(r'^api/accounts/$', views.sbanken_accounts, name="sbanken_accounts"),
-	url(r'^api/transactions/(?P<accountID>[A-F0-9]{32})/$', views.sbanken_transactions, name="sbanken_transactions"),
+	url(r'^api/sync/$', views.sbanken_sync, name="sbanken_sync"),
+	#url(r'^api/accounts/$', views.sbanken_accounts, name="sbanken_accounts"),
+	#url(r'^api/transactions/(?P<accountID>[A-F0-9]{32})/$', views.sbanken_transactions, name="sbanken_transactions"),
 	url(r'^bank/transactions/$', views.bank_transactions, name="bank_transactions"),
 	url(r'^create/(?P<bank_transaction>\d{1,10})/$', views.create_transaction, name="create_transaction"),
 	url(r'^migrate/(?P<bank_transaction>\d{1,10})/$', views.migrate, name="money_migrate"),

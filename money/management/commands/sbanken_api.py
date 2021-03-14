@@ -10,6 +10,7 @@ from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import BackendApplicationClient
 from django.db import IntegrityError, transaction
 from django.db.models import Q
+from django.contrib.auth.models import User
 from hashlib import sha256
 import urllib.parse
 import requests
@@ -22,10 +23,12 @@ class Command(BaseCommand):
 
 		runtime_t0 = time.time()
 
-		CUSTOMERID = os.environ['SBANKEN_CUSTOMERID']
-		CLIENTID = os.environ['SBANKEN_CLIENTID']
-		SECRET = os.environ['SBANKEN_SECRET']
-		HARDCODED_OWNER = User.objects.get(pk=1)
+		HARDCODED_OWNER = User.objects.get(pk=1)  # hardcoded to my own user
+
+		CUSTOMERID = HARDCODED_OWNER.profile.BANK_CUSTOMERID
+		CLIENTID = HARDCODED_OWNER.profile.BANK_CLIENTID
+		SECRET = HARDCODED_OWNER.profile.BANK_SECRET
+
 		LOG_EVENT_TYPE = "SBanken API"
 		log_message = ""
 
@@ -51,11 +54,6 @@ class Command(BaseCommand):
 				response = http_session.get(url, headers=headers)
 				return response.json()
 
-				#if not response["isError"]:
-				#	return response.json()
-				#else:
-				#	log_message += ("%s %s" % (response["errorType"], response["errorMessage"]))
-				#	raise RuntimeError("{} {}".format(response["errorType"], response["errorMessage"]))
 			else:
 				print("Ingen tilkobling, avbryter..")
 				import sys
@@ -171,12 +169,4 @@ class Command(BaseCommand):
 				event_type=LOG_EVENT_TYPE,
 				message=logg_entry_message,
 		)
-
-
-
-
-
-
-
-
 

@@ -72,6 +72,8 @@ class UserProfile(models.Model):
 	BANK_CUSTOMERID = models.CharField(max_length=512, blank=True, null=True)
 	BANK_CLIENTID = models.CharField(max_length=512, blank=True, null=True)
 	BANK_SECRET = models.CharField(max_length=512, blank=True, null=True)
+	BANK_SECRET_EXPIRE = models.DateField(blank=True, null=True)
+
 
 	def __str__(self):
 		return u'%s %s' % (self.name, self.surname)
