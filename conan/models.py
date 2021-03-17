@@ -98,7 +98,7 @@ class Item(models.Model):
 	def usedin(self):
 		return RecipePart.objects.filter(item=self)
 
-	@lru_cache(maxsize=512) # disabled because it results in strange calculations..
+	lru_cache(maxsize=512) # disabled because it results in strange calculations..
 	def parts(self, amount_needed=1):
 		parts = []
 		if self.has_recipe():
