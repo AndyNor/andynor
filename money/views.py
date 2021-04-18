@@ -1062,15 +1062,15 @@ def __transactions_similar(bank_transaction, user):
 	days_ago = bank_transaction.accounting_date - timedelta(days=7)
 	days_ahead = bank_transaction.accounting_date + timedelta(days=7)
 	if bank_transaction.adjusted_amount() < 0:
-		amount_low = bank_transaction.adjusted_amount() * Decimal('1.03')
-		amount_high = bank_transaction.adjusted_amount() * Decimal('0.97')
+		amount_low = bank_transaction.adjusted_amount() * Decimal('1.05')
+		amount_high = bank_transaction.adjusted_amount() * Decimal('0.95')
 	else:
-		amount_low = bank_transaction.adjusted_amount() * Decimal('0.97')
-		amount_high = bank_transaction.adjusted_amount() * Decimal('1.03')
-	print((amount_low,amount_high))
+		amount_low = bank_transaction.adjusted_amount() * Decimal('0.95')
+		amount_high = bank_transaction.adjusted_amount() * Decimal('1.05')
+	#print((amount_low,amount_high))
 
 	valg = Transaction.objects.filter(owner=user)
-	valg = valg.filter(account=bank_transaction.account)
+	#valg = valg.filter(account=bank_transaction.account) # trenger ikke begrense til en spesifikk konto
 	valg = valg.filter(date__range=(days_ago, days_ahead))
 	valg = valg.filter(amount__range=(amount_low, amount_high))
 	valg = valg.order_by('-date')
