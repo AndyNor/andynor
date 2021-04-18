@@ -52,6 +52,7 @@
 			<tr>
 				<th width="15%">Dato</th>
 				<th>Beløp</th>
+				<th>Konto</th>
 				<th>Beskrivelse</th>
 				<th>Link</th>
 			</tr>
@@ -61,6 +62,7 @@
 			<tr style="color: #{{ t.category.text_color|default:'A9A9A9'}}">
 				<td>{{t.date}}</a></td>
 				<td>{{t.amount}}</td>
+				<td>{{t.account}}</td>
 				<td>{{t.comment}}</td>
 				<td>
 					<form style="margin-bottom: 0px;" action="" method="post" id="create_new">{% csrf_token %}
