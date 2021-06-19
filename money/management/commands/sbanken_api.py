@@ -56,12 +56,12 @@ class Command(BaseCommand):
 
 			else:
 				print("Ingen tilkobling, avbryter..")
-				import sys
-				sys.exit()
+				return None
+
 
 		def sbanken_accounts(http_session):
 			#https://api.sbanken.no/exec.bank/swagger/index.html?urls.primaryName=Accounts%20v1
-			url = "https://api.sbanken.no/exec.bank/api/v1/Accounts"
+			url = "https://publicapi.sbanken.no/apibeta/api/v2/Accounts"
 			headers = {'customerId': CUSTOMERID}
 			accounts = sbanken_get(http_session, url, headers)
 			return accounts
@@ -69,7 +69,7 @@ class Command(BaseCommand):
 
 		def sbanken_transactions(http_session, accountID):
 			#https://api.sbanken.no/exec.bank/swagger/index.html?urls.primaryName=Transactions%20v1
-			url = "https://api.sbanken.no/exec.bank/api/v1/Transactions/" + accountID + "/?length=200" #?startDate=2019-12-15&endDate=2019-12-25"
+			url = "https://publicapi.sbanken.no/apibeta/api/v2/Transactions/" + accountID + "/?length=200" #?startDate=2019-12-15&endDate=2019-12-25"
 			#1000 is maximum
 			headers = {
 				'customerId': CUSTOMERID,
