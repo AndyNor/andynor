@@ -389,7 +389,7 @@ class ExpenceForm(forms.ModelForm):
 
 	class Meta:
 		model = Transaction
-		exclude = ('owner', 'category',)
+		exclude = ('owner',)
 
 
 class SalaryForm(forms.ModelForm):
