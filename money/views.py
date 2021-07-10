@@ -535,9 +535,9 @@ def month(request, year, month):  # "2013/01"
 			{u'text': u'Lend', u'width': 10},
 		]
 		# get all transactions matching user and period
-		transactions = Transaction.objects#.exclude(
+		#transactions = Transaction.objects.exclude(
 			#account__account_type=2,  # loan accaounts
-		.filter(
+		transactions = Transaction.objects.filter(
 			date__year=year,
 			date__month=month,
 			owner=request.user,
@@ -673,9 +673,9 @@ def year(request, year):  # "2013"
 			category_sum = Decimal(0)
 			for month in range(0, 12):
 				# do not show data from loan accounts
-				sum = Transaction.objects #.exclude(
+				#sum = Transaction.objects.exclude(
 					#account__account_type=2,  # loan accaounts
-				.filter(
+				sum = Transaction.objects.filter(
 					date__year=year,
 					date__month=month + 1,
 					owner=request.user,
