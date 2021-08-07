@@ -12,6 +12,12 @@ if THIS_ENVIRONMENT == "PROD":
     DEBUG = False
     from secrets_prod import load_secrets
     load_secrets()
+if THIS_ENVIRONMENT == "DO_PROD":
+    SITE_URL = "https://andynor.net"
+    ALLOWED_HOSTS = ['.andynor.net', '161.35.216.174']
+    DEBUG = True
+    from secrets_prod import load_secrets
+    load_secrets()
 if THIS_ENVIRONMENT == "DEV":
     SITE_URL = "localhost:8001"
     ALLOWED_HOSTS = ['localhost',]
@@ -65,6 +71,10 @@ if THIS_ENVIRONMENT == "PROD":
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000
+if THIS_ENVIRONMENT == "DO_PROD":  #!!! MÅ RETTES
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+    SECURE_HSTS_SECONDS = None
 if THIS_ENVIRONMENT == "DEV":
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
@@ -77,6 +87,14 @@ if THIS_ENVIRONMENT == "PROD":
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': '/home/andynor/webapps/django225/myproject/db.sqlite3',
+        }
+    }
+
+if THIS_ENVIRONMENT == "DO_PROD":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/home/django/django_project/andynor/db.sqlite3',
         }
     }
 
@@ -103,6 +121,14 @@ if THIS_ENVIRONMENT == "PROD":
     FILE_ROOT = '/home/andynor/webapps/static_media/fileupload/'
     FILE_URL = '/media/fileuploads/'
     STATIC_ROOT = '/home/andynor/webapps/static/'
+    STATIC_URL = '/static/'
+
+if THIS_ENVIRONMENT == "DO_PROD":
+    MEDIA_ROOT = '/home/django/django_project/media/'
+    MEDIA_URL = '/media/'
+    FILE_ROOT = '/home/django/django_project/static/fileupload/'
+    FILE_URL = '/media/fileuploads/'
+    STATIC_ROOT = '/home/django/django_project/static/'
     STATIC_URL = '/static/'
 
 if THIS_ENVIRONMENT == "DEV":
@@ -174,32 +200,3 @@ TEMPLATES = [
         },
     },
 ]
-
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    }
-}
