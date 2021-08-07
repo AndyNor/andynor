@@ -71,7 +71,7 @@ if THIS_ENVIRONMENT == "PROD":
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000
-if THIS_ENVIRONMENT == "DO_PROD":  #!!! MÅ RETTES
+if THIS_ENVIRONMENT == "DO_PROD":
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000
@@ -124,11 +124,11 @@ if THIS_ENVIRONMENT == "PROD":
     STATIC_URL = '/static/'
 
 if THIS_ENVIRONMENT == "DO_PROD":
-    MEDIA_ROOT = '/home/django/django_project/media/'
+    MEDIA_ROOT = '/home/django/django_project/andynor/media/'
     MEDIA_URL = '/media/'
-    FILE_ROOT = '/home/django/django_project/media/fileupload/'
+    FILE_ROOT = '/home/django/django_project/andynor/media/fileupload/'
     FILE_URL = '/media/fileuploads/'
-    STATIC_ROOT = '/home/django/django_project/static/'
+    STATIC_ROOT = '/home/django/django_project/andynor/static/'
     STATIC_URL = '/static/'
 
 if THIS_ENVIRONMENT == "DEV":
