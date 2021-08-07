@@ -126,7 +126,7 @@ if THIS_ENVIRONMENT == "PROD":
 if THIS_ENVIRONMENT == "DO_PROD":
     MEDIA_ROOT = '/home/django/django_project/media/'
     MEDIA_URL = '/media/'
-    FILE_ROOT = '/home/django/django_project/static/fileupload/'
+    FILE_ROOT = '/home/django/django_project/media/fileupload/'
     FILE_URL = '/media/fileuploads/'
     STATIC_ROOT = '/home/django/django_project/static/'
     STATIC_URL = '/static/'
