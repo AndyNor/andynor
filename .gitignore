@@ -4,7 +4,6 @@ db.sqlite3
 this_env.py
 secrets_dev.py
 secrets_prod.py
-backup_script
 *.7z
 
 # local
