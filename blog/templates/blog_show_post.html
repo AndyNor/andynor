@@ -47,32 +47,26 @@
 			<div class="pull-right">
 			{% if blog_active %}
 				{% if user.is_authenticated %}
-					<div>
-						<ul class="btn-group">
-							<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-								Admin
-								<span class="caret"></span>
-							</a>
-
-							<ul class="dropdown-menu">
-								<li>
-									{% url "blog_update" blog_active.pk as blog_update_url %}
-									<a href='{{ blog_update_url }}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i> Edit text</a>
-								</li>
-								<li>
-									{% url "image_upload" blog_active.pk as image_upload_url %}
-									<a href='{{ image_upload_url }}'><i class="icon-camera"></i> Manage images</a>
-								</li>
-								<li>
-									{% url "file_upload" blog_active.pk as file_upload_url %}
-									<a href='{{ file_upload_url }}'><i class="icon-file"></i> Manage files</a>
-								</li>
-								<li class="divider"></li>
-								<li>
-									{% url "blog_delete" blog_active.pk as blog_delete_url %}
-									<a href='{{ blog_delete_url }}'><i class="icon-remove"></i> Delete</a>
-								</li>
-							</ul>
+					<div class="dropdown">
+						<button class="btn dropdown-toggle" type="button" data-toggle="dropdown">Administrer <span class="caret"></span></button>
+						<ul class="dropdown-menu">
+							<li>
+								{% url "blog_update" blog_active.pk as blog_update_url %}
+								<a href='{{ blog_update_url }}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i> Edit text</a>
+							</li>
+							<li>
+								{% url "image_upload" blog_active.pk as image_upload_url %}
+								<a href='{{ image_upload_url }}'><i class="icon-camera"></i> Manage images</a>
+							</li>
+							<li>
+								{% url "file_upload" blog_active.pk as file_upload_url %}
+								<a href='{{ file_upload_url }}'><i class="icon-file"></i> Manage files</a>
+							</li>
+							<li class="divider"></li>
+							<li>
+								{% url "blog_delete" blog_active.pk as blog_delete_url %}
+								<a href='{{ blog_delete_url }}'><i class="icon-remove"></i> Delete</a>
+							</li>
 						</ul>
 					</div>
 				{% endif %}
