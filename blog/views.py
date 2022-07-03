@@ -510,6 +510,8 @@ def img_relocate(request):
 	else:
 		selected_images = request.session.get('blog_images_selection', None)
 
+	print(request.POST)
+
 	all_valid = True
 	image_objects = []
 	if selected_images is not None:

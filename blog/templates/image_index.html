@@ -10,7 +10,7 @@
 	<h4>Current images:</h4>
 	<hr>
 
-<form action="{% url "change_blog_ref" %}" id="blog_image_form" method="post">{% csrf_token %}
+<form action="{% url 'change_blog_ref' %}" id="blog_image_form" method="post">{% csrf_token %}
 	<div class="row-fluid">
 
 		<p>Selected images: <button type="submit" class="btn btn-mini">Move to blog</button></p>

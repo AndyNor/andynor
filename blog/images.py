@@ -8,6 +8,7 @@ import random
 from datetime import datetime
 from blog import models as blog_models
 from mysite.site_wide_functions import silentremove
+from PIL import ImageOps
 
 
 def image_exists(request, image_id):
@@ -91,6 +92,9 @@ def img_calc_large(image, max_width):
 		im = Image.open(original)
 	except:
 		return False
+
+	im = ImageOps.exif_transpose(im)
+
 	if im.size[0] > max_width:
 		height = int((float(max_width * 0.625) / float(im.size[0])) * float(im.size[1]))  # >1920 gir 1200x bilder
 		im.thumbnail((max_width, height), Image.ANTIALIAS)
@@ -147,6 +151,8 @@ def img_calc_thumb(request, image, max_width, max_height=False):
 	except:
 		messages.error(request, 'Could not find a large version of image')
 		return False
+
+	im = ImageOps.exif_transpose(im)
 
 	# determine thumbnail filename
 	filename_thumb = image.original if (image.original is not None) else image.large
