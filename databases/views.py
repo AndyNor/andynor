@@ -21,7 +21,7 @@ def overview(request, category_name=None):
 
 	def sort(category_name):
 		check = {
-				'audible': ['subcategory', 'writer', 'series', 'series_nr'],
+				'audible': ['writer', 'series', 'series_nr'],
 				'movies': ['-produced', '-pk'],
 				'tvseries': ['-pk'],
 				'programs': ['subcategory', '-star', '-pk'],
