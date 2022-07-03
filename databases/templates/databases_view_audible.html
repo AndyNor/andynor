@@ -8,12 +8,13 @@
 	<thead>
 		<tr>
 			<th></th>
-			<th>Book</th>
-			<th>Author</th>
-			<th>Category</th>
-			<th>Read</th>
-			<th>Star</th>
-			<th>Duration</th>
+			<th>Tittel</th>
+			<th>Serie</th>
+			<th>Forfatter</th>
+			<th>Kategori</th>
+			<th>Lest?</th>
+			<th>Utmerkelse?</th>
+			<th>Varighet</th>
 
 		</tr>
 	</thead>
@@ -33,6 +34,7 @@
 				({{ item.series_nr|ordinal }})
 			{% endif %}
 			</td>
+			<td>{{ item.series.name }}</td>
 			<td>{{item.writer}}</td>
 			<td>{{item.subcategory.name|capfirst}}</td>
 			<td>{% if item.flagged %}<i class="icon-ok"></i>{% endif %}</td>
