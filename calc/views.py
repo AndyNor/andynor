@@ -16,11 +16,8 @@ class Object(object):
 	pass
 
 
-def readPost(string, default, request):
-	try:
-		return float(request.POST.get(string, default).replace(' ', ''))
-	except:
-		return float(default)
+def readPost(attr, default, request):
+	return float(request.POST.get(attr, default).replace(' ', '').replace(',', '.'))
 
 
 def index(request):
