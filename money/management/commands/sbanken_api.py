@@ -46,6 +46,10 @@ class Command(BaseCommand):
 			except Exception as e:
 				print("Klarte ikke koble til med oppgitte autentiseringsparametre")
 				print("Error: %s" % e)
+				logg_entry = ApplicationLog.objects.create(
+					event_type=LOG_EVENT_TYPE,
+					message=("Kunne ikke koble til: %s" % e),
+				)
 
 
 
