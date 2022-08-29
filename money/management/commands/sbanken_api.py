@@ -91,6 +91,8 @@ class Command(BaseCommand):
 		# We need to update the status (balance) on all the accounts
 		http_session = create_authenticated_http_session(CLIENTID, SECRET)
 		accounts = sbanken_accounts(http_session)
+		if accounts == None:
+			return
 		for a in accounts['items']:
 			try:
 				internal_account = Account.objects.get(account_id=a['accountId'])
