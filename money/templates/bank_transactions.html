@@ -14,8 +14,10 @@
 	<a class="btn btn-small" href='{% url "sbanken_sync" %}'>Synkroniser nå</a>
 </div>
 
+
 <ul>
 	<li>Sist synkronisering for {{ latest_synch.opprettet|timesince }} siden.</li>
+	<li>{{ latest_synch.message }}</li>
 	<li>API-nøkkel utløper om {{ request.user.profile.BANK_SECRET_EXPIRE|timeuntil }}.</li>
 </ul>
 <p>Viser de siste {{transactions.count}} transaksjonene. Sum av reserverte transaksjoner er {{sum_reservert}}.</p>
