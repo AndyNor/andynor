@@ -103,9 +103,9 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 					<a class="brand" href='{% url "root" %}'>Forside</a>
 					<div class="nav-collapse">
 						<ul class="nav">
-							{% url "app_blog" as url %}{% pri_nav_item request.path url 'Skriverier' 'icon-book' %}
-							{% url "app_databases" as url %}{% pri_nav_item request.path url 'Liker' 'icon-thumbs-up' %}
-							{% url "blog_show" 60 as url %}{% pri_nav_item request.path url 'Hvem er jeg?' 'icon-user' %}
+							{% url "app_blog" as url %}{% pri_nav_item request.path url 'Bilder og historier' 'icon-book' %}
+							{% url "app_databases" as url %}{% pri_nav_item request.path url 'Mine anbefalinger' 'icon-thumbs-up' %}
+							{% url "blog_show" 60 as url %}{% pri_nav_item request.path url 'Om meg' 'icon-user' %}
 							{% url "app_power" as url %}{% pri_nav_item request.path url 'Strøm' 'icon-fire' %}
 
 							{% if user.is_authenticated %}
