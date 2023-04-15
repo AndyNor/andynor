@@ -118,7 +118,7 @@ USE_I18N = True
 if THIS_ENVIRONMENT == "PROD":
     MEDIA_ROOT = '/home/andynor/webapps/static_media/'
     MEDIA_URL = '/media/'
-    FILE_ROOT = '/home/andynor/webapps/static_media/fileupload/'
+    FILE_ROOT = '/home/andynor/webapps/static_media/fileuploads/'
     FILE_URL = '/media/fileuploads/'
     STATIC_ROOT = '/home/andynor/webapps/static/'
     STATIC_URL = '/static/'
