@@ -56,10 +56,10 @@ class SubCategory(models.Model):
 		max_length=200,
 		blank=True,
 	)
-	is_consumption = models.BooleanField(
-		default=False,
-		help_text=u'Er forbruk',
-	)
+	#is_consumption = models.BooleanField(
+	#	default=False,
+	#	help_text=u'Er forbruk',
+	#)
 
 	def __str__(self):
 		return u'%s' % (self.name)
@@ -201,10 +201,10 @@ class Transaction(models.Model):
 		default=False,
 		help_text=u'Investering',
 	)
-	is_consumption = models.BooleanField(
-		default=False,
-		help_text=u'Forbruk',
-	)
+	#is_consumption = models.BooleanField(
+	#	default=False,
+	#	help_text=u'Forbruk',
+	#)
 
 	def __str__(self):
 		return u'%s: %s' % (self.sub_category, self.amount)
