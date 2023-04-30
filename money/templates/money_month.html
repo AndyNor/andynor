@@ -2,7 +2,7 @@
 {% load humanize %}
 {% load l10n %}
 
-{% block money_title %} Details for {{ month_name }} {{ year|unlocalize }} {% endblock %}
+{% block money_title %} Detaljer for {{ month_name }} {{ year|unlocalize }} {% endblock %}
 {% block money_subtitle %}
 <ul class="pager">
 	<li class="previous"><a href="{% url 'money_month' links.last.year links.last.month %}">&larr; Previous</a></li>
@@ -16,7 +16,7 @@
 {% block money_main %}
 
 {% if salary_data.tbody %}
-<h5>Income</h5>
+<h5>Inntekt</h5>
 <div class="scrollable">
 <table class="table table-condensed table-striped">
 	<thead>
@@ -45,7 +45,7 @@
 </div>
 {% endif %}
 
-<h5>Expences</h5>
+<h5>Utgifter</h5>
 <div class="scrollable">
 <table class="table table-condensed table-striped">
 	<thead>
@@ -63,6 +63,8 @@
 			<td>{{ t.date|date:"jS" }}</td>
 			<td>{{ t.account }}</td>
 			<td>{{ t.category }} {{ t.sub_category|default:"" }} {{ t.comment|default:"" }}</td>
+			<td>{% if t.is_consumption %} Forbruk {% endif %}</td>
+			<td>{% if t.is_asset %} Investering {% endif %}</td>
 			<td class="money">{{ t.amount_expense|intcomma }}</td>
 			<td class="money">{{ t.amount_income|intcomma }}</td>
 			<td class="money">{{ t.amount_loan|intcomma }}</td>

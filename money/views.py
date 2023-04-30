@@ -52,6 +52,7 @@ def monthly_expences(request, year, month):
 					sub_category=sub_category,
 					comment=comment,
 					is_asset=False,
+					is_consumption=True,
 				)
 			t.save()
 
@@ -449,7 +450,7 @@ def edit(request, this_type, pk=False):
 	if this_type == u'salary':
 		head_text = "Legg til lønn"
 	if this_type == u'expence':
-		head_text = "Manuell registrering"
+		head_text = "Manuell utgift"
 	if this_type == u'transaction':
 		head_text = "Overfør mellom kontoer"
 	if this_type == u'downpayment':
@@ -529,6 +530,8 @@ def month(request, year, month):  # "2013/01"
 			{u'text': u'Date', u'width': 10},
 			{u'text': u'Account', u'width': 20},
 			{u'text': u'Category', u'width': 30},
+			{u'text': u'Forbruk', u'width': 10},
+			{u'text': u'Investering', u'width': 10},
 			{u'text': u'Expense', u'width': 10},
 			{u'text': u'Income', u'width': 10},
 			{u'text': u'Loan', u'width': 10},
@@ -672,21 +675,20 @@ def year(request, year):  # "2013"
 			cell_sums = []
 			category_sum = Decimal(0)
 			for month in range(0, 12):
-				# do not show data from loan accounts
-				#sum = Transaction.objects.exclude(
-					#account__account_type=2,  # loan accaounts
-				sum = Transaction.objects.filter(
-					date__year=year,
-					date__month=month + 1,
-					owner=request.user,
-					category=cat,
+				this_category_sum = Transaction.objects.exclude(
+						account__account_type=1, # Saving
+					).filter(
+						date__year=year,
+						date__month=month + 1,
+						owner=request.user,
+						category=cat,
 				).aggregate(value=Sum(u'amount'))[u'value']
 				# sum all partial sums of this category
-				if type(sum).__name__ == u'Decimal':
-					category_sum += sum
+				if type(this_category_sum).__name__ == u'Decimal':
+					category_sum += this_category_sum
 
 				# group all partial sums per category
-				cell_sums.append(sum)
+				cell_sums.append(this_category_sum)
 
 			data.append({
 				u'category': cat.name,
@@ -694,6 +696,7 @@ def year(request, year):  # "2013"
 				u'category_sum': category_sum,
 				u'text_color': cat.text_color,
 			})
+
 		data.append(month_sums(data))
 		return data
 
@@ -769,8 +772,48 @@ def year(request, year):  # "2013"
 			i.amount = -i.amount
 		return items
 
+	def consumption_sum_data(request, year):
+		montly_sums = []
+		total_sum = Decimal(0)
+
+		for month in range(0, 12):
+			month_sum = Transaction.objects.exclude(
+					account__account_type=1, # Saving
+				).filter(
+					date__year=year,
+					date__month=month + 1,
+					owner=request.user,
+					is_consumption=True,
+				).aggregate(value=Sum(u'amount'))[u'value']
+			montly_sums.append(month_sum)
+			if type(month_sum).__name__ == u'Decimal':
+				total_sum += month_sum
+		montly_sums.append(total_sum)
+		return montly_sums
+
+	def asset_sum_data(request, year):
+		montly_sums = []
+		total_sum = Decimal(0)
+
+		for month in range(0, 12):
+			month_sum = Transaction.objects.exclude(
+					account__account_type=1, # Saving
+				).filter(
+					date__year=year,
+					date__month=month + 1,
+					owner=request.user,
+					is_asset=True,
+				).aggregate(value=Sum(u'amount'))[u'value']
+			montly_sums.append(month_sum)
+			if type(month_sum).__name__ == u'Decimal':
+				total_sum += month_sum
+		montly_sums.append(total_sum)
+		return montly_sums
+
 	salary_data = salary_data(request, year)
 	expence_data = expence_data(request, year)
+	consumption_sum_data = consumption_sum_data(request, year)
+	asset_sum_data = asset_sum_data(request, year)
 	asset_data = assets(request, year)
 	downpayment_data = downpayment_data(request, year)
 
@@ -783,6 +826,8 @@ def year(request, year):  # "2013"
 		'salary_data': salary_data,
 		'dp_data': downpayment_data,
 		'asset_data': asset_data,
+		'consumption_sum_data': consumption_sum_data,
+		'asset_sum_data': asset_sum_data,
 	})
 
 
@@ -792,7 +837,7 @@ def account(request, account, page=None):
 	if page is None:
 		page = 0
 
-	num_per_page = 50
+	num_per_page = 150
 
 	page = int(page)
 	start = num_per_page * page
@@ -844,7 +889,7 @@ def query(request):
 
 
 def balance(request):
-	accounts = Account.objects.filter(owner=request.user).order_by("description")
+	accounts = Account.objects.filter(owner=request.user).filter(visible=True).order_by("description")
 	account_balance = []
 	sum_real = Decimal(0)
 	sum_planned = Decimal(0)

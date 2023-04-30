@@ -56,6 +56,10 @@ class SubCategory(models.Model):
 		max_length=200,
 		blank=True,
 	)
+	is_consumption = models.BooleanField(
+		default=False,
+		help_text=u'Er forbruk',
+	)
 
 	def __str__(self):
 		return u'%s' % (self.name)
@@ -119,6 +123,10 @@ class Account(models.Model):
 		decimal_places=MONEY_DECIMAL_PLACES,
 		default=0,
 		)
+	visible = models.BooleanField(
+		default=True,
+		help_text=u'Synlig',
+	)
 
 	def __str__(self):
 		return u'%s' % (self.name)
@@ -191,7 +199,11 @@ class Transaction(models.Model):
 	)
 	is_asset = models.BooleanField(
 		default=False,
-		help_text=u'If you want to show this item on the summary page',
+		help_text=u'Investering',
+	)
+	is_consumption = models.BooleanField(
+		default=False,
+		help_text=u'Forbruk',
 	)
 
 	def __str__(self):

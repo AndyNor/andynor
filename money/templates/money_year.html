@@ -2,30 +2,30 @@
 {% load humanize %}
 {% load l10n %}
 
-{% block money_title %} Summary of {{ year|unlocalize }}{% endblock %}
+{% block money_title %} Oppsummering for {{ year|unlocalize }}{% endblock %}
 
 {% block money_subtitle %}
 <ul class="pager">
-	<li class="previous"><a href="{% url 'money_year' last_year %}">&larr; Previous</a></li>
-	<li><a class="btn" href="{% url 'app_money' %}">Main overview</a></li>
-	<li class="next"><a href="{% url 'money_year' next_year %}">Next &rarr;</a></li>
+	<li class="previous"><a href="{% url 'money_year' last_year %}">&larr; Tilbake</a></li>
+	<li><a class="btn" href="{% url 'app_money' %}">Oversikt</a></li>
+	<li class="next"><a href="{% url 'money_year' next_year %}">Frem &rarr;</a></li>
 </ul>
 {% endblock %}
 
 {% block money_main %}
 
-<h5>Expences</h5>
+<h5>Utgifter</h5>
 <div class="scrollable">
 	{% include "money_year_table_monthly.html" with table_data=expence_data %}
 </div>
 
-<h5>Salary</h5>
+<h5>Lønn</h5>
 <div class="scrollable">
 	{% include "money_year_table_monthly.html" with table_data=salary_data %}
 </div>
 
 {% if dp_data.payments %}
-<h5>Loan payback</h5>
+<h5>Nedbetaling lån</h5>
 <div class="scrollable">
 	<table class="table table-striped">
 		<thead>
@@ -53,7 +53,7 @@
 </div>
 {% endif %}
 
-<h5>Special items</h5>
+<h5>Kjøp og investeringer</h5>
 <div class="scrollable">
 	<table class="table table-striped">
 		<thead>

@@ -1,4 +1,5 @@
 {% load humanize %}
+
 <table class="table table-striped">
 	<thead>
 		<tr>
@@ -15,24 +16,34 @@
 		<tr style="color:#{{ item.text_color|default:'A9A9A9' }};">
 			<td>{{ item.category|capfirst }}</td>
 			{% for sum in item.cell_sums %}
-				<td class="money">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
+			<td class="money">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
 			{% endfor %}
 			<td class="money">{{ item.category_sum|default:''|floatformat:"0"|intcomma }}</td>
 		</tr>
 		{% else %}
-	</tbody>
-	<tfoot>
 		<tr>
-			<td>Sum</td>
+			<td><b>Sum</b></td>
 			{% for sum in item %}
 				{% if sum < 0 %}
-					<td class="money" style="color:red;">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
+			<td class="money" style="color:red;">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
 				{% else %}
-					<td class="money">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
+			<td class="money">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
 				{% endif %}
 			{% endfor %}
 		</tr>
 		{% endif %}
 	{% endfor %}
-	</tfoot>
+		<tr>
+			<td><i>Forbruk</i></td>
+			{% for value in consumption_sum_data %}
+			<td class="money">{{ value|default:''|floatformat:"0"|intcomma }}</td>
+			{% endfor %}
+		</tr>
+		<tr>
+			<td><i>Investering</i></td>
+			{% for value in asset_sum_data %}
+			<td class="money">{{ value|default:''|floatformat:"0"|intcomma }}</td>
+			{% endfor %}
+		</tr>
+	</tbody>
 </table>

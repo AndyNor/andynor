@@ -10,23 +10,46 @@
 	{% include "form.html" %}
 
 	<table class="table table-bordered table-condensed">
-	{% for i in entries %}
-		<tr>
-			<td><a href="{{i.pk}}/?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
-			<td>{{ i.name }}</td>
-			{% if i.parent_category %}
-				<td style="background-color: #{{ i.parent_category.text_color }};"></td>
-				<td>{{ i.parent_category }}</td>
-			{% else %}
-				<td style="background-color: #{{ i.text_color }};"></td>
-			{% endif %}
-			{% if i.account_type %}
-				<td>{{ i.get_account_type_display }}</td>
-				<td>{{ i.sub_category.parent_category }} {{ i.sub_category }}</td>
-			{% endif %}
-			<td>{{ i.description }}</td>
-		</tr>
-	{% endfor %}
+		<thead>
+			<tr>
+				<th></th>
+				<th>Konto</th>
+				<th>Farge</th>
+				<th>Hovedkategori</th>
+				<th>Kontotype</th>
+				<th>Kategori</th>
+				<th>Beskrivelse</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for i in entries %}
+			<tr>
+				<td><a href="{{i.pk}}/?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
+				<td>
+					{% if i.visible %}✅{% endif %}
+					{{ i.name }}
+				</td>
+
+				{% if i.parent_category %}
+					<td style="background-color: #{{ i.parent_category.text_color }};"></td>
+					<td>{{ i.parent_category }}</td>
+				{% else %}
+					<td style="background-color: #{{ i.text_color }};"></td>
+					<td></td>
+				{% endif %}
+
+				{% if i.account_type %}
+					<td>{{ i.get_account_type_display }}</td>
+					<td>{{ i.sub_category.parent_category }} {{ i.sub_category }}</td>
+				{% else %}
+					<td></td>
+					<td>{% if i.is_consumption %}Forbruk{% endif %}</td>
+				{% endif %}
+
+				<td>{{ i.description }}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
 	</table>
 
 {% endblock %}

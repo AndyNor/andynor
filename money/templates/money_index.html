@@ -3,26 +3,20 @@
 {% load i18n %}
 {% load l10n %}
 
-{% block money_title %} {{block.super}} Main overview {% endblock %}
+{% block money_title %} {{block.super}} Økonomi forside {% endblock %}
 
 {% block money_main %}
 
 <div class="row">
-	<div class="scrollable span6">
-		<div id="graph_per_year" style="height: 400px;"></div>
+
+	<div class="scrollable span12">
+		<div id="graph_per_year" style="height: 300px;"></div>
 	</div>
 
-	<div class="scrollable span6">
-		<div id="graph_per_account" style="height: 400px;">
-		<script type="text/javascript" nonce="{{request.csp_nonce}}">
-			var balance_data = {{ balance_json|safe }};
-			var year_data = {{ year_json|safe }};
-		</script>
-	</div>
 </div>
 
-
 <div class="row">
+
 	<div class="scrollable span6">
 		<table class="table table-striped">
 			<thead>
@@ -30,9 +24,8 @@
 					<th>År</th>
 					<th>Brutto</th>
 					<th>Netto</th>
-					{% comment %}<th>Pension</th>{% endcomment %}
 					<th>Skatt</th>
-					<th>Skatt %</th>
+					<th>Skatt</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -45,7 +38,7 @@
 					<td class="money">{{ item.retirement|default:'-'|floatformat:"0"|intcomma }}</td>
 					{% endcomment %}
 					<td class="money">{{ item.tax|default:'-'|floatformat:"0"|intcomma }}</td>
-					<td class="money">{{ item.tax_pct }}%</td>
+					<td>{{ item.tax_pct }}%</td>
 				</tr>
 				{% endfor %}
 			</tbody>
@@ -53,6 +46,8 @@
 	</div>
 
 	<div class="scrollable span6">
+
+
 		<table class="table table-striped sortable">
 			<thead>
 				<tr>
@@ -67,28 +62,36 @@
 			{% for item in balance_data.data %}
 				<tr>
 					<td><a class="btn btn-link" href='{% url "money_account" item.pk %}'>{{ item.account }}</a></td>
-					<td class="money">{{ item.real|floatformat:"0"|intcomma }}
-					</td>
-					<td class="money">{{ item.real_bank|floatformat:"0"|intcomma }}
-					</td>
+					<td class="money">{{ item.real|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.real_bank|floatformat:"0"|intcomma }}</td>
 					<td>
-					{% if item.diff_balanse %}
-						{{ item.diff_balanse|floatformat:"0"|intcomma|default:"-" }}
-					{% endif %}
+						{% if item.diff_balanse %}
+							{{ item.diff_balanse|floatformat:"0"|intcomma|default:"-" }}
+						{% endif %}
 					</td>
 					<td class="money">{{ item.planned|floatformat:"0"|intcomma }}</td>
 				</tr>
 			{% endfor %}
 				<tr>
-					<td><b>SUM</b></td>
+					<td><b>Summert</b></td>
 					<td>{{balance_data.sum_real|default:'-'|floatformat:"0"|intcomma}}</td>
+					<td></td>
+					<td></td>
 					<td>{{balance_data.sum_planned|default:'-'|floatformat:"0"|intcomma}}</td>
-					<td></td>
-					<td></td>
 				</tr>
 			</tbody>
 		</table>
+
+
+		<div id="graph_per_account" style="height: 200px;">
+			<script type="text/javascript" nonce="{{request.csp_nonce}}">
+				var balance_data = {{ balance_json|safe }};
+				var year_data = {{ year_json|safe }};
+			</script>
+		</div>
+
 	</div>
+
 </div>
 {% endblock %}
 
