@@ -123,10 +123,10 @@ class Account(models.Model):
 		decimal_places=MONEY_DECIMAL_PLACES,
 		default=0,
 		)
-	#visible = models.BooleanField(
-	#	default=True,
-	#	help_text=u'Synlig',
-	#)
+	visible = models.BooleanField(
+		default=True,
+		help_text=u'Synlig',
+	)
 
 	def __str__(self):
 		return u'%s' % (self.name)
