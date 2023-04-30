@@ -676,7 +676,7 @@ def year(request, year):  # "2013"
 			category_sum = Decimal(0)
 			for month in range(0, 12):
 				this_category_sum = Transaction.objects.exclude(
-						account__account_type=1, # Saving
+						account__pk=13, # Egen leilighet
 					).filter(
 						date__year=year,
 						date__month=month + 1,
@@ -778,7 +778,7 @@ def year(request, year):  # "2013"
 
 		for month in range(0, 12):
 			month_sum = Transaction.objects.exclude(
-					account__account_type=1, # Saving
+					account__pk=13, # Egen leilighet
 				).filter(
 					date__year=year,
 					date__month=month + 1,
@@ -797,7 +797,7 @@ def year(request, year):  # "2013"
 
 		for month in range(0, 12):
 			month_sum = Transaction.objects.exclude(
-					account__account_type=1, # Saving
+					account__pk=13, # Egen leilighet
 				).filter(
 					date__year=year,
 					date__month=month + 1,
