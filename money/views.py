@@ -52,7 +52,7 @@ def monthly_expences(request, year, month):
 					sub_category=sub_category,
 					comment=comment,
 					is_asset=False,
-					is_consumption=True,
+					is_consumption=False,
 				)
 			t.save()
 
