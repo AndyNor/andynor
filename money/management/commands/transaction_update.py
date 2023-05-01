@@ -18,13 +18,13 @@ class Command(BaseCommand):
 				t.category = t.sub_category.parent_category
 				t.save()
 				subcat_changed += 1
-				print(f"Rettet {t.category} til {t.sub_category.parent_category}")
+				print(f"Rettet {t} til kategori = {t.sub_category.parent_category}")
 
 			if not(t.is_consumption == t.sub_category.is_consumption):
 				t.is_consumption = t.sub_category.is_consumption
 				t.save()
 				is_consumption_changed += 1
-				print(f"Rettet {t.is_consumption} til {t.sub_category.is_consumption}")
+				print(f"Rettet {t} til forbruk = {t.sub_category.is_consumption}")
 
 
 		logg_entry_message = f"Sjekket {checked} transaksjoner. {subcat_changed} subkategorier ble rettet. {is_consumption_changed} forbruk ble rettet."
