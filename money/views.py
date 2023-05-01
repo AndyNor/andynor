@@ -277,6 +277,7 @@ def edit(request, this_type, pk=False):
 						# Invert the sum (most used usecase)
 						t.amount = -(t.amount)
 						t.category = t.sub_category.parent_category
+						t.is_consumption = t.sub_category.is_consumption
 						t.save()
 					else:
 						# Updateing an existing transaction
@@ -1133,6 +1134,7 @@ def __create_new_transaction(request, bank_transaction, sub_category, comment):
 				date=bank_transaction.accounting_date,
 				category=category,
 				sub_category=sub_category,
+				is_consumption=sub_category.is_consumption,
 				comment=comment,
 				is_asset=False,
 			)

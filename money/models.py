@@ -192,6 +192,7 @@ class Transaction(models.Model):
 	sub_category = models.ForeignKey(
 		to=SubCategory,
 		on_delete=models.PROTECT,
+		blank=False,
 	)
 	comment = models.CharField(
 		max_length=100,
