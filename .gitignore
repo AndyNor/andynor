@@ -118,3 +118,5 @@ venv.bak/
 .mypy_cache/
 *.sqlite3
 *.gz
+Andynor http.url
+Andynor djangoshell.lnk
