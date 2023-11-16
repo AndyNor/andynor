@@ -14,8 +14,8 @@ if THIS_ENVIRONMENT == "PROD":
     load_secrets()
 if THIS_ENVIRONMENT == "DO_PROD":
     SITE_URL = "https://andynor.net"
-    ALLOWED_HOSTS = ['.andynor.net', '161.35.216.174']
-    DEBUG = True
+    ALLOWED_HOSTS = ['.andynor.net']#, '161.35.216.174']
+    DEBUG = False
     from secrets_prod import load_secrets
     load_secrets()
 if THIS_ENVIRONMENT == "DEV":
