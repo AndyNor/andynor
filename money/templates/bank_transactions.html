@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "money.html" %}
 {% load breadcrumbs %}
 {% load humanize %}
 
@@ -6,9 +6,9 @@
 	{% url "money_search" as action %} {% include "search_form.html" with action=action %}
 {% endblock %}
 
-{% block body_main %}
+{% block money_title %} {{block.super}} Transaksjoner fra Sbanken {% endblock %}
 
-<h3>Transaksjoner fra Sbanken</h3>
+{% block money_main %}
 
 <div class="pull-right">
 	<a class="btn btn-small" href='{% url "sbanken_sync" %}'>Synkroniser nå</a>

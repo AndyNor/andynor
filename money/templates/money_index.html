@@ -3,6 +3,10 @@
 {% load i18n %}
 {% load l10n %}
 
+{% block search %}
+	{% url "money_search" as action %} {% include "search_form.html" with action=action %}
+{% endblock %}
+
 {% block money_title %} {{block.super}} Økonomi {% endblock %}
 
 {% block money_main %}

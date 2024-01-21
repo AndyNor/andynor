@@ -2,7 +2,6 @@
 from django.contrib import admin
 from money import models
 
-admin.site.register(models.Salary)
 admin.site.register(models.Category)
 admin.site.register(models.SubCategory)
 admin.site.register(models.Downpayment)
@@ -29,3 +28,12 @@ class TransactionAdmin(admin.ModelAdmin):
 	list_display = ('owner', 'account', 'amount', 'date', 'sub_category', 'comment', 'is_asset',)
 	search_fields = ('amount', 'comment',)
 	list_filter = ('owner','account', 'is_asset')
+
+
+@admin.register(models.Salary)
+class SalaryAdmin(admin.ModelAdmin):
+	list_display = ('date', 'salary', 'extra_hours', 'tax', 'comment')
+	search_fields = ('comment',)
+	list_filter = ()
+	autocomplete_fields = ('transaction',)
+	ordering = ()
