@@ -908,7 +908,7 @@ def balance(request):
 		).aggregate(sum=Sum('amount'))['sum']
 
 		if not a.balance in (None, Decimal(0)):
-			diff_balanse = real_balance - a.available
+			diff_balanse = real_balance - a.available + a.credit_limit
 		else:
 			diff_balanse = None
 
@@ -916,7 +916,7 @@ def balance(request):
 			'pk': a.pk,
 			'account': a.name,
 			'real': real_balance,
-			'real_bank': a.available,
+			'real_bank': a.available - a.credit_limit,
 			'planned': planned_balance,
 			'diff_balanse': diff_balanse,
 		})
@@ -967,9 +967,11 @@ def search(request):
 def index(request):
 	request.session['redirect_url'] = request.path
 
+	MAX_HISTORY = 10
+
 	def year_summary(request):
 		year_data = []
-		unique_years = Transaction.objects.filter(owner=request.user).dates('date', 'year').reverse()
+		unique_years = Transaction.objects.filter(owner=request.user).dates('date', 'year').reverse()[0:10]
 		for datetime_year in unique_years: #[:20]
 			year = int(datetime_year.year)
 			salaries = Salary.objects.filter(
@@ -1002,8 +1004,8 @@ def index(request):
 	return render(request, u'money_index.html', {
 		'balance_data': balance_data,
 		'balance_json': makeJSON(balance_data["data"]),
-		'year_data': year_data,
-		'year_json': makeJSON(year_data),
+		'year_data': year_data[0:5],
+		'year_json': makeJSON(year_data[0:MAX_HISTORY]),
 		'APP_NAME': APP_NAME,
 	})
 
