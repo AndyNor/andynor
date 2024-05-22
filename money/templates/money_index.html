@@ -57,8 +57,6 @@
 				<tr>
 					<th>Konto</th>
 					<th>Balanse</th>
-					<th>Bank</th>
-					<th>Diff</th>
 					<th>Plan</th>
 				</tr>
 			</thead>
@@ -67,18 +65,12 @@
 				<tr>
 					<td><a class="btn btn-link" href='{% url "money_account" item.pk %}'>{{ item.account }}</a></td>
 					<td class="money">{{ item.real|floatformat:"0"|intcomma }}</td>
-					<td class="money">{{ item.real_bank|floatformat:"0"|intcomma }}</td>
-					<td>
-						{{ item.diff_balanse|floatformat:"0"|intcomma|default:"-" }}
-					</td>
 					<td class="money">{{ item.planned|floatformat:"0"|intcomma|default:"-" }}</td>
 				</tr>
 			{% endfor %}
 				<tr>
 					<td><b>Summert</b></td>
 					<td>{{balance_data.sum_real|default:'-'|floatformat:"0"|intcomma}}</td>
-					<td>-</td>
-					<td>-</td>
 					<td>{{balance_data.sum_planned|default:'-'|floatformat:"0"|intcomma}}</td>
 				</tr>
 			</tbody>
