@@ -11,34 +11,34 @@
 		<h3>{% block money_title %}{% endblock %}</h3>
 		{% block money_actions %}
 		<div class="pull-right">
-			<a class="btn btn-small" style="width: 90px; margin-bottom: 10px; padding-bottom: 3px;"
+			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href='{% url "app_money" %}?next={{ request.get_full_path|urlencode }}'>
 				Oversikt</a>
-			<a class="btn btn-small" style="width: 90px; margin-bottom: 10px; padding-bottom: 3px;"
+			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href='{% url "bank_transactions" %}?next={{ request.get_full_path|urlencode }}'>
 				Transaksjoner</a>
-			<a class="btn btn-small" style="width: 90px; margin-bottom: 10px; padding-bottom: 3px;"
+			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href='{% url "money_new" "expence" %}?next={{ request.get_full_path|urlencode }}'>
 				Manuell utgift</a>
-			<a class="btn btn-small" style="width: 90px; margin-bottom: 10px; padding-bottom: 3px;"
+			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href='{% url "money_new" "downpayment" %}?next={{ request.get_full_path|urlencode }}'>
 				Lån</a>
-			<a class="btn btn-small" style="width: 90px; margin-bottom: 10px; padding-bottom: 3px;"
+			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href='{% url "money_new" "salary" %}?next={{ request.get_full_path|urlencode }}'>
 				Registrer lønn</a>
-			<a class="btn btn-small" style="width: 90px; margin-bottom: 10px; padding-bottom: 3px;"
+			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href='/admin/money/salary/'>
 				Vis lønn</a>
-			<a class="btn btn-small" style="width: 90px; margin-bottom: 10px; padding-bottom: 3px;"
+			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href='{% url "money_new" "transaction" %}?next={{ request.get_full_path|urlencode }}'>
 				Overfør</a>
-			<a class="btn btn-small" style="width: 90px; margin-bottom: 10px; padding-bottom: 3px;"
+			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href="{% url 'money_admin_add_account' %}">
 				Kontoer</a>
-			<a class="btn btn-small" style="width: 90px; margin-bottom: 10px; padding-bottom: 3px;"
+			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href="{% url 'money_admin_category' %}">
 				Kategorier</a>
-			<a class="btn btn-small" style="width: 90px; margin-bottom: 10px; padding-bottom: 3px;"
+			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href="{% url 'money_admin_subcategory' %}">
 				Subkategorier</a>
 		</div>

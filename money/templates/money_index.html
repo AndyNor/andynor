@@ -7,84 +7,76 @@
 	{% url "money_search" as action %} {% include "search_form.html" with action=action %}
 {% endblock %}
 
-{% block money_title %} {{block.super}} Økonomi {% endblock %}
+{% block money_title %} {{block.super}} Regnskap {% endblock %}
 
 {% block money_main %}
 
-<div class="row">
-
-	<div class="scrollable span12">
-		<div id="graph_per_year" style="height: 300px;"></div>
-	</div>
-
-</div>
-
-<div class="row">
-
-	<div class="scrollable span6">
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th>År</th>
-					<th>Brutto</th>
-					<th>Netto</th>
-					<th>Skatt</th>
-					<th>Skatt</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for item in year_data %}
-				<tr>
-					<td><a class="btn btn-link" href='{% url "money_year" item.year %}'>{{ item.year|unlocalize }}</a></td>
-					<td class="money">{{ item.gross|default:'-'|floatformat:"0"|intcomma }}</td>
-					<td class="money">{{ item.nett|default:'-'|floatformat:"0"|intcomma }}</td>
-					{% comment %}
-					<td class="money">{{ item.retirement|default:'-'|floatformat:"0"|intcomma }}</td>
-					{% endcomment %}
-					<td class="money">{{ item.tax|default:'-'|floatformat:"0"|intcomma }}</td>
-					<td>{{ item.tax_pct }}%</td>
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
-
-	<div class="scrollable span6">
-
-
-		<table class="table table-striped sortable">
-			<thead>
-				<tr>
-					<th>Konto</th>
-					<th>Balanse</th>
-					<th>Plan</th>
-				</tr>
-			</thead>
-			<tbody>
-			{% for item in balance_data.data %}
-				<tr>
-					<td><a class="btn btn-link" href='{% url "money_account" item.pk %}'>{{ item.account }}</a></td>
-					<td class="money">{{ item.real|floatformat:"0"|intcomma }}</td>
-					<td class="money">{{ item.planned|floatformat:"0"|intcomma|default:"-" }}</td>
-				</tr>
-			{% endfor %}
-				<tr>
-					<td><b>Summert</b></td>
-					<td>{{balance_data.sum_real|default:'-'|floatformat:"0"|intcomma}}</td>
-					<td>{{balance_data.sum_planned|default:'-'|floatformat:"0"|intcomma}}</td>
-				</tr>
-			</tbody>
-		</table>
-
-
-		<div id="graph_per_account" style="height: 200px;">
-			<script type="text/javascript" nonce="{{request.csp_nonce}}">
-				var balance_data = {{ balance_json|safe }};
-				var year_data = {{ year_json|safe }};
-			</script>
+	<div class="row">
+		<div class="span6">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>År</th>
+						<th>Brutto</th>
+						<th>Netto</th>
+						<th>Skatt</th>
+						<th>Skatt</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in year_data %}
+					<tr>
+						<td><a class="btn btn-link" href='{% url "money_year" item.year %}'>{{ item.year|unlocalize }}</a></td>
+						<td class="money">{{ item.gross|default:'-'|floatformat:"0"|intcomma }}</td>
+						<td class="money">{{ item.nett|default:'-'|floatformat:"0"|intcomma }}</td>
+						{% comment %}
+						<td class="money">{{ item.retirement|default:'-'|floatformat:"0"|intcomma }}</td>
+						{% endcomment %}
+						<td class="money">{{ item.tax|default:'-'|floatformat:"0"|intcomma }}</td>
+						<td>{{ item.tax_pct }}%</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			<div class="span6">
+				<div id="graph_per_year" style="height: 300px;"></div>
+			</div>
 		</div>
 
+		<div class="span6">
+			<table class="table table-striped sortable">
+				<thead>
+					<tr>
+						<th>Konto</th>
+						<th>Balanse</th>
+						<th>Plan</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for item in balance_data.data %}
+					<tr>
+						<td><a class="btn btn-link" href='{% url "money_account" item.pk %}'>{{ item.account }}</a></td>
+						<td class="money">{{ item.real|floatformat:"0"|intcomma }}</td>
+						<td class="money">{{ item.planned|floatformat:"0"|intcomma|default:"-" }}</td>
+					</tr>
+				{% endfor %}
+					<tr>
+						<td><b>Summert</b></td>
+						<td>{{balance_data.sum_real|default:'-'|floatformat:"0"|intcomma}}</td>
+						<td>{{balance_data.sum_planned|default:'-'|floatformat:"0"|intcomma}}</td>
+					</tr>
+				</tbody>
+			</table>
+			<div id="graph_per_account" style="height: 200px;">
+				<script type="text/javascript" nonce="{{request.csp_nonce}}">
+					var balance_data = {{ balance_json|safe }};
+					var year_data = {{ year_json|safe }};
+				</script>
+			</div>
+		</div>
 	</div>
+
+
 
 </div>
 {% endblock %}

@@ -967,11 +967,11 @@ def search(request):
 def index(request):
 	request.session['redirect_url'] = request.path
 
-	MAX_HISTORY = 10
+	MAX_HISTORY = 15
 
 	def year_summary(request):
 		year_data = []
-		unique_years = Transaction.objects.filter(owner=request.user).dates('date', 'year').reverse()[0:10]
+		unique_years = Transaction.objects.filter(owner=request.user).dates('date', 'year').reverse()
 		for datetime_year in unique_years: #[:20]
 			year = int(datetime_year.year)
 			salaries = Salary.objects.filter(
