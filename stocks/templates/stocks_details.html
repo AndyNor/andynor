@@ -29,39 +29,43 @@ new Chart(canvas, {
 		datasets: [
 			{
 				type: 'line',
+				cubicInterpolationMode: 'monotone',
 				data: {{ graph_cost_stocks|safe }},
 				label: 'Kjøpt for',
 				yAxisID: 'B',
 				fill: false,
-				borderColor: 'rgba(0, 0, 0, 0.54)',
+				borderColor: 'rgba(120, 0, 0, 0.4)',
 				borderWidth: 2,
-				pointStyle: "cross",
+				pointStyle: "star",
 			},
 			{
 				type: 'line',
+				cubicInterpolationMode: 'monotone',
 				data: {{ graph_value_stocks|safe }},
 				label: 'Nåverdi',
 				yAxisID: 'B',
-				fill: false,
-				borderColor: 'rgba(3, 15, 252, 0.5)',
+				fill: true,
+				backgroundColor: 'rgba(0, 80, 0, 0.35)',
+				borderColor: 'rgba(0, 80, 0, 0.5)',
 				borderWidth: 2,
-				pointStyle: "cross",
+				pointStyle: "star",
 			},
 			{
 				type: 'bar',
 				data: {{ graph_num_stocks|safe }},
 				label: 'Antall aksjer',
 				yAxisID: 'A',
-				barThickness: 3,
-				maxBarThickness: 3,
-				borderWidth: 0,
-				backgroundColor: 'rgba(0, 0, 0, 0.2)',
+				barThickness: 2,
+				maxBarThickness: 5,
+				borderWidth: 3,
+				backgroundColor: 'rgba(0, 0, 0, 0.4)',
 			}
 		]
 	},
 	options: {
 		scales: {
 			xAxes: [{
+				type: 'time',
 				gridLines: {
 					drawOnChartArea: false
 				},
@@ -69,6 +73,7 @@ new Chart(canvas, {
 			yAxes: [{
 				id: 'A',
 				type: 'linear',
+				cubicInterpolationMode: 'monotone',
 				position: 'left',
 				scaleLabel: {
 					display: true,
@@ -84,6 +89,7 @@ new Chart(canvas, {
 			{
 				id: 'B',
 				type: 'linear',
+				cubicInterpolationMode: 'monotone',
 				position: 'right',
 				ticks: {
 					min: 0

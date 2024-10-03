@@ -122,7 +122,7 @@ def index(request, blog_pk=False, category_id=1, category_history=False):
 				).order_by(*BLOG_ORDER_BY)[:1].get()
 			except:
 				blog_active = None
-		if blog_active is not None:
+		if blog_active != None:
 			request.session['blog_pk_c%s' % category_pk] = blog_active.pk
 
 	else:
@@ -191,7 +191,7 @@ def generate_archive_links(active_year, active_month, years=False):
 	if not distinct_months:
 		return None
 
-	if years is not False:
+	if years != False:
 		from datetime import date
 		this_year = date.today().year
 		not_after = this_year - years
@@ -514,7 +514,7 @@ def img_relocate(request):
 
 	all_valid = True
 	image_objects = []
-	if selected_images is not None:
+	if selected_images != None:
 		for image_id in selected_images:
 			image_id = int(image_id)
 			try:
@@ -527,7 +527,7 @@ def img_relocate(request):
 			origin_blog = image_objects[0].blog
 			if 'blog' in request.POST:
 				receiving_blog = request.POST.get('blog', None)
-				if receiving_blog is not None:
+				if receiving_blog != None:
 					try:
 						receiving_blog_object = models.Blog.objects.get(pk=receiving_blog)
 						highest_order = highest_order_nr(receiving_blog_object)

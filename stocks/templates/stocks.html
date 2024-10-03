@@ -50,7 +50,7 @@
 		<td><b>SUM</b></td>
 		<td></td>
 		<td></td>
-		<td></td>
+		<td><b>{{view_data_gebyrer_sum|floatformat:"0"|intcomma}}</b></td>
 		<td></td>
 		<td></td>
 		<td><b>{{view_data_current_value_sum|floatformat:"0"|intcomma}}</b></td>
@@ -69,25 +69,28 @@
 		<th>{{year}}</th>
 		{% endfor %}
 	</thead>
-{% for ticker, year_resultsum in view_data_tax.result_data.items %}
+	{% for ticker, year_resultsum in view_data_tax.result_data.items %}
 	<tr>
 		<td>{{ticker.company_name}}</td>
 		{% for year in view_data_tax.years %}
 		<td>{{year_resultsum|variable_lookup:year|floatformat:"0"|intcomma|default:0}}</td>
 		{% endfor %}
+		<td><b>{{ ticker_sums|variable_lookup:ticker|floatformat:"0"|intcomma|default:0 }}<b></td>
 	</tr>
-{% endfor %}
+	{% endfor %}
 	<tr>
 		<td><i>Totale gebyrer</i></td>
 		{% for year in view_data_tax.years %}
 			<td><i>{{view_data_tax.brokerage|variable_lookup:year|floatformat:"0"|intcomma|default:0}}</i></td>
 		{% endfor %}
+			<td></td>
 	</tr>
 	<tr>
 		<td><b>SUM</b></td>
 		{% for year in view_data_tax.years %}
 			<td><b>{{view_data_tax.total_sum|variable_lookup:year|floatformat:"0"|intcomma|default:0}}</b></td>
 		{% endfor %}
+			<td><b>{{ sum_of_sums|floatformat:"0"|intcomma|default:0 }}</b></td>
 	</tr>
 </table>
 

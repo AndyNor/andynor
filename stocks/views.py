@@ -6,6 +6,7 @@ from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from copy import deepcopy
+import datetime
 from django.db.models import Sum
 from mysite.site_wide_functions import get_previous_page, generate_form, set_redirect_session, safe_referrer
 from django.contrib import messages
@@ -16,20 +17,13 @@ from django.contrib.auth.decorators import permission_required
 
 APP_NAME = 'stocks'
 
-# automatic update of close price
-	# https://docs.djangoproject.com/en/dev/howto/custom-management-commands/#howto-custom-management-commands
-	# start it with cron
-
-# add ticker
-
-# split stock (ratio)
-
 @permission_required('stocks.transaction.can_add_transaction', raise_exception=True)
 def index(request):
 	view_data_summary = []
 	unique_tickers = Ticker.objects.all()
 	view_data_estimate_sum = 0
 	view_data_current_value_sum = 0
+	view_data_gebyrer_sum = 0
 	#view_data_money_compare = 0  # for comparison with "money app stocks account"
 	for ticker in unique_tickers:
 		try:
@@ -38,16 +32,20 @@ def index(request):
 		except:
 			current_price = None
 			current_price_value = Decimal(0) # default value
+
 		sum_amount = Decimal(0)
 		sum_total_price = Decimal(0)
 		sum_brokerage = Decimal(0)
+
 		transactions = Transaction.objects.filter(ticker=ticker)
 		for t in transactions:
 			sum_amount += t.amount
-			sum_total_price += t.total_price
+			sum_total_price += t.total_price - t.brokerage
 			sum_brokerage += t.brokerage
+
 		estimate = (sum_amount * current_price_value) - sum_total_price
 		view_data_estimate_sum += estimate
+
 		if sum_amount < 1:
 			average_stock_price = None
 		else:
@@ -57,7 +55,9 @@ def index(request):
 			current_value = sum_amount * current_price.price
 		except:
 			current_value = 0
+
 		view_data_current_value_sum += current_value
+		view_data_gebyrer_sum += sum_brokerage
 
 		view_data_summary.append({
 				'ticker': ticker,
@@ -70,13 +70,11 @@ def index(request):
 				'current_value': current_value
 			})
 
-	#view_data_money_compare += view_data_current_value_sum - view_data_estimate_sum
-
-
 	view_data_tax = {}
 	result_data = {}
 	unique_years = []
 	summary_year = {}
+	sum_of_sums = 0
 	for ticker in unique_tickers:
 		ticker_fifo_match = fifo_match(request, ticker)
 		ticker_data = {}
@@ -95,8 +93,11 @@ def index(request):
 				except KeyError:
 					summary_year[year] = result
 
-
 		result_data[ticker] = ticker_data
+
+	for year in summary_year:
+		sum_of_sums += summary_year[year]
+
 
 	brokerage_sum = {}
 	for year in unique_years:
@@ -106,9 +107,18 @@ def index(request):
 			summary_year[year] += brokerage_sum[year]
 		except:
 			summary_year[year] = brokerage_sum[year]
-		#view_data_money_compare += summary_year[year]
 
-	view_data_tax['years'] = sorted(unique_years)[0:10]  # show only the 10 last years (only applies in template)
+	ticker_sums = {}
+	for key, values in result_data.items():
+		ticker_sum = 0
+		for k, v in values.items():
+			ticker_sum += v
+		ticker_sums[key] = ticker_sum
+
+	print(ticker_sums)
+
+
+	view_data_tax['years'] = sorted(unique_years)  # show only the 10 last years (only applies in template)
 	view_data_tax['result_data'] = result_data
 	view_data_tax['brokerage'] = brokerage_sum
 	view_data_tax['total_sum'] = summary_year
@@ -117,9 +127,10 @@ def index(request):
 			'view_data_summary': view_data_summary,
 			'view_data_estimate_sum': view_data_estimate_sum,
 			'view_data_current_value_sum': view_data_current_value_sum,
+			'view_data_gebyrer_sum': view_data_gebyrer_sum,
 			'view_data_tax': view_data_tax,
-			#'view_data_money_compare': view_data_money_compare,
-			#'view_data_money_compare_urealisert': view_data_money_compare - view_data_current_value_sum,
+			'sum_of_sums': sum_of_sums,
+			'ticker_sums': ticker_sums,
 		 })
 
 @permission_required('stocks.transaction.can_add_transaction', raise_exception=True)
@@ -147,6 +158,7 @@ def details(request, ticker):
 		cost_stocks = 0
 		value_stocks = 0
 		date_tracker = None
+		total_stocks = 0
 
 		transactions = Transaction.objects.filter(ticker=ticker_object).order_by('date')
 		for t in transactions:
@@ -167,16 +179,16 @@ def details(request, ticker):
 
 
 		#nåverdi
-		import datetime
-		try:
-			latest_price = TickerHistory.objects.filter(ticker=ticker_object).order_by('date')[0].price
-		except:
-			latest_price = 0
+		if num_stocks != 0:
+			try:
+				latest_price = TickerHistory.objects.filter(ticker=ticker_object).order_by('date')[0].price
+			except:
+				latest_price = 0
 
-		graph_num_stocks.append(int(num_stocks)) #the same
-		graph_cost_stocks.append(int(cost_stocks)) #the same
-		graph_value_stocks.append(int(num_stocks * latest_price)) # current ticker price times the amount
-		graph_labels.append(datetime.date.today().isoformat())
+			graph_num_stocks.append(int(num_stocks)) #the same
+			graph_cost_stocks.append(int(cost_stocks)) #the same
+			graph_value_stocks.append(int(num_stocks * latest_price)) # current ticker price times the amount
+			graph_labels.append(datetime.date.today().isoformat())
 
 
 	except ObjectDoesNotExist:
