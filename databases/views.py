@@ -64,7 +64,7 @@ def edit(request, model_name, pk=None, new_type=None):
 	model_form = getattr(models, form_name)
 
 	if model_name == 'Data' and new_type is not None:
-		print("model name er Data")
+		#print("model name er Data")
 		try:
 			new_type_pk = models.Category.objects.get(name=new_type).pk
 		except:

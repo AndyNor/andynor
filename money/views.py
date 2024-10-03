@@ -1091,7 +1091,7 @@ def bank_transactions(request):
 	alle_reservert = BankTransaction.objects.filter(eier=request.user).filter(hidden=False).filter(Q(related_transaction=None))
 	sum_reservert = 0
 	for transaksjon in alle_reservert:
-		print(transaksjon)
+		#print(transaksjon)
 		sum_reservert += (transaksjon.amount * transaksjon.amount_factor)
 
 	try:
@@ -1152,12 +1152,12 @@ def __link_transaction(request, bank_transaction, pk):
 	try:
 		with transaction.atomic():
 			t = Transaction.objects.get(pk=pk) # the one we are linking to
-			print(t)
-			print(bank_transaction)
+			#print(t)
+			#print(bank_transaction)
 			# t could be linked before. Need to remove it just in case
 			try:
 				existing_bank_transaction = t.bank_transaction
-				print(existing_bank_transaction)
+				#print(existing_bank_transaction)
 				existing_bank_transaction.related_transaction = None
 				existing_bank_transaction.save()
 			except:

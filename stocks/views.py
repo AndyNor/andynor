@@ -115,7 +115,7 @@ def index(request):
 			ticker_sum += v
 		ticker_sums[key] = ticker_sum
 
-	print(ticker_sums)
+	#print(ticker_sums)
 
 
 	view_data_tax['years'] = sorted(unique_years)  # show only the 10 last years (only applies in template)
