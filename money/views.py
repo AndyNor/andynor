@@ -42,7 +42,7 @@ def monthly_expences(request, year, month):
 
 		def add_to_transaction(owner, amount, date, sub_category, comment):
 			category = sub_category.parent_category
-			account = Account.objects.get(pk=1)
+			account = Account.objects.get(pk=18) # endret til sparebank1
 			t = Transaction(
 					owner=request.user,
 					account=account,  # Lønn
