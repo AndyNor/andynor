@@ -18,7 +18,7 @@
 <div class="database_container">
 	<ul class="nav nav-tabs">
 	{% for cat in category_list %}
-		<li{% ifequal category_name cat.name %} class="active"{% endifequal %}>
+		<li{% if category_name == cat.name %} class="active"{% endif %}>
 		<a href='{% url "databases_view" cat.name %}'>
 		{{cat.name|capfirst}}</a>
 		</li>

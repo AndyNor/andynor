@@ -8,7 +8,7 @@
 	<li><a class="btn" href="{% url 'app_stocks' %}">Tilbake</a></li>
 </ul>
 
-<h3>{{header_text.name}} ({{header_text.ticker}})</h3>
+<h3>Aksjedetaljer for {{header_text.name}} ({{header_text.ticker}})</h3>
 
 <div class="row">
 	<div>
@@ -27,29 +27,42 @@ new Chart(canvas, {
 			{% for l in graph_labels %}"{{l}}",{% endfor%}
 		],
 		datasets: [
+			//{
+			//	type: 'line',
+			//	cubicInterpolationMode: 'monotone',
+			//	data: {{ graph_value_stocks|safe }},
+			//	label: 'Nåverdi',
+			//	yAxisID: 'B',
+			//	fill: false,
+			//	//backgroundColor: 'rgba(0, 50, 0, 0.25)',
+			//	borderColor: 'rgba(0, 128, 0, 0.3)',
+			//	borderWidth: 2,
+			//	pointStyle: "star",
+			//},
 			{
 				type: 'line',
 				cubicInterpolationMode: 'monotone',
-				data: {{ graph_cost_stocks|safe }},
-				label: 'Kjøpt for',
-				yAxisID: 'B',
-				fill: false,
-				borderColor: 'rgba(120, 0, 0, 0.4)',
-				borderWidth: 2,
-				pointStyle: "star",
-			},
-			{
-				type: 'line',
-				cubicInterpolationMode: 'monotone',
-				data: {{ graph_value_stocks|safe }},
-				label: 'Nåverdi',
+				data: {{ graph_diff_stocks|safe }},
+				label: 'Fortjeneste',
 				yAxisID: 'B',
 				fill: true,
-				backgroundColor: 'rgba(0, 80, 0, 0.35)',
-				borderColor: 'rgba(0, 80, 0, 0.5)',
+				backgroundColor: 'rgba(128, 0, 0, 0.25)',
+				//borderColor: 'rgba(0, 20, 80, 0.5)',
 				borderWidth: 2,
 				pointStyle: "star",
 			},
+			//{
+			//	type: 'line',
+			//	cubicInterpolationMode: 'monotone',
+			//	data: {{ graph_cost_stocks|safe }},
+			//	label: 'Kjøpt for',
+			//	yAxisID: 'B',
+			//	fill: true,
+			//	backgroundColor: 'rgba(30, 0, 20, 0.35)',
+			//	//borderColor: 'rgba(120, 0, 0, 0.4)',
+			//	borderWidth: 2,
+			//	pointStyle: "star",
+			//},
 			{
 				type: 'bar',
 				data: {{ graph_num_stocks|safe }},
@@ -58,50 +71,52 @@ new Chart(canvas, {
 				barThickness: 2,
 				maxBarThickness: 5,
 				borderWidth: 3,
-				backgroundColor: 'rgba(0, 0, 0, 0.4)',
+				backgroundColor: 'rgba(0, 0, 0, 0.1)',
 			}
 		]
 	},
 	options: {
 		scales: {
 			xAxes: [{
-				type: 'time',
+				//type: 'time',
 				gridLines: {
 					drawOnChartArea: false
 				},
 			}],
-			yAxes: [{
-				id: 'A',
-				type: 'linear',
-				cubicInterpolationMode: 'monotone',
-				position: 'left',
-				scaleLabel: {
-					display: true,
-					labelString: 'Antall aksjer'
+			yAxes: [
+				{
+					id: 'B',
+					type: 'linear',
+					cubicInterpolationMode: 'monotone',
+					position: 'left',
+					ticks: {
+						//min: 0
+					},
+					scaleLabel: {
+						display: true,
+						labelString: 'Verdi (NOK)'
+					},
+					gridLines: {
+						display: false
+					},
 				},
-				ticks: {
-					min: 0
-				},
-				gridLines: {
-					display: false
-				},
-			},
-			{
-				id: 'B',
-				type: 'linear',
-				cubicInterpolationMode: 'monotone',
-				position: 'right',
-				ticks: {
-					min: 0
-				},
-				scaleLabel: {
-					display: true,
-					labelString: 'Verdi (NOK)'
-				},
-				gridLines: {
-					display: false
-				},
-			}]
+				{
+					id: 'A',
+					type: 'linear',
+					cubicInterpolationMode: 'monotone',
+					position: 'right',
+					scaleLabel: {
+						display: true,
+						labelString: 'Antall aksjer'
+					},
+					ticks: {
+						min: 0
+					},
+					gridLines: {
+						display: false
+					},
+				}
+			]
 		}
 	}
 });

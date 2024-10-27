@@ -41,6 +41,6 @@ $('#blog_image_form input:checkbox').on('click', function() {
 });
 
 $(document).ready(function() {
-	$("img").unveil();
+	$("img").unveil(300);
 	prettyPrint();
 });

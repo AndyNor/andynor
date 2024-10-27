@@ -152,6 +152,7 @@ def details(request, ticker):
 		graph_num_stocks = []
 		graph_cost_stocks = []
 		graph_value_stocks = []
+		graph_diff_stocks = []
 		graph_labels = []
 
 		num_stocks = 0
@@ -173,6 +174,7 @@ def details(request, ticker):
 				graph_num_stocks.append(int(num_stocks))
 				graph_cost_stocks.append(int(cost_stocks))
 				graph_value_stocks.append(int(value_stocks))
+				graph_diff_stocks.append(int(value_stocks) - int(cost_stocks))
 				graph_labels.append(t.date.isoformat())
 
 			date_tracker = t.date.isoformat()
@@ -188,6 +190,7 @@ def details(request, ticker):
 			graph_num_stocks.append(int(num_stocks)) #the same
 			graph_cost_stocks.append(int(cost_stocks)) #the same
 			graph_value_stocks.append(int(num_stocks * latest_price)) # current ticker price times the amount
+			graph_diff_stocks.append(int(value_stocks) - int(cost_stocks))
 			graph_labels.append(datetime.date.today().isoformat())
 
 
@@ -202,6 +205,7 @@ def details(request, ticker):
 			'graph_num_stocks': graph_num_stocks,
 			'graph_cost_stocks': graph_cost_stocks,
 			'graph_value_stocks': graph_value_stocks,
+			'graph_diff_stocks': graph_diff_stocks,
 			'graph_labels': graph_labels,
 		})
 

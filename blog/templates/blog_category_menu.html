@@ -4,7 +4,7 @@
 		<div style="padding: 10px 0">
 			<ul class="nav nav-tabs">
 			{% for cat in category_list %}
-				<li{% ifequal category_name cat.category %} class="active"{% endifequal %}>
+				<li{% if category_name == cat.category %} class="active"{% endif %}>
 				<a href="{% url "blog_category" cat.pk %}">
 				{{cat.category|capfirst}}</a></li>
 			{% endfor %}

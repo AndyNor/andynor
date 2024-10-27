@@ -11,26 +11,7 @@
 	<div class="span9">
 
 
-		<table class="table table-condensed table-striped">
 
-			<tr>
-				<th>Title</th>
-				<th>Category</th>
-				<th>Created</th>
-				<th>Tags</th>
-			</tr>
-
-			{% for blog in archive_posts %}
-			<tr>
-				<td><a href="#intref{{forloop.counter}}">{{ blog.title }}</a></td>
-				<td><a href="{% url "blog_category" blog.category.pk %}">{{blog.category.category}}</a></td>
-				<td>{{ blog.origin|date:"d"|ordinal }}</td>
-				<td>{% for tag in blog.tags.all %}
-					<a href="{% url "blog_tag_view" tag.pk %}">{{ tag }}</a>{% if not forloop.last %}, {% endif %}
-				{% endfor %}</td>
-			</tr>
-			{% endfor %}
-		</table>
 
 
 		{% if blogs_display %}

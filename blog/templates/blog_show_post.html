@@ -7,46 +7,9 @@
 
 	<div class="box-header">
 		<span class="aside-header">
-			<i class="icon-file"></i> {{ blog_active.created|timesince|upto:',' }}</i>
-			<span class="pull-right"><i class="icon-pencil"></i> {{ blog_active.updated|timesince|upto:',' }}</i></span>
-		</span>
-	</div>
-	<div class="box-content">
-
-		<div class="row-fluid">
-			<div class="span2">
-				<div class="box">
-					<div class="box-header box-header-icon">
-						<span class="date-day">{{ blog_active.origin.day }}</span>
-					</div>
-					<div class="box-content-icon">
-						{{ blog_active.origin|date:"N" }} {{ blog_active.origin.year|unlocalize }}
-					</div>
-				</div>
-			</div>
-
-			<div class="span7">
-				{% if blog_active.pk %}
-				<h3 style="line-height: 22px; margin: 0px; border-bottom: 1px solid black; padding-bottom: 3px">
-					<a style="text-decoration: none;" href='{% url "blog_show" blog_active.pk %}'>{{ blog_active.title }}</a>
-				</h3>
-				<a href='{% url "blog_archive_month" blog_active.origin|date:"Y" blog_active.origin|date:"m" %}'>Arkiv for denne måneden</a>
-				{% endif %}
-
-
-				{% if blog_active.tags.all %}
-					<h6 style="display: inline"><i class="icon-tags"></i> Tags:</h6>
-					{% for tag in blog_active.tags.all %}
-						<a href='{% url "blog_tag_view" tag.pk %}'></i>{{ tag|capfirst }}</a>
-						{% if not forloop.last %}, {% endif %}
-					{% endfor %}
-				{% endif %}
-
-			</div>
-
+			{% if user.is_authenticated %}
 			<div class="pull-right">
 			{% if blog_active %}
-				{% if user.is_authenticated %}
 					<div class="dropdown">
 						<button class="btn dropdown-toggle" type="button" data-toggle="dropdown">Administrer <span class="caret"></span></button>
 						<ul class="dropdown-menu">
@@ -70,9 +33,28 @@
 						</ul>
 					</div>
 				{% endif %}
-			{% endif %}
 			</div>
-		</div>
+			{% endif %}
+
+			<h3><a href='{% url "blog_show" blog_active.pk %}'>{{ blog_active.title }}</a></h3>
+
+			{{ blog_active.origin.day }} {{ blog_active.origin|date:"N" }} {{ blog_active.origin.year|unlocalize }}
+
+			{% if blog_active.tags.all %}
+				<br><i class="icon-tags"></i> Tags:
+				{% for tag in blog_active.tags.all %}
+					<a href='{% url "blog_tag_view" tag.pk %}'></i>{{ tag|capfirst }}</a>
+					{% if not forloop.last %}, {% endif %}
+				{% endfor %}
+			{% endif %}
+
+
+
+		</span>
+	</div>
+
+
+	<div class="box-content">
 
 		<div style="margin-right: 15px;">
 		{% bbcode text=blog_active.content|linebreaks blog_id=blog_active.pk %}

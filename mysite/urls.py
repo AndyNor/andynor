@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import include, url
+from django.urls import include, re_path
 from django.contrib import admin
 from blog.feeds import LatestEntriesFeed
 from django.views.generic.base import RedirectView
@@ -15,23 +15,23 @@ admin.autodiscover()
 
 # Mysite
 urlpatterns = [
-	url(r'^$', views.index, name="root"),
-	url(r'^login/$', views.user_login, name="user_login"),
-	url(r'^logout/$', views.user_logout, name="user_logout"),
-	url(r'^password/$', views.password_change, name="password_change"),
-	url(r'^contact/$', views.contact_email, name='contact_email'),
-	url(r'^search/$', views.search, name='search'),
-	url(r'^return/$', views.go_back),
-	url(r'^profiles/$', views.profile, name='profile'),
+	re_path(r'^$', views.index, name="root"),
+	re_path(r'^login/$', views.user_login, name="user_login"),
+	re_path(r'^logout/$', views.user_logout, name="user_logout"),
+	re_path(r'^password/$', views.password_change, name="password_change"),
+	re_path(r'^contact/$', views.contact_email, name='contact_email'),
+	re_path(r'^search/$', views.search, name='search'),
+	re_path(r'^return/$', views.go_back),
+	re_path(r'^profiles/$', views.profile, name='profile'),
 	path('counter/<int:year>/<int:month>/', views.counter, name='counter'),
-	url(r'^profiles/update/$', views.profile_update, name='profile_update'),
-	url(r'^rss/$', LatestEntriesFeed(), name='rss'),
-	url(r'^robots\.txt$', RedirectView.as_view( url=settings.STATIC_URL + 'robots.txt')),
+	re_path(r'^profiles/update/$', views.profile_update, name='profile_update'),
+	re_path(r'^rss/$', LatestEntriesFeed(), name='rss'),
+	re_path(r'^robots\.txt$', RedirectView.as_view( url=settings.STATIC_URL + 'robots.txt')),
 ]
 
 # Apps
 urlpatterns += [
-	url(r'^admin/', admin.site.urls, name="admin"),
+	re_path(r'^admin/', admin.site.urls, name="admin"),
 	path('money/', include('money.urls'), name="money"),
 	path('power/', include('power.urls'), name="power"),
 	path('blog/', include('blog.urls'), name="blog"),
@@ -54,10 +54,11 @@ schema_view = get_schema_view(
 	permission_classes=(permissions.AllowAny,),
 )
 
+
 urlpatterns += [
-	url(r'^conan/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-	url(r'^conan/swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-	url(r'^conan/redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+	re_path(r'^conan/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+	re_path(r'^conan/swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+	re_path(r'^conan/redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 
 
@@ -67,7 +68,7 @@ if settings.DEBUG:
 	if _media_url.startswith('/'):
 		_media_url = _media_url[1:]
 		urlpatterns += [
-				url(r'^%s(?P<path>.*)$' % _media_url,
+				re_path(r'^%s(?P<path>.*)$' % _media_url,
 				serve,
 				{'document_root': settings.MEDIA_ROOT})]
 	del(_media_url, serve)
