@@ -15,5 +15,4 @@ systemctl restart nginx
 
 chmod +x synch.sh
 chmod +x restart.sh
-chmod +x sbanken_api.sh
 chmod +x backup.sh
