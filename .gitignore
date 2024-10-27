@@ -120,3 +120,4 @@ venv.bak/
 *.gz
 Andynor http.url
 Andynor djangoshell.lnk
+*.old
