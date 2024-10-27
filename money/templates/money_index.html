@@ -11,77 +11,217 @@
 
 {% block money_main %}
 
-	<div class="row">
-		<div class="span6">
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<th>År</th>
-						<th>Brutto</th>
-						<th>Netto</th>
-						<th>Skatt</th>
-						<th>Skatt</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for item in year_data %}
-					<tr>
-						<td><a class="btn btn-link" href='{% url "money_year" item.year %}'>{{ item.year|unlocalize }}</a></td>
-						<td class="money">{{ item.gross|default:'-'|floatformat:"0"|intcomma }}</td>
-						<td class="money">{{ item.nett|default:'-'|floatformat:"0"|intcomma }}</td>
-						{% comment %}
-						<td class="money">{{ item.retirement|default:'-'|floatformat:"0"|intcomma }}</td>
-						{% endcomment %}
-						<td class="money">{{ item.tax|default:'-'|floatformat:"0"|intcomma }}</td>
-						<td>{{ item.tax_pct }}%</td>
-					</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-			<div class="span6">
-				<div id="graph_per_year" style="height: 300px;"></div>
-			</div>
+<div class="row">
+
+	<div class="span6">
+		<table class="table table-striped sortable">
+			<thead>
+				<tr>
+					<th>Konto</th>
+					<th>Balanse</th>
+					<th>Plan</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for item in balance_data.data %}
+				<tr>
+					<td><a class="btn btn-link" href='{% url "money_account" item.pk %}'>{{ item.account }}</a></td>
+					<td class="money">{{ item.real|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.planned|floatformat:"0"|intcomma|default:"-" }}</td>
+				</tr>
+			{% endfor %}
+				<tr>
+					<td><b>Summert</b></td>
+					<td>{{balance_data.sum_real|default:'-'|floatformat:"0"|intcomma}}</td>
+					<td>{{balance_data.sum_planned|default:'-'|floatformat:"0"|intcomma}}</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div id="graph_per_account" style="height: 200px;">
+			<script type="text/javascript" nonce="{{request.csp_nonce}}">
+				var balance_data = {{ balance_json|safe }};
+				var year_data = {{ year_json|safe }};
+			</script>
 		</div>
 
-		<div class="span6">
-			<table class="table table-striped sortable">
-				<thead>
-					<tr>
-						<th>Konto</th>
-						<th>Balanse</th>
-						<th>Plan</th>
-					</tr>
-				</thead>
-				<tbody>
-				{% for item in balance_data.data %}
-					<tr>
-						<td><a class="btn btn-link" href='{% url "money_account" item.pk %}'>{{ item.account }}</a></td>
-						<td class="money">{{ item.real|floatformat:"0"|intcomma }}</td>
-						<td class="money">{{ item.planned|floatformat:"0"|intcomma|default:"-" }}</td>
-					</tr>
+	</div>
+
+	<div class="span6">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>År</th>
+					<th>Brutto</th>
+					<th>Netto</th>
+					<th>Skatt</th>
+					<th>Skatt %</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in year_data %}
+				<tr>
+					<td><a class="btn btn-link" href='{% url "money_year" item.year %}'>{{ item.year|unlocalize }}</a></td>
+					<td class="money">{{ item.gross|default:'-'|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.nett|default:'-'|floatformat:"0"|intcomma }}</td>
+					<td class="money">{{ item.tax|default:'-'|floatformat:"0"|intcomma }}</td>
+					<td>{{ item.tax_pct }}%</td>
+				</tr>
 				{% endfor %}
-					<tr>
-						<td><b>Summert</b></td>
-						<td>{{balance_data.sum_real|default:'-'|floatformat:"0"|intcomma}}</td>
-						<td>{{balance_data.sum_planned|default:'-'|floatformat:"0"|intcomma}}</td>
-					</tr>
-				</tbody>
-			</table>
-			<div id="graph_per_account" style="height: 200px;">
-				<script type="text/javascript" nonce="{{request.csp_nonce}}">
-					var balance_data = {{ balance_json|safe }};
-					var year_data = {{ year_json|safe }};
-				</script>
-			</div>
-		</div>
+			</tbody>
+		</table>
+
+		<div id="graph_per_year" style="height: 350px;"></div>
+
 	</div>
 
 
 
 </div>
+
+</div>
 {% endblock %}
+
 
 {% block javascript_append %}
 <script src="{{ STATIC_URL }}js/highcharts-2.2.5.js"></script>
-<script src="{{ STATIC_URL }}js/money_graphs.js"></script>
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
+
+var SalaryL1Graphs = (function() {
+
+	function stringToTimeStamp( string ) {//YYYY-mm-dd to javascript date
+		return new Date( Date.parse( string ) ).getTime();
+	}
+
+	function formatMoney(sSymbol, value) {
+		vValue = parseFloat( value );
+		aDigits = vValue.toFixed(0).split(" ");
+		aDigits[0] = aDigits[0].split("").reverse().join("").replace(/(\d{3})(?=\d)/g, "$1 ").split("").reverse().join("");
+		return sSymbol + aDigits.join(".");
+	}
+
+	function extractDataYear( data ) {
+		var loop = [ Array("tax", "#dc6c6c", "Skatt"), Array("nett", "#9bd569", "Netto") ];
+		var series = [];
+		for ( j in loop ) {
+			var seriesData = [];
+			var categories = [];
+			for (var i in data) {
+				seriesData.push({
+					y: data[ i ][ loop[ j ][ 0 ] ],
+				});
+				categories.push(String(data[ i ].year));
+			}
+			series.push({
+				data: seriesData,
+				categories: categories,
+				name: loop[ j ][2],
+				color: loop[ j ][1],
+				tooltip: {
+					enabled: false,
+				}
+			});
+		}
+		return series;
+	}
+
+	function extractDataAccount( data ) {
+		//console.log( data );
+		var series = [];
+		var seriesData = [];
+		var categories = [];
+		for (var i in data) {
+			yValue = data[i].real;
+			if (yValue < 0) {
+				color = "#dc6c6c"
+			}
+			else {
+				color = "#9bd569"
+			}
+			seriesData.push({
+				name: formatMoney( ' ', data[i].real ),
+				y: yValue,
+				color: color,
+			})
+			categories.push( data[i].account );
+		}
+		series.push({
+			data: seriesData,
+			categories: categories,
+			tooltip: {
+				enabled: true,
+				formatter: function() {
+						return this.point.name;
+				}
+			}
+		})
+		//console.log( series )
+		return series;
+	}
+
+	function display_graph( series, renderTo, title, chartType, yMin, legend, stacked, reversed ) {
+		var chart = new Highcharts.Chart({
+			chart: {
+				renderTo: renderTo,
+				backgroundColor: false,
+				animation: false,
+				type: chartType,
+			},
+			credits: {
+				enabled: false,
+			},
+			legend: {
+				enabled: legend,
+			},
+			title: {
+				text: title,
+			},
+			subtitle: {
+				text: ''
+			},
+			xAxis: {
+				reversed: reversed,
+				categories: series[0].categories,
+			},
+			yAxis: {
+				allowDecimals: false,
+				title: {
+					text: ''
+				},
+				min: yMin,
+			},
+			tooltip: series[0].tooltip,
+			plotOptions: {
+				series: {
+					animation: false,
+					stacking: stacked,
+				},
+			column: {
+				pointPadding: 0.05,
+				groupPadding: 0.05,
+				borderWidth: 1,
+			},
+			},
+			series: series,
+		})
+		return chart
+	}
+
+	return {
+		draw: display_graph,
+		extractDataAccount: extractDataAccount,
+		extractDataYear: extractDataYear
+	}
+
+})();
+
+$(document).ready(function() {
+	var balance_data_prepared = SalaryL1Graphs.extractDataAccount( balance_data );
+	var graph_balance_data = SalaryL1Graphs.draw( balance_data_prepared, 'graph_per_account', '', 'bar', undefined, false, false, true );
+
+	var year_data_prepared = SalaryL1Graphs.extractDataYear( year_data );
+	var graph_year_data = SalaryL1Graphs.draw( year_data_prepared, 'graph_per_year', '', 'column', 0, true, true, true );
+})
+</script>
+
 {% endblock %}
