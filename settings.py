@@ -6,17 +6,10 @@ this_env()
 
 THIS_ENVIRONMENT = os.environ['THIS_ENV'] # "PROD" / "TEST" / "DEV"
 
-if THIS_ENVIRONMENT == "PROD":
-	SITE_URL = "https://andynor.net"
-	ALLOWED_HOSTS = ['.andynor.net']
-	DEBUG = True
-	from secrets_prod import load_secrets
-	load_secrets()
-
 if THIS_ENVIRONMENT == "DO_PROD":
 	SITE_URL = "https://andynor.net"
 	ALLOWED_HOSTS = ['.andynor.net']#, '161.35.216.174']
-	DEBUG = False
+	DEBUG = True
 	from secrets_prod import load_secrets
 	load_secrets()
 
@@ -70,9 +63,6 @@ CSRF_COOKIE_SAMESITE = "Strict"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Strict"
 
-if THIS_ENVIRONMENT == "PROD":
-	CSRF_COOKIE_SECURE = True
-	SESSION_COOKIE_SECURE = True
 
 if THIS_ENVIRONMENT == "DO_PROD":
 	CSRF_COOKIE_SECURE = True
@@ -84,13 +74,6 @@ if THIS_ENVIRONMENT == "DEV":
 
 LOGIN_URL = '/login/'
 
-if THIS_ENVIRONMENT == "PROD":
-	DATABASES = {
-		'default': {
-			'ENGINE': 'django.db.backends.sqlite3',
-			'NAME': '/home/andynor/webapps/django225/myproject/db.sqlite3',
-		}
-	}
 
 if THIS_ENVIRONMENT == "DO_PROD":
 	DATABASES = {
@@ -116,14 +99,6 @@ USE_THOUSAND_SEPARATOR = False
 USE_TZ = False
 USE_I18N = True
 
-
-if THIS_ENVIRONMENT == "PROD":
-	MEDIA_ROOT = '/home/andynor/webapps/static_media/'
-	MEDIA_URL = '/media/'
-	FILE_ROOT = '/home/andynor/webapps/static_media/fileuploads/'
-	FILE_URL = '/media/fileuploads/'
-	STATIC_ROOT = '/home/andynor/webapps/static/'
-	STATIC_URL = '/static/'
 
 if THIS_ENVIRONMENT == "DO_PROD":
 	MEDIA_ROOT = '/home/django/django_project/andynor/media/'
