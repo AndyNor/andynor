@@ -151,7 +151,7 @@ def index(request, blog_pk=False, category_id=1, category_history=False):
 	pagination_end = (category_history * (NUM_DISPLAYED_LINKS - 1)) + 1
 
 	# Goal is to display NUM_PAGINATION items with the selected page in the middle while padding the borders
-	# This is not dependent on NUM_PAGINATION...
+	# This != dependent on NUM_PAGINATION...
 	if category_history < 3:
 		range_start = 1
 	elif category_history > num_pages - 2:

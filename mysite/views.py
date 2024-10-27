@@ -48,7 +48,7 @@ def user_login(request):
 					username = request.POST['username']
 					password = request.POST['password']
 					user = authenticate(username=username, password=password)
-					if user is not None:
+					if user != None:
 						if user.is_active:
 							login(request, user)
 							user_name = user.get_full_name()
@@ -197,7 +197,7 @@ def search(request):
 		query_string = request.GET['q']
 		entry_query = get_query(query_string, ['title', 'content'])
 		valid_entries = Blog.objects.filter(published=1)
-		if entry_query is not None:
+		if entry_query != None:
 			found_entries = valid_entries.filter(entry_query).order_by('-pk')[:25]
 
 	return render(request, 'search_default.html', {

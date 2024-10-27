@@ -88,7 +88,7 @@ class UserProfile(models.Model):
 				today = date.today()
 			else:
 				today = this.date_death
-			try:  # raised when birth date is February 29 and the current year is not a leap year
+			try:  # raised when birth date is February 29 and the current year != a leap year
 				birthday = birth.replace(year=today.year)
 			except ValueError:
 				birthday = birth.replace(year=today.year, day=birth.day - 1)

@@ -23,7 +23,7 @@ goback.is_safe = True
 @stringfilter
 def mintohour(value, delimiter=None):
 	minutes = int(value.split(delimiter)[0])
-	if minutes is not 0:
+	if minutes != 0:
 		return "%s:%s" % (minutes // 60, minutes % 60)
 	else:
 		return ""

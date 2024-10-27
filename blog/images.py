@@ -155,7 +155,7 @@ def img_calc_thumb(request, image, max_width, max_height=False):
 	im = ImageOps.exif_transpose(im)
 
 	# determine thumbnail filename
-	filename_thumb = image.original if (image.original is not None) else image.large
+	filename_thumb = image.original if (image.original != None) else image.large
 	filename_thumb = 'thumb_%s.%s' % (filename_thumb, "jpg")
 
 	# create a background

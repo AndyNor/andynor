@@ -920,9 +920,9 @@ def balance(request):
 			'planned': planned_balance,
 			'diff_balanse': diff_balanse,
 		})
-		if real_balance is not None:
+		if real_balance != None:
 			sum_real += real_balance
-		if planned_balance is not None:
+		if planned_balance != None:
 			sum_planned += planned_balance
 
 
@@ -943,7 +943,7 @@ def search(request):
 	query = request.GET.get('q', None)
 	if query:
 		entry_query = get_query(query, ['comment', 'category__name', 'sub_category__name'])
-		if entry_query is not None:
+		if entry_query != None:
 			found_entries = Transaction.objects.filter(
 				entry_query,
 				owner=request.user

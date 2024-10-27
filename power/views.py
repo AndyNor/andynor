@@ -76,7 +76,7 @@ def index(request):
 
 	for year in forbruk_monthly:
 		current_values = []
-		for month in range(1,13):  # 13 is not included in the range btw
+		for month in range(1,13):  # 13 != included in the range btw
 			if not month in forbruk_monthly[year]:
 				forbruk_monthly[year][month] = 0
 
@@ -101,7 +101,7 @@ def payment(request, pk=False):
 	if pk:
 		try:
 			if models.Payment.objects.get(pk=pk).owner != request.user:
-				messages.error(request, "That payment is not yours!")
+				messages.error(request, "That payment != yours!")
 				return HttpResponseRedirect(get_previous_page(request, APP_NAME))
 		except:
 			messages.error(request, "That payment does not exists!")

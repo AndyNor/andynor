@@ -79,7 +79,7 @@ def index(request):
 		ticker_fifo_match = fifo_match(request, ticker)
 		ticker_data = {}
 		for transaction in ticker_fifo_match:
-			if transaction['sold'] is not None:
+			if transaction['sold'] != None:
 				year = transaction['sold'].date.year
 				if year not in unique_years:
 					unique_years.append(year)
@@ -224,7 +224,7 @@ def fifo_match(request, ticker_object):
 	# match sell with buy FIFO - First Inn First Out
 	# oldest was the last to be pushed to the list
 	fifo_list = []
-	while len(sold) is not 0:
+	while len(sold) != 0:
 		s = sold.pop()
 		try:
 			b = bought.pop()
@@ -250,7 +250,7 @@ def fifo_match(request, ticker_object):
 			bought.append(b_rest)
 			b.amount = s.amount
 			fifo_list.append({'bought': b, 'sold': s})
-	while len(bought) is not 0:
+	while len(bought) != 0:
 		b = bought.pop()
 		fifo_list.append({'bought': b, 'sold': None})
 	return fifo_list

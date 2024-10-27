@@ -24,7 +24,7 @@ def link_db(matchobj):
 		if link.category.name == 'links':
 			return '<a href="%s" rel="tooltip" title="%s" target="_blank">%s</a>' % (link.url, link.text, link.name)
 		else:
-			return '%s is not a link' % link_ref
+			return '%s != a link' % link_ref
 	except:
 		return 'URL id=%s not found' % link_ref
 
@@ -71,7 +71,7 @@ def gallery(request, blog_id, matchobj):
 		for image in images:
 			html.append('<li class="span3 displayInlineBlock">')
 			path = '%s%s' % (settings.MEDIA_ROOT, image.thumbnail)
-			title = image.description if image.description is not None else ''
+			title = image.description if image.description != None else ''
 			if request.user.is_authenticated:
 				edit_button = ('<a href="%s?next=%s"><i class="icon-pencil"></i></a>') % (
 						reverse('image_add_comment', args=(image.pk,)),
@@ -205,7 +205,7 @@ def image(request, blog_id, matchobj):
 			)
 		else:
 			edit_button = ''
-		title = image.description if image.description is not None else ''
+		title = image.description if image.description != None else ''
 		html.append('<div class="%s"><img %ssrc="\static\img\loader.gif" data-src="%s%s" width="100%%" alt="%s"></a><br><small>%s %s</small></div>' % (
 				image_class,
 				add_border,
@@ -245,7 +245,7 @@ def thumb(request, blog_id, matchobj):
 			)
 		else:
 			edit_button = ''
-		title = image.description if image.description is not None else ''
+		title = image.description if image.description != None else ''
 		html.append('<div class="%s"><a href="%s%s"><img %s src="\static\img\loader.gif" data-src="%s%s" alt="%s"></a><br><small>%s %s</small></div>' % (
 				image_class,
 				settings.MEDIA_URL,
