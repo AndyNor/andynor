@@ -8,8 +8,9 @@ THIS_ENVIRONMENT = os.environ['THIS_ENV'] # "PROD" / "TEST" / "DEV"
 
 if THIS_ENVIRONMENT == "DO_PROD":
 	SITE_URL = "https://andynor.net"
+	CSRF_TRUSTED_ORIGINS = [SITE_URL]
 	ALLOWED_HOSTS = ['.andynor.net']#, '161.35.216.174']
-	DEBUG = True
+	DEBUG = False
 	from secrets_prod import load_secrets
 	load_secrets()
 
