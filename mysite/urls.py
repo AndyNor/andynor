@@ -16,6 +16,7 @@ admin.autodiscover()
 # Mysite
 urlpatterns = [
 	re_path(r'^$', views.index, name="root"),
+	re_path(r'^forside/$', views.index, name="forside"),
 	re_path(r'^login/$', views.user_login, name="user_login"),
 	re_path(r'^logout/$', views.user_logout, name="user_logout"),
 	re_path(r'^password/$', views.password_change, name="password_change"),
