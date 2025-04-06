@@ -15,7 +15,7 @@ admin.autodiscover()
 
 # Mysite
 urlpatterns = [
-	re_path(r'^$', views.index, name="root"),
+	re_path(r'^forside/$', views.index, name="root"),
 	re_path(r'^login/$', views.user_login, name="user_login"),
 	re_path(r'^logout/$', views.user_logout, name="user_logout"),
 	re_path(r'^password/$', views.password_change, name="password_change"),
@@ -41,6 +41,7 @@ urlpatterns += [
 	path('conan/', include('conan.urls'), name="conan"),
 ]
 
+
 schema_view = get_schema_view(
 	openapi.Info(
 		title="Conan API's",
@@ -53,13 +54,12 @@ schema_view = get_schema_view(
 	public=True,
 	permission_classes=(permissions.AllowAny,),
 )
-
-
 urlpatterns += [
 	re_path(r'^conan/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
 	re_path(r'^conan/swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 	re_path(r'^conan/redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
+
 
 
 if settings.DEBUG:

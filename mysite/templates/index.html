@@ -81,7 +81,7 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 				<div>
 					<div class="nav-collapse">
 						<ul class="nav">
-							{% url "app_blog" as url %}{% pri_nav_item request.path url 'Bilder og historier' 'icon-book' %}
+							{% url "root" as url %}{% pri_nav_item request.path url 'Forside' 'icon-book' %}
 							{% url "app_databases" as url %}{% pri_nav_item request.path url 'Anbefalinger' 'icon-thumbs-up' %}
 							{% url "blog_show" 60 as url %}{% pri_nav_item request.path url 'Om meg' 'icon-user' %}
 
@@ -126,7 +126,7 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 			{% url "search" as action %}
 		{% endif %}
 		<form class="navbar-search pull-right" action="{{ action }}" method="get" style="margin-bottom: 12px;">
-			<input style="width: 300px;" type="text" class="search-query" id="id_q" placeholder="Søk" name="q" value="{{query_string}}">
+			<input style="width: 250px;" type="text" class="search-query" id="id_q" placeholder="Søk" name="q" value="{{query_string}}">
 			<button type="submit" style="background: none; padding: 0px; border: none;}">
 				<i class="icon-search"></i>
 			</button>
