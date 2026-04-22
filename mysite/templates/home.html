@@ -11,14 +11,104 @@
 
 	<div class="row-fluid">
 
-		<div class="span12">
+		<div class="span12" id="home-articles-stream">
 		{% for blog in blogs_display %}
 			{% include 'blog_show_post.html' with blog_active=blog.content comments=blog.comments %}
 		{% endfor %}
+		<div id="home-articles-sentinel" style="height: 1px;" aria-hidden="true"></div>
 		</div>
 
-
 	</div>
+
+	{% if home_articles_stream_config.nextCursor %}
+	<div id="home-articles-config" style="display:none" aria-hidden="true"
+		data-more-url="{{ home_articles_stream_config.moreUrl }}"
+		data-before-origin="{{ home_articles_stream_config.nextCursor.before_origin }}"
+		data-before-pk="{{ home_articles_stream_config.nextCursor.before_pk }}"></div>
+	{% endif %}
+	<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+	(function () {
+		var cfgEl = document.getElementById('home-articles-config');
+		var stream = document.getElementById('home-articles-stream');
+		var sentinel = document.getElementById('home-articles-sentinel');
+		if (!cfgEl || !stream || !sentinel) {
+			return;
+		}
+		var moreUrl = cfgEl.getAttribute('data-more-url');
+		var bo = cfgEl.getAttribute('data-before-origin');
+		var bp = cfgEl.getAttribute('data-before-pk');
+		if (!moreUrl || !bo || !bp) {
+			return;
+		}
+		var nextCursor = { before_origin: bo, before_pk: parseInt(bp, 10) };
+		if (isNaN(nextCursor.before_pk)) {
+			return;
+		}
+		var loading = false;
+		function appendItems(data) {
+			if (!data.items || !data.items.length) {
+				return;
+			}
+			var jq = window.jQuery;
+			data.items.forEach(function (item) {
+				var wrap = document.createElement('div');
+				wrap.innerHTML = item.html;
+				if (jq) {
+					jq(wrap).find('img').unveil(300);
+				}
+				while (wrap.firstChild) {
+					stream.insertBefore(wrap.firstChild, sentinel);
+				}
+			});
+			if (jq) {
+				jq(window).trigger('lookup.unveil');
+			}
+		}
+		function loadMore() {
+			if (loading || !nextCursor) {
+				return;
+			}
+			loading = true;
+			var url = moreUrl + '?before_origin=' + encodeURIComponent(nextCursor.before_origin)
+				+ '&before_pk=' + encodeURIComponent(String(nextCursor.before_pk));
+			fetch(url, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+				.then(function (r) {
+					if (!r.ok) {
+						throw new Error('load failed');
+					}
+					return r.json();
+				})
+				.then(function (data) {
+					appendItems(data);
+					nextCursor = data.next_cursor || null;
+					if (!nextCursor || !data.has_more) {
+						if (sentinel.parentNode) {
+							sentinel.parentNode.removeChild(sentinel);
+						}
+						if (io) {
+							io.disconnect();
+						}
+					}
+				})
+				.catch(function () {})
+				.then(function () {
+					loading = false;
+				});
+		}
+		var io = null;
+		if ('IntersectionObserver' in window) {
+			io = new IntersectionObserver(function (entries) {
+				for (var i = 0; i < entries.length; i++) {
+					if (entries[i].isIntersecting) {
+						loadMore();
+						break;
+					}
+				}
+			}, { rootMargin: '200px' });
+			io.observe(sentinel);
+		}
+	})();
+	</script>
 
 	<hr>
 

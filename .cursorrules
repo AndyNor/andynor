@@ -1,3 +1,11 @@
 Vi bruker Python 3.13.
 Følg Django best practices (PEP8).
 Vi bruker tab for innrykk
+
+## Dev environment (Windows)
+
+- Run Django and shell commands from the project venv, not the system Python.
+- Venv: `C:\Users\andre\envs\andynor_py313_django512\Scripts`
+- Project root: `C:\Users\andre\Documents\GitHub\andynor`
+- CMD one-liner to open a shell with venv activated and cwd set to the repo:
+  `cmd /k "cd /d C:\Users\andre\envs\andynor_py313_django512\Scripts & activate & cd /d C:\Users\andre\Documents\GitHub\andynor"`

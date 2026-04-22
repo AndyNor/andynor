@@ -4,10 +4,11 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.contrib import messages  # Message system
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from datetime import datetime, timedelta
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from mysite.site_wide_functions import get_previous_page, makeJSON, add_to_log, get_client_ip, safe_referrer
@@ -118,31 +119,89 @@ def rss(request):
 	})
 
 
-def index(request):
-	all_categories = Category.objects.filter(visible=True)
+HOME_FEATURED_PAGE_SIZE = 5
 
+
+def home_featured_blogs_queryset():
 	# on frontpage not special health (5), special (10), school (11) or fun (12)
-	blogs = Blog.objects.exclude(
+	return Blog.objects.exclude(
 		category__in=[5, 10, 11, 12]
 	).filter(
 		published=True,
 		linked=True
-	).order_by('-origin')[0:5]
+	).order_by('-origin', '-pk')
 
+
+def _home_blogs_display_entries(blogs):
 	blogs_display = []
+	for blog in blogs:
+		comments = Comment.objects.filter(page=blog.pk).order_by('-pk')
+		blogs_display.append({"content": blog, "comments": comments})
+	return blogs_display
+
+
+def home_articles_more(request):
+	origin_s = request.GET.get('before_origin')
+	pk_s = request.GET.get('before_pk')
+	if not origin_s or not pk_s:
+		return HttpResponseBadRequest('missing cursor')
+	try:
+		cursor_date = datetime.strptime(origin_s, '%Y-%m-%d').date()
+		cursor_pk = int(pk_s)
+	except (ValueError, TypeError):
+		return HttpResponseBadRequest('invalid cursor')
+
+	qs = home_featured_blogs_queryset().filter(
+		Q(origin__lt=cursor_date) | Q(origin=cursor_date, pk__lt=cursor_pk)
+	)[:HOME_FEATURED_PAGE_SIZE]
+	blogs = list(qs)
+
+	items = []
+	for blog in blogs:
+		comments = Comment.objects.filter(page=blog.pk).order_by('-pk')
+		html = render_to_string(
+			'blog_show_post.html',
+			{'blog_active': blog, 'comments': comments},
+			request=request,
+		)
+		items.append({'html': html})
+
+	next_cursor = None
+	has_more = False
 	if blogs:
-		if len(blogs) > 1:
-			for blog in blogs:
-				comments = Comment.objects.filter(page=blog.pk).order_by('-pk')
-				blogs_display.append({"content": blog, "comments": comments})
-		else:
-			try:
-				comments = Comment.objects.filter(page=blogs.pk).order_by('-pk')
-			except:
-				comments = None
-			blogs_display.append({"content": blogs, "comments": comments})
-	else:
-		blogs_display.append({"content": None, "comments": None})
+		last = blogs[-1]
+		has_more = home_featured_blogs_queryset().filter(
+			Q(origin__lt=last.origin) | Q(origin=last.origin, pk__lt=last.pk)
+		).exists()
+		if has_more:
+			next_cursor = {
+				'before_origin': last.origin.isoformat(),
+				'before_pk': last.pk,
+			}
+
+	return JsonResponse({
+		'items': items,
+		'next_cursor': next_cursor,
+		'has_more': has_more,
+	})
+
+
+def index(request):
+	all_categories = Category.objects.filter(visible=True)
+
+	blogs = list(home_featured_blogs_queryset()[:HOME_FEATURED_PAGE_SIZE])
+	blogs_display = _home_blogs_display_entries(blogs)
+
+	home_articles_next_cursor = None
+	if blogs:
+		last = blogs[-1]
+		if home_featured_blogs_queryset().filter(
+			Q(origin__lt=last.origin) | Q(origin=last.origin, pk__lt=last.pk)
+		).exists():
+			home_articles_next_cursor = {
+				'before_origin': last.origin.isoformat(),
+				'before_pk': last.pk,
+			}
 
 	#school_subjects = Blog.objects.filter(category=11, published=True, sticky=True).order_by('-pk')
 	movies = DBobjects.objects.filter(category__name='movies').order_by('-pk')[:10]
@@ -166,9 +225,15 @@ def index(request):
 	else:
 		freqs = None
 
+	home_articles_stream_config = {
+		'moreUrl': reverse('home_articles_more'),
+		'nextCursor': home_articles_next_cursor,
+	}
+
 	return render(request, 'home.html', {
 		'category_list': all_categories,
 		'blogs_display': blogs_display,
+		'home_articles_stream_config': home_articles_stream_config,
 		#'school_subjects': school_subjects,
 		'sticky_blogs': sticky_blogs,
 		'movies': movies,
