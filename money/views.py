@@ -246,8 +246,17 @@ def edit(request, this_type, pk=False):
 	elif this_type == u'expence':
 
 		if not pk:
+			initial_account = request.user.profile.DEFAULT_PAYMENT_ACCOUNT
+			account_param = request.GET.get('account')
+			if account_param:
+				try:
+					aid = int(account_param)
+					if Account.objects.filter(pk=aid, owner=request.user).exists():
+						initial_account = aid
+				except (ValueError, TypeError):
+					pass
 			form = ExpenceForm(initial={
-				'account': request.user.profile.DEFAULT_PAYMENT_ACCOUNT,
+				'account': initial_account,
 				'sub_category': request.user.profile.DEFAULT_EXPENCE_SUB_CATEGORY,
 			})
 			if request.method == 'POST':

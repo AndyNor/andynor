@@ -14,11 +14,13 @@
 			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href='{% url "app_money" %}?next={{ request.get_full_path|urlencode }}'>
 				Oversikt</a>
-			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
+			{% comment %}			
+				<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href='{% url "bank_transactions" %}?next={{ request.get_full_path|urlencode }}'>
 				Transaksjoner</a>
+			{% endcomment %}	
 			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
-				href='{% url "money_new" "expence" %}?next={{ request.get_full_path|urlencode }}'>
+				href='{% url "money_new" "expence" %}?next={{ request.get_full_path|urlencode }}{% if account_id %}&account={{ account_id }}{% endif %}'>
 				Manuell utgift</a>
 			<a class="btn btn-small" style="width: 80px; margin-bottom: 10px; padding-bottom: 3px;"
 				href='{% url "money_new" "downpayment" %}?next={{ request.get_full_path|urlencode }}'>

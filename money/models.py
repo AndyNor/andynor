@@ -398,26 +398,23 @@ class Downpayment(models.Model):
 
 
 class ExpenceForm(forms.ModelForm):
-	formfield_callback = make_custom_plugins
-
 	class Meta:
 		model = Transaction
 		exclude = ('owner',)
+		formfield_callback = make_custom_plugins
 
 
 class SalaryForm(forms.ModelForm):
-	formfield_callback = make_custom_plugins
-
 	class Meta:
 		model = Salary
 		exclude = ('owner', 'transaction',)
+		formfield_callback = make_custom_plugins
 
 
 class DownpaymentForm(forms.ModelForm):
-	formfield_callback = make_custom_plugins
-
 	class Meta:
 		model = Downpayment
 		exclude = ('owner', 'source_transaction', 'destination_transaction')
+		formfield_callback = make_custom_plugins
 
 
