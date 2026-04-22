@@ -9,11 +9,18 @@ git reset --hard origin/master
 # 3. Use the NEW 3.13 virtual environment path for all commands
 VENV_PYTHON="/home/django/django_project/python3.13-env/bin/python"
 
-# Upgrade pip inside the venv
-$VENV_PYTHON -m pip install --upgrade pip
+# Upgrade pip quietly
+$VENV_PYTHON -m pip install -q --upgrade pip
 
-# Install requirements into the venv
-$VENV_PYTHON -m pip install -r requirements.txt
+echo "--- Installing Requirements ---"
+# We redirect output to a temporary file. If pip fails, we cat the file.
+if ! $VENV_PYTHON -m pip install -r requirements.txt > /tmp/pip_error.log 2>&1; then
+    echo "ERROR: Pip installation failed!"
+    cat /tmp/pip_error.log
+    exit 1
+else
+    echo "SUCCESS: Requirements updated (hidden output)."
+fi
 
 # Run Django commands using the venv python
 $VENV_PYTHON manage.py makemigrations
