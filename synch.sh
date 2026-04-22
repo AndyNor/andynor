@@ -20,12 +20,30 @@ $VENV_PYTHON manage.py makemigrations
 $VENV_PYTHON manage.py migrate
 $VENV_PYTHON manage.py collectstatic --noinput
 
-# 4. Restart services (using your NOPASSWD sudo rules)
+# 4. Restart services with status feedback
+echo "--- Restarting Gunicorn ---"
 sudo systemctl restart gunicorn
+if [ $? -eq 0 ]; then
+    echo "SUCCESS: Gunicorn restarted."
+    # Show the active status line specifically
+    sudo systemctl status gunicorn | grep "Active:"
+else
+    echo "ERROR: Gunicorn failed to restart!"
+fi
+
+echo "--- Restarting Nginx ---"
 sudo systemctl restart nginx
+if [ $? -eq 0 ]; then
+    echo "SUCCESS: Nginx restarted."
+    sudo systemctl status nginx | grep "Active:"
+else
+    echo "ERROR: Nginx failed to restart!"
+fi
 
 # 5. Ensure scripts remain executable
 chmod +x synch.sh
 chmod +x restart.sh
 chmod +x backup.sh
 chmod +x start.sh
+
+echo "--- DEPLOYMENT COMPLETE ---"
