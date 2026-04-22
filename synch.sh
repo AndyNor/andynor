@@ -10,8 +10,10 @@ python3 manage.py makemigrations
 python3 manage.py migrate
 python3 manage.py collectstatic --noinput
 
-systemctl restart gunicorn
-systemctl restart nginx
+#sudo visudo -->
+#django ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart gunicorn, /usr/bin/systemctl restart nginx
+sudo systemctl restart gunicorn
+sudo systemctl restart nginx
 
 chmod +x synch.sh
 chmod +x restart.sh
