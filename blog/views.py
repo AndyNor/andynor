@@ -444,7 +444,7 @@ def img_upload(request, blog_id, image_id=False):
 			user = request.user
 			filename = request.FILES['image']
 			if not images_create(request, blog_id, user, filename, image_id):
-				messages.error(request, 'Could not save the image to disk. Check "originals" folder and make folder private')
+				messages.error(request, 'Could not save the image to disk.')
 			return HttpResponseRedirect(reverse(img_upload, kwargs={'blog_id': blog_id}))
 	else:
 		form = models.ImageForm

@@ -11,6 +11,14 @@ from mysite.site_wide_functions import silentremove
 from PIL import ImageOps
 
 
+try:
+	# Pillow >= 10
+	RESAMPLE_LANCZOS = Image.Resampling.LANCZOS
+except AttributeError:
+	# Pillow < 10
+	RESAMPLE_LANCZOS = Image.LANCZOS
+
+
 def image_exists(request, image_id):
 	try:
 		image = blog_models.Image.objects.get(pk=image_id)
@@ -36,26 +44,71 @@ def new_image_filename():
 	return '%s_%s' % (now_string, random_number)
 
 
-def save_to_disk(image, image_object):
-# change temp folder for uploaded stuff
-	folder = '%soriginals/' % (settings.MEDIA_ROOT)
-	filebase = new_image_filename()
-	extention = str(image).split('.')[-1]
-	filename = '%s.%s' % (filebase, extention)
-	path = '%s%s' % (folder, filename)
+def _ensure_media_root_exists():
 	try:
-		with open(path, 'wb+') as destination:
-			for chunk in image.chunks():
-				destination.write(chunk)
-		image_object.original = filename
-		return filename
-	except:
+		os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
+	except Exception:
 		return False
+	return True
+
+
+def save_large_from_upload(uploaded_file, image_object, max_width):
+	"""
+	Saves only a processed large image to MEDIA_ROOT (no originals copy).
+	Returns True/False.
+	"""
+	if not _ensure_media_root_exists():
+		return False
+
+	base = new_image_filename()
+	image_object.original = base  # used as stable id / basename (no file stored)
+	image_object.large = 'large_%s.jpg' % base
+
+	try:
+		im = Image.open(uploaded_file)
+	except Exception:
+		return False
+
+	im = ImageOps.exif_transpose(im)
+
+	# resize if needed (limit by width)
+	try:
+		width, height = im.size
+	except Exception:
+		return False
+
+	if width > max_width:
+		new_height = int((float(max_width) / float(width)) * float(height))
+		im.thumbnail((max_width, new_height), RESAMPLE_LANCZOS)
+
+	large_path = '%s%s' % (settings.MEDIA_ROOT, image_object.large)
+	try:
+		rgb_im = im.convert('RGB')
+		rgb_im.save(large_path, "jpeg", quality=94)
+	except Exception:
+		return False
+
+	image_object.save()
+	return True
 
 
 def delete_original(request, image):
-	path = '%soriginals/%s' % (settings.MEDIA_ROOT, image.original)
-	silentremove(request, path)
+	# New behavior: we don't store originals anymore.
+	# Backwards-compatible cleanup for older rows that still have originals on disk.
+	if not image.original:
+		return
+
+	# Older rows stored full filename with extension in originals/
+	candidates = []
+	candidates.append('%soriginals/%s' % (settings.MEDIA_ROOT, image.original))
+
+	# If original is a basename without extension, try a few common ones
+	if '.' not in str(image.original):
+		for ext in ('.jpg', '.jpeg', '.png', '.webp', '.gif'):
+			candidates.append('%soriginals/%s%s' % (settings.MEDIA_ROOT, image.original, ext))
+
+	for path in candidates:
+		silentremove(request, path)
 
 
 def delete_large(request, image):
@@ -86,20 +139,33 @@ def image_order_cleanup(blog_id):
 
 
 def img_calc_large(image, max_width):
-	original = '%soriginals/%s' % (settings.MEDIA_ROOT, image.original)
-	filename_large = 'large_%s' % image.original
-	try:
-		im = Image.open(original)
-	except:
-		return False
+	# Prefer original (legacy), otherwise resize from existing large.
+	original_path = '%soriginals/%s' % (settings.MEDIA_ROOT, image.original) if image.original else None
+	large_path = '%s%s' % (settings.MEDIA_ROOT, image.large)
+
+	im = None
+	if original_path and os.path.isfile(original_path):
+		try:
+			im = Image.open(original_path)
+		except Exception:
+			im = None
+	if im is None:
+		if not os.path.isfile(large_path):
+			return False
+		try:
+			im = Image.open(large_path)
+		except Exception:
+			return False
 
 	im = ImageOps.exif_transpose(im)
 
 	if im.size[0] > max_width:
-		height = int((float(max_width * 0.625) / float(im.size[0])) * float(im.size[1]))  # >1920 gir 1200x bilder
-		im.thumbnail((max_width, height), Image.ANTIALIAS)
-	im.save('%s%s' % (settings.MEDIA_ROOT, filename_large), im.format, quality=94)
-	image.large = filename_large
+		new_height = int((float(max_width) / float(im.size[0])) * float(im.size[1]))
+		im.thumbnail((max_width, new_height), RESAMPLE_LANCZOS)
+
+	# overwrite current large (don't create additional files)
+	rgb_im = im.convert('RGB')
+	rgb_im.save(large_path, "jpeg", quality=94)
 	image.save()
 	return True
 
@@ -110,7 +176,7 @@ def img_calc_large(image, max_width):
 def img_calc_thumb(request, image, max_width, max_height=False):
 
 	def reduce_wide(im, background, new_size):
-		im.thumbnail(new_size, Image.ANTIALIAS)
+		im.thumbnail(new_size, RESAMPLE_LANCZOS)
 		height = im.size[1]
 		width = im.size[0]
 		#print("asked for size: %s %s" % (new_size))
@@ -127,7 +193,7 @@ def img_calc_thumb(request, image, max_width, max_height=False):
 		return background
 
 	def reduce_tall(im, background, new_size):
-		im.thumbnail(new_size, Image.ANTIALIAS)
+		im.thumbnail(new_size, RESAMPLE_LANCZOS)
 		height = im.size[1]
 		width = im.size[0]
 		#print("asked for size: %s %s" % (new_size))
@@ -155,8 +221,13 @@ def img_calc_thumb(request, image, max_width, max_height=False):
 	im = ImageOps.exif_transpose(im)
 
 	# determine thumbnail filename
-	filename_thumb = image.original if (image.original != None) else image.large
-	filename_thumb = 'thumb_%s.%s' % (filename_thumb, "jpg")
+	if image.original:
+		base = image.original if '.' not in str(image.original) else os.path.splitext(str(image.original))[0]
+	else:
+		# large_<base>.jpg -> <base>
+		large_base = os.path.splitext(os.path.basename(str(image.large)))[0]
+		base = large_base[6:] if large_base.startswith('large_') else large_base
+	filename_thumb = 'thumb_%s.jpg' % base
 
 	# create a background
 	if max_height:
@@ -171,7 +242,7 @@ def img_calc_thumb(request, image, max_width, max_height=False):
 	if not max_height:
 		# don't care about height
 		new_height = int((width / max_width) * height)
-		im.thumbnail((max_width, new_height), Image.ANTIALIAS)
+		im.thumbnail((max_width, new_height), RESAMPLE_LANCZOS)
 
 	else:
 		if width >= (height * (max_width / float(max_height))):
@@ -208,15 +279,13 @@ def images_create(request, blog_id, user, filename, image_id):
 		delete_thumbnail(request, img)
 
 	img.filename = filename.name[:50]
-	new_filename = save_to_disk(filename, img)
-	if new_filename:  # if file was moved to archive
-		img.save()
-		image_order_cleanup(blog_id)
-		img_calc_large(img, 3840)
-		img_calc_thumb(request, img, 400, 266)
-		return True
-	else:
+	# Save only processed versions (no originals stored)
+	if not save_large_from_upload(filename, img, 3840):
 		return False
+
+	image_order_cleanup(blog_id)
+	img_calc_thumb(request, img, 400, 266)
+	return True
 
 
 def images_remove(request, image_id):
