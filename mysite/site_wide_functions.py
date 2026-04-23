@@ -3,6 +3,7 @@ from django.http import Http404
 import json
 from django.contrib import messages
 from mysite.models import SiteLog
+import errno
 
 def safe_referrer(request):
 	from django.conf import settings
