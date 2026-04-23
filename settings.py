@@ -11,6 +11,10 @@ if THIS_ENVIRONMENT == "DO_PROD":
 	CSRF_TRUSTED_ORIGINS = [SITE_URL]
 	ALLOWED_HOSTS = ['.andynor.net']#, '161.35.216.174']
 	DEBUG = False
+	# When running behind a reverse proxy/ingress that terminates TLS,
+	# Django must trust X-Forwarded-Proto to avoid HTTPS redirect loops.
+	SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+	USE_X_FORWARDED_HOST = True
 	from secrets_prod import load_secrets
 	load_secrets()
 
