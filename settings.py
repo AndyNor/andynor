@@ -157,6 +157,13 @@ CSP_SCRIPT_SRC = ("'self'", 'https://www.youtube.com', 'https://s.ytimg.com', 'h
 CSP_FRAME_SRC = ("'self'", 'https://www.youtube.com', 'https://www.youtube-nocookie.com')
 CSP_STYLE_SRC = ("'self'")
 CSP_IMG_SRC = ("'self' data:")
+CSP_STYLE_SRC = (
+    "'self'", 
+    "https://cdnjs.cloudflare.com",
+    "'sha256-hMEnt2qMHAmQZgCjWJ4hweKuzi+3YEdUo00f8k/ebMo='" # jQuery's inline style
+)
+CSP_FONT_SRC = ("'self'", "https://cdnjs.cloudflare.com")
+CSP_CONNECT_SRC = ("'self'", "https://andynor.net")
 CSP_INCLUDE_NONCE_IN = ['script-src', 'style-src']
 SECURE_CONTENT_TYPE_NOSNIFF = True  # requires "SecurityMiddleware"
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
