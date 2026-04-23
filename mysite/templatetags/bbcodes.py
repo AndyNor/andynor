@@ -81,7 +81,7 @@ def gallery(request, blog_id, matchobj):
 				edit_button = ''
 			if os.path.isfile(path):
 				_loader = '%simg/loader.gif' % settings.STATIC_URL
-				html.append('<a href="%s%s"><img class="thumbnail" style="width:100%%;height:auto" src="%s" data-src="%s%s" alt="%s"></a><small>%s %s</small>' % (
+				html.append('<a href="%s%s"><img class="thumbnail blog-post-img-fluid" src="%s" data-src="%s%s" alt="%s"></a><small>%s %s</small>' % (
 						settings.MEDIA_URL,
 						image.large,
 						_loader,
@@ -193,10 +193,10 @@ def image(request, blog_id, matchobj):
 	if image_class == '':
 		image_class = 'norm'
 	image_border = matchobj.group(3)
-	if image_border == "no":
-		add_border = ""
-	else:
-		add_border = "class=\"image_border\" "
+	img_classes = ['blog-post-img-fluid']
+	if image_border != "no":
+		img_classes.append('image_border')
+	img_class_attr = 'class="%s" ' % ' '.join(img_classes)
 	try:
 		image = Image.objects.get(pk=image_id)
 		html = []
@@ -209,9 +209,9 @@ def image(request, blog_id, matchobj):
 			edit_button = ''
 		title = image.description if image.description != None else ''
 		_loader = '%simg/loader.gif' % settings.STATIC_URL
-		html.append('<div class="%s"><img %sstyle="width:100%%;height:auto" src="%s" data-src="%s%s" alt="%s"><br><small>%s %s</small></div>' % (
+		html.append('<div class="%s"><img %ssrc="%s" data-src="%s%s" alt="%s"><br><small>%s %s</small></div>' % (
 				image_class,
-				add_border,
+				img_class_attr,
 				_loader,
 				settings.MEDIA_URL,
 				image.large,
@@ -235,10 +235,10 @@ def thumb(request, blog_id, matchobj):
 	if image_class == '':
 		image_class = 'norm'
 	image_border = matchobj.group(3)
-	if image_border == "no":
-		add_border = ""
-	else:
-		add_border = "class=\"image_border\" "
+	img_classes = ['blog-post-img-fluid']
+	if image_border != "no":
+		img_classes.append('image_border')
+	img_class_attr = 'class="%s" ' % ' '.join(img_classes)
 	try:
 		image = Image.objects.get(pk=image_id)
 		html = []
@@ -255,7 +255,7 @@ def thumb(request, blog_id, matchobj):
 				image_class,
 				settings.MEDIA_URL,
 				image.large,
-				add_border,
+				img_class_attr,
 				_loader,
 				settings.MEDIA_URL,
 				image.thumbnail,

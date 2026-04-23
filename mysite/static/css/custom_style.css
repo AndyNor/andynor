@@ -258,6 +258,15 @@ a {
 	box-sizing: border-box;
 }
 
+/* BBCode gallery / [img] / [thumb]: fluid images without inline style (strict CSP style-src). */
+.textJustify .blog-post-img-fluid{
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	box-sizing: border-box;
+}
+
 
 #image_upload_actions ul{
 	list-style: none;
