@@ -165,6 +165,7 @@ CSP_STYLE_SRC = (
 CSP_FONT_SRC = ("'self'", "https://cdnjs.cloudflare.com")
 CSP_CONNECT_SRC = ("'self'", "https://andynor.net")
 CSP_INCLUDE_NONCE_IN = ['script-src', 'style-src']
+CSP_MEDIA_SRC = ("'self'", "https://andynor.net", "http://localhost:8001")
 SECURE_CONTENT_TYPE_NOSNIFF = True  # requires "SecurityMiddleware"
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
