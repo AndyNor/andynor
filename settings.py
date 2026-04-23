@@ -152,7 +152,7 @@ MIDDLEWARE = (
 
 # Security headers
 # CSP reqires "CSPMiddleware"
-CSP_DEFAULT_SRC = ("'self'",)
+CSP_DEFAULT_SRC = ("'none'",)
 CSP_SCRIPT_SRC = ("'self'", 'https://www.youtube.com', 'https://s.ytimg.com', 'https://www.youtube-nocookie.com')
 CSP_FRAME_SRC = ("'self'", 'https://www.youtube.com', 'https://www.youtube-nocookie.com')
 CSP_STYLE_SRC = ("'self'")
