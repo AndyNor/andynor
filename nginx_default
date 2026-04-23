@@ -1,91 +1,77 @@
+# Copy or symlink to /etc/nginx/sites-enabled/default (or include from nginx.conf).
+# TLS terminates here; Django (gunicorn) must see X-Forwarded-Proto: https.
+
 upstream app_server {
-    server unix:/home/django/gunicorn.socket fail_timeout=0;
+	server unix:/home/django/gunicorn.socket fail_timeout=0;
 }
 
+# Catch-all HTTP: do not proxy to Django (avoids wrong-host / redirect surprises).
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server ipv6only=on;
+	listen 80 default_server;
+	listen [::]:80 default_server ipv6only=on;
 
-    root /usr/share/nginx/html;
-    index index.html index.htm;
+	server_name _;
 
-    client_max_body_size 4G;
-    server_name _;
-
-    keepalive_timeout 5;
-
-    # Your Django project's media files - amend as required
-    location /media  {
-        alias /home/django/django_project/andynor/media;
-    }
-
-    # your Django project's static files - amend as required
-    location /static {
-        alias /home/django/django_project/andynor/static;
-    }
-
-    location / {
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header Host $host;
-            proxy_redirect off;
-            proxy_buffering off;
-
-            proxy_pass http://app_server;
-    }
-
+	return 444;
 }
 
-
+# andynor.net: HTTP → HTTPS (Certbot can extend this block for renewals).
 server {
+	listen 80;
+	listen [::]:80;
 
-    root /usr/share/nginx/html;
-    index index.html index.htm;
+	server_name andynor.net;
 
-    client_max_body_size 4G;
-    server_name andynor.net; # managed by Certbot
+	client_max_body_size 4G;
 
-    keepalive_timeout 5;
+	# If you use HTTP-01 webroot, point root at the path certbot uses.
+	location ^~ /.well-known/acme-challenge/ {
+		root /var/www/html;
+		default_type "text/plain";
+	}
 
-    # Your Django project's media files - amend as required
-    location /media  {
-        alias /home/django/django_project/andynor/media;
-    }
-
-    # your Django project's static files - amend as required
-    location /static {
-        alias /home/django/django_project/andynor/static;
-    }
-
-    location / {
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header Host $host;
-            proxy_redirect off;
-            proxy_buffering off;
-
-            proxy_pass http://app_server;
-    }
-
-
-
-    listen [::]:443 ssl ipv6only=on; # managed by Certbot
-    listen 443 ssl; # managed by Certbot
-    ssl_certificate /etc/letsencrypt/live/andynor.net/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/andynor.net/privkey.pem; # managed by Certbot
-    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-
+	location / {
+		return 301 https://$host$request_uri;
+	}
 }
 
+# andynor.net: HTTPS → gunicorn
 server {
-    if ($host = andynor.net) {
-        return 301 https://$host$request_uri;
-    } # managed by Certbot
+	listen 443 ssl;
+	listen [::]:443 ssl ipv6only=on;
 
+	server_name andynor.net;
 
-    listen 80;
-    listen [::]:80;
-    server_name andynor.net;
-    return 404; # managed by Certbot
+	client_max_body_size 4G;
+	keepalive_timeout 5;
 
+	access_log /var/log/nginx/access.log;
+
+	ssl_certificate /etc/letsencrypt/live/andynor.net/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/andynor.net/privkey.pem;
+	include /etc/letsencrypt/options-ssl-nginx.conf;
+	ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+	location /media/ {
+		alias /home/django/django_project/andynor/media/;
+	}
+
+	location /static/ {
+		alias /home/django/django_project/andynor/static/;
+	}
+
+	location / {
+		proxy_pass http://app_server;
+		proxy_http_version 1.1;
+		proxy_set_header Connection "";
+
+		proxy_set_header Host $host;
+		proxy_set_header X-Forwarded-Host $host;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Real-IP $remote_addr;
+
+		proxy_redirect off;
+		proxy_buffering off;
+	}
 }
-
