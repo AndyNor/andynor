@@ -15,6 +15,9 @@ if THIS_ENVIRONMENT == "DO_PROD":
 	# Django must trust X-Forwarded-Proto to avoid HTTPS redirect loops.
 	SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 	USE_X_FORWARDED_HOST = True
+	# Nginx already redirects HTTP→HTTPS; skip Django HTTPSRedirect to avoid
+	# ERR_TOO_MANY_REDIRECTS if proxy headers do not reach the app unchanged.
+	FORCE_HTTPS_REDIRECT_IN_DJANGO = False
 	from secrets_prod import load_secrets
 	load_secrets()
 

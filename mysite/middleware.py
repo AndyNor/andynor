@@ -43,18 +43,42 @@ class CountVisitor(MiddlewareMixin):
 
 class HTTPSRedirect(MiddlewareMixin):
 	@staticmethod
+	def _forwarded_proto_rfc7239(request):
+		"""Parse proto= from Forwarded header (RFC 7239), e.g. 'proto=https;host=...'."""
+		raw = request.META.get('HTTP_FORWARDED')
+		if not raw:
+			return None
+		for segment in str(raw).split(','):
+			for part in segment.split(';'):
+				part = part.strip()
+				low = part.lower()
+				if low.startswith('proto='):
+					return part.split('=', 1)[1].strip().strip('"').lower()
+		return None
+
+	@staticmethod
 	def _effectively_https(request):
 		"""True when the original client used HTTPS (TLS may terminate at nginx)."""
 		if request.is_secure():
 			return True
 		proto = request.META.get('HTTP_X_FORWARDED_PROTO', '')
-		if not proto:
-			return False
-		# Multiple proxies may send "http, https" — use the outermost (last) value.
-		parts = [p.strip().lower() for p in str(proto).split(',') if p.strip()]
-		return bool(parts) and parts[-1] == 'https'
+		if proto:
+			# Multiple proxies may send "http, https" — use the outermost (last) value.
+			parts = [p.strip().lower() for p in str(proto).split(',') if p.strip()]
+			if parts and parts[-1] == 'https':
+				return True
+		if str(request.META.get('HTTP_X_FORWARDED_SSL', '')).lower() == 'on':
+			return True
+		if str(request.META.get('HTTP_X_FORWARDED_PROTOCOL', '')).lower() == 'ssl':
+			return True
+		fp = HTTPSRedirect._forwarded_proto_rfc7239(request)
+		if fp == 'https':
+			return True
+		return False
 
 	def process_request(self, request):
+		if not getattr(settings, 'FORCE_HTTPS_REDIRECT_IN_DJANGO', True):
+			return None
 		if request.get_full_path() == "/rss/":
 			return None
 		if self._effectively_https(request):
