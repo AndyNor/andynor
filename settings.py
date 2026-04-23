@@ -33,7 +33,6 @@ INSTALLED_APPS = (
 	'django.contrib.staticfiles',
 	'django.contrib.humanize',
 	'rest_framework',
-	'drf_yasg',
 	'mysite',
 	'money',
 	'power',
@@ -41,7 +40,6 @@ INSTALLED_APPS = (
 	'databases',
 	'calc',
 	'stocks',
-	'conan',
 )
 
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
