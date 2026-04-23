@@ -14,6 +14,22 @@
 
 {% block money_main %}
 
+<style nonce="{{ request.csp_nonce }}">
+	{% if dp_data.payments %}
+		{% for i in dp_data.payments %}
+		.money-year-dp-row-{{ i.pk }}{
+			color:#{{ i.destination_transaction.category.text_color|default:'A9A9A9' }};
+		}
+		{% endfor %}
+	{% endif %}
+
+	{% for item in asset_data %}
+	.money-year-asset-row-{{ item.pk }}{
+		color:#{{ item.category.text_color|default:'A9A9A9' }};
+	}
+	{% endfor %}
+</style>
+
 <h5>Utgifter</h5>
 <div class="scrollable">
 	{% include "money_year_table_monthly.html" with table_data=expence_data %}
@@ -38,7 +54,7 @@
 		</thead>
 		<tbody>
 		{% for i in dp_data.payments %}
-			<tr style="color:#{{ i.destination_transaction.category.text_color|default:'A9A9A9' }};">
+			<tr class="money-year-dp-row-{{ i.pk }}">
 				<td><a href="{% url 'money_edit' 'downpayment' i.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
 				<td>{{ i.date }}</td>
 				<td>{{ i.source_account }}</td>
@@ -66,7 +82,7 @@
 		</thead>
 		<tbody>
 			{% for item in asset_data %}
-			<tr style="color:#{{ item.category.text_color|default:'A9A9A9' }};">
+			<tr class="money-year-asset-row-{{ item.pk }}">
 				<td><a href="{% url 'money_edit' 'expence' item.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
 				<td>{{ item.date }}</td>
 				<td>{{ item.comment|default:'' }} ({{ item.sub_category }})</td>

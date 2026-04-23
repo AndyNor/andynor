@@ -5,7 +5,7 @@
 <div class="row">
 {% for item in item_list %}
 	<div class="database_tvseries_item">
-		<img class="tvseries" style="width: 100px; height: 100px;" src="{{ MEDIA_URL }}{{item.image}}">
+		<img class="tvseries" src="{{ MEDIA_URL }}{{item.image}}">
 		<h3 >{{ item.name }}</h3>
 		<h6 class="displayInline">{{ item.subcategory }}</h6>
 		{% if user.is_authenticated %}

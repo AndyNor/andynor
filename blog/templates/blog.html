@@ -18,7 +18,7 @@
 			<div class="box-header">
 				<span class="aside-header">Snarveier</span>
 			</div>
-			<div class="box-content" style="font-size: 75%">
+			<div class="box-content box-content--sm">
 				<ul class="nav nav-pills nav-stacked">
 					<li class="{% if blog.pk == blog_active.pk %}active{% endif %}">
 						{% url "blog_archive" as url %}<a href="{{url}}">Arkiv</a>
@@ -37,7 +37,7 @@
 			<div class="box-header">
 				<span class="aside-header">Flere fra {{blog_active.category}}</span>
 			</div>
-			<div class="box-content" style="font-size: 80%">
+			<div class="box-content box-content--md">
 
 				<ul class="nav nav-pills nav-stacked">
 					{% for blog in blog_history %}

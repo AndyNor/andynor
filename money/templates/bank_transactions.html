@@ -39,10 +39,10 @@
 			<td><a href="{% url 'money_account' t.account.pk %}">{{t.account.name }}</a></td>
 
 			<td>{{t.accounting_date}}</td>
-			<td style="text-align: center; {% if t.amount_factor > 1 %} background-color: #ffe2e2; {% endif %}">
+			<td class="bank-txt-center {% if t.amount_factor > 1 %}bank-warn-bg{% endif %}">
 				{{t.amount_factor}}
 			</td>
-			<td style="{% if t.isReservation %} background-color: #ffe2e2; {% endif %}">{{t.adjusted_amount}}</td>
+			<td class="{% if t.isReservation %}bank-warn-bg{% endif %}">{{t.adjusted_amount}}</td>
 			<td>{{t.description}}</td>
 			<td>
 				<a href="{% url 'money_edit' this_type='bank_transaction' pk=t.pk %}" class="btn">Rediger</a>

@@ -7,7 +7,7 @@
 {% include "form.html" with form=form %}
 
 {% for tag in tags %}
-<div class="input-prepend input-append" style="margin: 10px;">
+<div class="input-prepend input-append tag-form-row">
 	<span class="add-on"><a href="{% url "blog_tag_edit" tag.pk %}"><i class="icon-edit"></i></a></span>
 	<input class="span1" class="appendedPrependedInput" type="text" value="{{ tag.tag }}">
 	<span class="add-on"><a href="{% url "blog_tag_del" tag.pk %}?token={{csrf_token}}"><i class="icon-remove"></i></a></span>

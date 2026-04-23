@@ -8,13 +8,13 @@
 	<div class="row">
 
 			<h5>Visits <small>{{ visits_total }} and counting...</small></h5>
-			<script type="text/javascript">
+			<script type="text/javascript" nonce="{{ request.csp_nonce }}">
 				var visits_monthly = {{visits_monthly|safe}};
 				var visits_daily = {{visits_daily|safe}};
 			</script>
 
-			<div class="span8" style="height: 200px" id="visits_monthly"></div>
-			<div class="span4" style="height: 200px" id="visits_daily"></div>
+			<div class="span8 dashboard-graph" id="visits_monthly"></div>
+			<div class="span4 dashboard-graph" id="visits_daily"></div>
 
 	</div>
 

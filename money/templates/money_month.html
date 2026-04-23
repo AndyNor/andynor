@@ -45,6 +45,14 @@
 </div>
 {% endif %}
 
+<style nonce="{{ request.csp_nonce }}">
+	{% for t in expence_data.tbody %}
+	.money-month-expence-row-{{ t.pk }}{
+		color:#{{ t.text_color }};
+	}
+	{% endfor %}
+</style>
+
 <h5>Utgifter</h5>
 <div class="scrollable">
 <table class="table table-condensed table-striped">
@@ -58,7 +66,7 @@
 	</thead>
 	<tbody>
 	{% for t in expence_data.tbody %}
-		<tr style="color:#{{ t.text_color }};">
+		<tr class="money-month-expence-row-{{ t.pk }}">
 			<td><a href="{% url 'money_edit' 'expence' t.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
 			<td>{{ t.date|date:"jS" }}</td>
 			<td>{{ t.account }}</td>

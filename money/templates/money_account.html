@@ -13,7 +13,16 @@
 
 {% block money_main %}
 
-<table class="table" style="font-size: 90%">
+<style nonce="{{ request.csp_nonce }}">
+	{% for i in table_data.tbody %}
+	.money-account-row-{{ i.pk }}{
+		color:#{{ i.category.text_color|default:'A9A9A9' }};
+		{% if not i.completed %}background-color: #f6f6f6;{% endif %}
+	}
+	{% endfor %}
+</style>
+
+<table class="table money-account-table">
 	<thead>
 		<tr>
 			<th></th>
@@ -29,7 +38,7 @@
 	</thead>
 	<tbody>
 		{% for i in table_data.tbody %}
-		<tr style="color:#{{ i.category.text_color|default:'A9A9A9' }}; {% if not i.completed %} background-color: #f6f6f6; {% endif %}">
+		<tr class="money-account-row-{{ i.pk }}">
 			<td><a href='{% url "money_edit" "expence" i.pk %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i></a></td>
 			<td>{{ i.date }}</td>
 			<td>{{ i.sub_category }} {% if i.comment %} ({{ i.comment }}) {% endif %}</td>
@@ -46,7 +55,7 @@
 			<td class="money">
 			{% if i.positive and not i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
 			</td>
-			<td class="money" style="color:grey";>
+			<td class="money money-account-balance">
 			{{ i.balance|floatformat:"2"|intcomma }}
 			</td>
 		</tr>

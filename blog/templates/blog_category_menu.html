@@ -1,7 +1,7 @@
-<div class="row" style="font-size: 85%">
+<div class="row blog-category-menu">
 	<div class="span12">
 	{% block blog_header %}
-		<div style="padding: 10px 0">
+		<div class="blog-category-menu-inner">
 			<ul class="nav nav-tabs">
 			{% for cat in category_list %}
 				<li{% if category_name == cat.category %} class="active"{% endif %}>

@@ -6,9 +6,9 @@
 	<h2>Write <small>{{ sub_header }}</small></h2>
 	<hr>
 	<div class="pull-right">
-		<a class="btn btn-small" style="margin: 5px" href="{% url "blog_category_new" %}?next={{ request.get_full_path|urlencode }}">Add category</a><br>
-		<a class="btn btn-small" style="margin: 5px" href="{% url "blog_tag_add" %}?next={{ request.get_full_path|urlencode }}">Add tag</a><br>
-		<a class="btn btn-small btn-primary" style="margin: 5px" href="/blog/340/">BB-codes</a>
+		<a class="btn btn-small m-5" href="{% url "blog_category_new" %}?next={{ request.get_full_path|urlencode }}">Add category</a><br>
+		<a class="btn btn-small m-5" href="{% url "blog_tag_add" %}?next={{ request.get_full_path|urlencode }}">Add tag</a><br>
+		<a class="btn btn-small btn-primary m-5" href="/blog/340/">BB-codes</a>
 	</div>
 	{% include "form.html" with form=form redirect=redirect %}
 	<table class="table table-bordered table-condensed">

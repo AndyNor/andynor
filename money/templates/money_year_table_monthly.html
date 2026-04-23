@@ -1,5 +1,15 @@
 {% load humanize %}
 
+<style nonce="{{ request.csp_nonce }}">
+	{% for item in table_data %}
+		{% if not forloop.last %}
+		.money-year-monthly-row-{{ forloop.counter }}{
+			color:#{{ item.text_color|default:'A9A9A9' }};
+		}
+		{% endif %}
+	{% endfor %}
+</style>
+
 <table class="table table-striped">
 	<thead>
 		<tr>
@@ -13,7 +23,7 @@
 	<tbody>
 	{% for item in table_data %}
 		{% if not forloop.last  %}
-		<tr style="color:#{{ item.text_color|default:'A9A9A9' }};">
+		<tr class="money-year-monthly-row-{{ forloop.counter }}">
 			<td>{{ item.category|capfirst }}</td>
 			{% for sum in item.cell_sums %}
 			<td class="money">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
@@ -25,7 +35,7 @@
 			<td><b>Sum</b></td>
 			{% for sum in item %}
 				{% if sum < 0 %}
-			<td class="money" style="color:red;">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
+			<td class="money money-negative">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
 				{% else %}
 			<td class="money">{{ sum|default:''|floatformat:"0"|intcomma }}</td>
 				{% endif %}

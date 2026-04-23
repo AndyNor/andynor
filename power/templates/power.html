@@ -11,7 +11,7 @@
 {% if user.is_authenticated %}
 	{% block money_actions %}
 	<div class="pull-right">
-		<a class="btn btn-small btn-primary" style="margin: 2px" href="{% url "power_payment" %}?next={{ request.get_full_path|urlencode }}">Registrer regning</a>
+		<a class="btn btn-small btn-primary power-payment-btn" href="{% url "power_payment" %}?next={{ request.get_full_path|urlencode }}">Registrer regning</a>
 	</div>
 	{% endblock %}
 {% endif %}

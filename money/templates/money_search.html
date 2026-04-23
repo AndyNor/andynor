@@ -23,6 +23,15 @@
         <ol>
         {% if found_entries %}
 
+<style nonce="{{ request.csp_nonce }}">
+	{% for i in found_entries %}
+	.money-search-row-{{ i.pk }}{
+		color:#{{ i.category.text_color|default:'A9A9A9' }};
+		{% if i.is_asset %}background-color: #fffff4;{% endif %}
+	}
+	{% endfor %}
+</style>
+
         <p>Showing {{ found_entries.count }} search matches.<br>
         Sum total of {{ query_sum.sum_total|floatformat:"2" }}.</p>
 
@@ -83,7 +92,7 @@ var chart_chart_cost = new Chart(ctx_chart_cost, {
             </thead>
             <tbody>
             {% for i in found_entries %}
-                <tr style="color:#{{ i.category.text_color|default:'A9A9A9' }}; {% if i.is_asset %}background-color: #fffff4;{% endif %}">
+                <tr class="money-search-row-{{ i.pk }}">
                     <td><a href="{% url 'money_edit' 'expence' i.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a></td>
                     <td>{{ i.date }}</td>
                     <td>{{ i.sub_category }} {% if i.comment %} ({{ i.comment }}) {% endif %}</td>

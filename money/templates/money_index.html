@@ -38,7 +38,7 @@
 			</tbody>
 		</table>
 
-		<div id="graph_per_account" style="height: 200px;">
+		<div id="graph_per_account" class="graph-per-account">
 			<script type="text/javascript" nonce="{{request.csp_nonce}}">
 				var balance_data = {{ balance_json|safe }};
 				var year_data = {{ year_json|safe }};
@@ -71,7 +71,7 @@
 			</tbody>
 		</table>
 
-		<div id="graph_per_year" style="height: 350px;"></div>
+		<div id="graph_per_year" class="graph-per-year"></div>
 
 	</div>
 

@@ -4,16 +4,16 @@
 
 <ul class="pager">
 <h3>Delete this image</h3>
-<img style="margin: auto;" class="thumbnail" src="{{MEDIA_URL}}{{ image.thumbnail }}">
+<img class="thumbnail img-center" src="{{MEDIA_URL}}{{ image.thumbnail }}">
 
 <hr>
 
 	{% url "image_remove" image.pk as image_remove_url %}
-	<li><form method="post" action="{{ blog_delete_url }}" style="display: inline;">
+	<li><form method="post" action="{{ blog_delete_url }}" class="form-inline">
 		{% csrf_token %}<button class="btn" type="submit">Bekreft</button></form></li>
 	
 	{% url "image_upload" image.blog.pk as image_upload_url %}	
-	<li><a style="margin-left: 30px" class="btn" href="{{ image_upload_url }}">Gå tilbake</a></li>
+	<li><a class="btn btn-left-space" href="{{ image_upload_url }}">Gå tilbake</a></li>
 </ul>
 
 {% endblock %}

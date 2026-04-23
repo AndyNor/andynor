@@ -15,13 +15,13 @@
 		{% for blog in blogs_display %}
 			{% include 'blog_show_post.html' with blog_active=blog.content comments=blog.comments %}
 		{% endfor %}
-		<div id="home-articles-sentinel" style="height: 1px;" aria-hidden="true"></div>
+		<div id="home-articles-sentinel" class="home-articles-sentinel" aria-hidden="true"></div>
 		</div>
 
 	</div>
 
 	{% if home_articles_stream_config.nextCursor %}
-	<div id="home-articles-config" style="display:none" aria-hidden="true"
+	<div id="home-articles-config" class="is-hidden" aria-hidden="true"
 		data-more-url="{{ home_articles_stream_config.moreUrl }}"
 		data-before-origin="{{ home_articles_stream_config.nextCursor.before_origin }}"
 		data-before-pk="{{ home_articles_stream_config.nextCursor.before_pk }}"></div>

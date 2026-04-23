@@ -15,29 +15,29 @@
 
 		<p>Selected images: <button type="submit" class="btn btn-mini">Move to blog</button></p>
 
-		<ul class="thumbnails" style="margin: 40px 0 0 0">
+		<ul class="thumbnails image-index-thumbnails">
 		{% for image in images %}
 			<li class="thumbnail span2">
 
-				<label style="margin-bottom: 0;">
+				<label class="label-no-margin">
 					<input type="checkbox" name="selected_pictures" value="{{image.pk}}">
 					<span class="pull-right"><i class="icon-list"></i><small>{{image.order}}</small></span>
 					<div>
-						<ul class="btn-group" style="margin-left: 0;">
+						<ul class="btn-group btn-group-no-margin">
 							<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-camera"></i> {{image.pk}}
 								<span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu">
 								<li>
-									<a href="{{MEDIA_URL}}{{image.large}}" rel="tooltip" data-original-title="{{image.filename|default:'no filename'}}" data-placement="bottom"><i class="icon-file" style="margin-right: 5px"></i> View large version</a>
+									<a href="{{MEDIA_URL}}{{image.large}}" rel="tooltip" data-original-title="{{image.filename|default:'no filename'}}" data-placement="bottom"><i class="icon-file icon-right-space"></i> View large version</a>
 								</li>
 								<li class="divider"></li>
 								<li>
-									<a href="{% url 'image_add_comment' image.pk%}?next={{ request.get_full_path|urlencode}}" rel="tooltip" data-original-title="{{image.description|default:'No comment'}}" data-placement="bottom"><i class="icon-pencil" style="margin-right: 5px"></i> Edit description</a>
+									<a href="{% url 'image_add_comment' image.pk%}?next={{ request.get_full_path|urlencode}}" rel="tooltip" data-original-title="{{image.description|default:'No comment'}}" data-placement="bottom"><i class="icon-pencil icon-right-space"></i> Edit description</a>
 								</li>
 								<li class="divider"></li>
 								<li>
-									<a href="{% url 'image_upload_replace' image.blog.pk image.pk%}"><i class="icon-repeat" style="margin-right: 5px"></i> Upload replacement</a>
+									<a href="{% url 'image_upload_replace' image.blog.pk image.pk%}"><i class="icon-repeat icon-right-space"></i> Upload replacement</a>
 								</li>
 								<li>
 									<a href="{% url 'image_recalculate_thumb' image.pk %}?next={{ request.get_full_path|urlencode }}"><i class="icon-wrench"></i> Regenerate thumbnail</a>
@@ -58,7 +58,7 @@
 						</ul>
 					</div>
 
-					<img style="margin-top: 5px;" src="{{MEDIA_URL}}{{ image.thumbnail }}">
+					<img class="img-top-space" src="{{MEDIA_URL}}{{ image.thumbnail }}">
 				</label>
 
 			</li>

@@ -328,3 +328,179 @@ a {
 .five-hundred-px:hover { color: #0099e5; }
 .facebook:hover { color: #1877F2; }
 .rss:hover { color: #f26522; }
+
+/* CSP-safe replacements for inline style="" attributes */
+.svg-sprite{
+	position: absolute;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+}
+
+.navbar-search--tight{
+	margin-bottom: 12px;
+}
+
+.search-query--wide{
+	width: 250px;
+}
+
+.btn-icon-reset{
+	background: none;
+	padding: 0px;
+	border: none;
+}
+
+.is-hidden{
+	display: none;
+}
+
+.home-articles-sentinel{
+	height: 1px;
+}
+
+.money-account-table{
+	font-size: 90%;
+}
+
+.money-account-balance{
+	color: grey;
+}
+
+.blog-post-content{
+	margin-right: 15px;
+}
+
+.clear-both{
+	clear: both;
+}
+
+.aside-header--black{
+	color: #000;
+}
+
+.comment-row{
+	margin-top: 5px;
+}
+
+.comment-delete-link{
+	margin-top: 10px;
+	display: inline-block;
+}
+
+.money-page-row{
+	margin-top: 10px;
+}
+
+.money-actions-btn{
+	width: 80px;
+	margin-bottom: 10px;
+	padding-bottom: 3px;
+}
+
+.graph-per-account{
+	height: 200px;
+}
+
+.graph-per-year{
+	height: 350px;
+}
+
+.dashboard-graph{
+	height: 200px;
+}
+
+.power-payment-btn{
+	margin: 2px;
+}
+
+.blog-archive-sidebar{
+	font-size: 75%;
+}
+
+.blog-category-menu{
+	font-size: 85%;
+}
+
+.blog-category-menu-inner{
+	padding: 10px 0;
+}
+
+.bank-txt-center{
+	text-align: center;
+}
+
+.bank-warn-bg{
+	background-color: #ffe2e2;
+}
+
+.form-no-margin{
+	margin-bottom: 0px;
+}
+
+.money-negative{
+	color: red;
+}
+
+.image-index-thumbnails{
+	margin: 40px 0 0 0;
+}
+
+.label-no-margin{
+	margin-bottom: 0;
+}
+
+.btn-group-no-margin{
+	margin-left: 0;
+}
+
+.icon-right-space{
+	margin-right: 5px;
+}
+
+.img-top-space{
+	margin-top: 5px;
+}
+
+.form-inline{
+	display: inline;
+}
+
+.btn-left-space{
+	margin-left: 30px;
+}
+
+.img-center{
+	margin: auto;
+}
+
+.tvseries{
+	width: 100px;
+	height: 100px;
+}
+
+.box-content--sm{
+	font-size: 75%;
+}
+
+.box-content--md{
+	font-size: 80%;
+}
+
+.blog-archive-yearbox{
+	width: 66%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.m-5{
+	margin: 5px;
+}
+
+.tag-form-row{
+	margin: 10px;
+}
+
+.mt-45{
+	margin-top: 45px;
+}

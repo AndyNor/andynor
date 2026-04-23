@@ -9,6 +9,18 @@
 
 	{% include "form.html" %}
 
+<style nonce="{{ request.csp_nonce }}">
+	{% for i in entries %}
+	.money-edit-color-{{ i.pk }}{
+		{% if i.parent_category %}
+		background-color: #{{ i.parent_category.text_color }};
+		{% else %}
+		background-color: #{{ i.text_color }};
+		{% endif %}
+	}
+	{% endfor %}
+</style>
+
 	<table class="table table-bordered table-condensed">
 		<thead>
 			<tr>
@@ -31,10 +43,10 @@
 				</td>
 
 				{% if i.parent_category %}
-					<td style="background-color: #{{ i.parent_category.text_color }};"></td>
+					<td class="money-edit-color-{{ i.pk }}"></td>
 					<td>{{ i.parent_category }}</td>
 				{% else %}
-					<td style="background-color: #{{ i.text_color }};"></td>
+					<td class="money-edit-color-{{ i.pk }}"></td>
 					<td></td>
 				{% endif %}
 

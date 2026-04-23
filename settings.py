@@ -65,10 +65,12 @@ SESSION_COOKIE_SAMESITE = "Strict"
 
 if THIS_ENVIRONMENT == "DO_PROD":
 	CSRF_COOKIE_SECURE = True
-	SESSION_COOKIE_SECURE = False
+	CSRF_COOKIE_HTTPONLY = True
+	SESSION_COOKIE_SECURE = True
 
 if THIS_ENVIRONMENT == "DEV":
 	CSRF_COOKIE_SECURE = True
+	CSRF_COOKIE_HTTPONLY = False
 	SESSION_COOKIE_SECURE = False
 
 LOGIN_URL = '/login/'
@@ -146,10 +148,11 @@ MIDDLEWARE = (
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'", 'https://www.youtube.com', 'https://s.ytimg.com', 'https://www.youtube-nocookie.com')
 CSP_FRAME_SRC = ("'self'", 'https://www.youtube.com', 'https://www.youtube-nocookie.com')
-CSP_STYLE_SRC = ("'unsafe-inline'", "'self'")
+CSP_STYLE_SRC = ("'self'")
 CSP_IMG_SRC = ("'self' data:")
-CSP_INCLUDE_NONCE_IN = ['script-src']
+CSP_INCLUDE_NONCE_IN = ['script-src', 'style-src']
 SECURE_CONTENT_TYPE_NOSNIFF = True  # requires "SecurityMiddleware"
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 

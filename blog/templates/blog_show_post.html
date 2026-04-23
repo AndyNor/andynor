@@ -56,32 +56,32 @@
 
 	<div class="box-content">
 
-		<div style="margin-right: 15px;">
+		<div class="blog-post-content">
 		{% bbcode text=blog_active.content|linebreaks blog_id=blog_active.pk %}
 		</div>
 
 		{% if comments %}
-		<br style="clear: both;">
+		<br class="clear-both">
 		<div class="box-comment">
 			<div class="box-header-comment">
-				<span class="aside-header" style="color: #000">
+				<span class="aside-header aside-header--black">
 					<i class="icon-comment"></i> Comments</i>
 				</span>
 			</div>
 			<div class="box-content">
 
 			{% comment %}
-			<a href='{% url "blog_comment" blog_active.pk %}'><button style="margin-bottom: 5px;" class="btn btn-mini btn-primary" type="button">Write a comment</button></a>
+			<a href='{% url "blog_comment" blog_active.pk %}'><button class="btn btn-mini btn-primary" type="button">Write a comment</button></a>
 			{% endcomment %}
 
 			{% for comment in comments %}
-				<div class="row-fluid" style="margin-top: 5px">
+				<div class="row-fluid comment-row">
 					<div class="span3">
 						<p><b><i class="icon-user"></i> {{ comment.poster }}</b><br><small>{{ comment.created|timesince|upto:',' }}</small></p>
 					</div>
 					<div class="span9">
 						{% if user.is_authenticated %}
-						<span class="pull-right"><a style="margin-top: 10px" href='{% url "blog_comment_delete" comment.pk %}?token={{csrf_token}}'><i class="icon-trash"></i></a></span>
+						<span class="pull-right"><a class="comment-delete-link" href='{% url "blog_comment_delete" comment.pk %}?token={{csrf_token}}'><i class="icon-trash"></i></a></span>
 						{% endif %}
 						<small>{{ comment.comment|linebreaks }}</small>
 					</div>

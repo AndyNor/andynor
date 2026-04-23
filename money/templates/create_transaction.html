@@ -9,6 +9,16 @@
 
 <h3>Ikke-registrert utgift</h3>
 
+{% if valg %}
+<style nonce="{{ request.csp_nonce }}">
+	{% for t in valg %}
+	.create-transaction-row-{{ t.pk }}{
+		color: #{{ t.category.text_color|default:'A9A9A9'}};
+	}
+	{% endfor %}
+</style>
+{% endif %}
+
 <table class="table table-condensed">
 	<thead>
 		<tr>
@@ -61,13 +71,13 @@
 		</thead>
 		<tbody>
 			{% for t in valg %}
-			<tr style="color: #{{ t.category.text_color|default:'A9A9A9'}}">
+			<tr class="create-transaction-row-{{ t.pk }}">
 				<td>{{t.date}}</a></td>
 				<td>{{t.amount}}</td>
 				<td>{{t.account}}</td>
 				<td>{{t.comment}}</td>
 				<td>
-					<form style="margin-bottom: 0px;" action="" method="post" id="create_new">{% csrf_token %}
+					<form class="form-no-margin" action="" method="post" id="create_new">{% csrf_token %}
 						<input type="hidden" name="action" value="link_existing">
 						<input type="hidden" name="pk" value="{{t.pk|safe}}">
 						<input class="btn btn-success" type="submit" value="Link denne">
