@@ -42,14 +42,29 @@ class CountVisitor(MiddlewareMixin):
 
 
 class HTTPSRedirect(MiddlewareMixin):
+	@staticmethod
+	def _effectively_https(request):
+		"""True when the original client used HTTPS (TLS may terminate at nginx)."""
+		if request.is_secure():
+			return True
+		proto = request.META.get('HTTP_X_FORWARDED_PROTO', '')
+		if not proto:
+			return False
+		# Multiple proxies may send "http, https" — use the outermost (last) value.
+		parts = [p.strip().lower() for p in str(proto).split(',') if p.strip()]
+		return bool(parts) and parts[-1] == 'https'
+
 	def process_request(self, request):
 		if request.get_full_path() == "/rss/":
 			return None
-		if not request.is_secure():
-			if getattr(settings, 'SESSION_COOKIE_SECURE', True):
-				request_url = request.build_absolute_uri(request.get_full_path())
-				secure_url = request_url.replace('http://', 'https://')
+		if self._effectively_https(request):
+			return None
+		if getattr(settings, 'SESSION_COOKIE_SECURE', True):
+			request_url = request.build_absolute_uri(request.get_full_path())
+			if request_url.startswith('http://'):
+				secure_url = request_url.replace('http://', 'https://', 1)
 				return HttpResponseRedirect(secure_url)
+		return None
 
 
 class SessionCleanup(MiddlewareMixin):
