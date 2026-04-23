@@ -6,7 +6,7 @@
 <div class="box">
 
 	<div class="box-header">
-		<span class="aside-header">
+		<div class="aside-header">
 			{% if user.is_authenticated %}
 			<div class="pull-right">
 			{% if blog_active %}
@@ -50,23 +50,23 @@
 
 
 
-		</span>
+		</div>
 	</div>
 
 
 	<div class="box-content">
 
 		<div class="blog-post-content">
-		{% bbcode text=blog_active.content|linebreaks blog_id=blog_active.pk %}
+		{% bbcode text=blog_active.content|linebreaksbr blog_id=blog_active.pk %}
 		</div>
 
 		{% if comments %}
 		<br class="clear-both">
 		<div class="box-comment">
 			<div class="box-header-comment">
-				<span class="aside-header aside-header--black">
-					<i class="icon-comment"></i> Comments</i>
-				</span>
+				<div class="aside-header aside-header--black">
+					<i class="icon-comment"></i> Comments
+				</div>
 			</div>
 			<div class="box-content">
 
@@ -83,7 +83,7 @@
 						{% if user.is_authenticated %}
 						<span class="pull-right"><a class="comment-delete-link" href='{% url "blog_comment_delete" comment.pk %}?token={{csrf_token}}'><i class="icon-trash"></i></a></span>
 						{% endif %}
-						<small>{{ comment.comment|linebreaks }}</small>
+						<div class="comment-comment-text">{{ comment.comment|linebreaks }}</div>
 					</div>
 				</div>
 			{% endfor %}

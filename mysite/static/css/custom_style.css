@@ -249,6 +249,15 @@ a {
 	text-align: justify;
 }
 
+/* Inline <video> is replaced + inline by default; width:100% alone does not cap to parent. */
+.textJustify .blog-post-video{
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	box-sizing: border-box;
+}
+
 
 #image_upload_actions ul{
 	list-style: none;
@@ -386,6 +395,10 @@ a {
 .comment-delete-link{
 	margin-top: 10px;
 	display: inline-block;
+}
+
+.comment-comment-text{
+	font-size: smaller;
 }
 
 .money-page-row{

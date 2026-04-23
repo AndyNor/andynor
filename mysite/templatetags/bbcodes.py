@@ -80,9 +80,11 @@ def gallery(request, blog_id, matchobj):
 			else:
 				edit_button = ''
 			if os.path.isfile(path):
-				html.append('<a href="%s%s"><img width="100%%" class="thumbnail" src="\static\img\loader.gif" data-src="%s%s" alt="%s"></a><small>%s %s</small>' % (
+				_loader = '%simg/loader.gif' % settings.STATIC_URL
+				html.append('<a href="%s%s"><img class="thumbnail" style="width:100%%;height:auto" src="%s" data-src="%s%s" alt="%s"></a><small>%s %s</small>' % (
 						settings.MEDIA_URL,
 						image.large,
+						_loader,
 						settings.MEDIA_URL,
 						image.thumbnail,
 						title,
@@ -108,7 +110,7 @@ def gallery(request, blog_id, matchobj):
 				if(printed_images % 4 == 0):
 					html.append('</ul></div><div class="row-fluid"><ul class="thumbnails">')
 				printed_images += 1
-				html.append('<li class="span3"><img class="thumbnail" src="%s%s" alt="Image missing"></a>' % (
+				html.append('<li class="span3"><img class="thumbnail" src="%s%s" alt="Image missing">' % (
 					settings.STATIC_URL,
 					'img/image_upload.png'
 					)
@@ -136,7 +138,7 @@ def video_link(matchobj):
 	filename = file_obj.filename.split(".")
 	url = "%s%s/%s" % (settings.FILE_URL, file_obj.blog.pk, file_obj.filename)
 
-	return '<video width="100%%" controls><source src="%s" type="video/mp4">HTML5 video fungerer ikke i din nettleser</video><small>%s</small><br class="clearBoth">' % (
+	return '<video class="blog-post-video" controls><source src="%s" type="video/mp4">HTML5 video fungerer ikke i din nettleser</video><small>%s</small><br class="clearBoth">' % (
 			url,
 			description,
 			)	
@@ -206,9 +208,11 @@ def image(request, blog_id, matchobj):
 		else:
 			edit_button = ''
 		title = image.description if image.description != None else ''
-		html.append('<div class="%s"><img %ssrc="\static\img\loader.gif" data-src="%s%s" width="100%%" alt="%s"></a><br><small>%s %s</small></div>' % (
+		_loader = '%simg/loader.gif' % settings.STATIC_URL
+		html.append('<div class="%s"><img %sstyle="width:100%%;height:auto" src="%s" data-src="%s%s" alt="%s"><br><small>%s %s</small></div>' % (
 				image_class,
 				add_border,
+				_loader,
 				settings.MEDIA_URL,
 				image.large,
 				title,
@@ -219,7 +223,7 @@ def image(request, blog_id, matchobj):
 		)
 		return ''.join(html)
 	except:
-		return '<img class="" src="%s%s" alt="Image missing"></a>' % (
+		return '<img class="" src="%s%s" alt="Image missing">' % (
 					settings.STATIC_URL,
 					'img/image_upload.png'
 					)
@@ -246,11 +250,13 @@ def thumb(request, blog_id, matchobj):
 		else:
 			edit_button = ''
 		title = image.description if image.description != None else ''
-		html.append('<div class="%s"><a href="%s%s"><img %s src="\static\img\loader.gif" data-src="%s%s" alt="%s"></a><br><small>%s %s</small></div>' % (
+		_loader = '%simg/loader.gif' % settings.STATIC_URL
+		html.append('<div class="%s"><a href="%s%s"><img %s src="%s" data-src="%s%s" alt="%s"></a><br><small>%s %s</small></div>' % (
 				image_class,
 				settings.MEDIA_URL,
 				image.large,
 				add_border,
+				_loader,
 				settings.MEDIA_URL,
 				image.thumbnail,
 				title,
@@ -260,7 +266,7 @@ def thumb(request, blog_id, matchobj):
 		)
 		return ''.join(html)
 	except:
-		return '<img class="" src="%s%s" alt="Image missing"></a>' % (
+		return '<img class="" src="%s%s" alt="Image missing">' % (
 					settings.STATIC_URL,
 					'img/image_upload.png'
 				)

@@ -2,6 +2,10 @@ Vi bruker Python 3.13.
 Følg Django best practices (PEP8).
 Vi bruker tab for innrykk
 
+## Content-Security-Policy (CSP)
+
+Prosjektet har **streng CSP** via django-csp (`settings.py`, `csp.middleware.CSPMiddleware`). Inline script/style må bruke `nonce="{{ request.csp_nonce }}"`; nye domener (CDN, embeds, media, API-kall) krever oppdatering av `CSP_*` i `settings.py`. Se `.cursor/rules/csp.mdc` for konkrete sjekkpunkter.
+
 ## Dev environment (Windows)
 
 - Run Django and shell commands from the project venv, not the system Python.

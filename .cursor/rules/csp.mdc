@@ -1,0 +1,21 @@
+---
+description: Strict Content Security Policy (django-csp) for this Django project
+alwaysApply: true
+---
+
+# Content-Security-Policy (CSP)
+
+This site uses **django-csp** (`csp.middleware.CSPMiddleware` in `settings.py`). Policy is **strict** (for example `CSP_DEFAULT_SRC = ("'none'",)` and no broad `unsafe-inline` for scripts).
+
+## When changing templates or front-end behaviour
+
+- **Inline `<script>`**: must include **`nonce="{{ request.csp_nonce }}"`** (same pattern as `mysite/templates/index.html`). Without it, the browser blocks the script.
+- **Inline `<style>` blocks**: must include **`nonce="{{ request.csp_nonce }}"`** (see money/blog templates for examples).
+- **Prefer static CSS** (`mysite/static/css/…`) and classes over inline `style="…"` where possible — inline styles are easy to break under `style-src` and are harder to maintain.
+- **New origins** (CDNs, APIs, embeds, `connect` for `fetch`, fonts, images, media, frames): extend the matching **`CSP_*`** tuple in `settings.py` (e.g. `CSP_SCRIPT_SRC`, `CSP_STYLE_SRC`, `CSP_FONT_SRC`, `CSP_IMG_SRC`, `CSP_MEDIA_SRC`, `CSP_FRAME_SRC`, `CSP_CONNECT_SRC`). YouTube-related hosts are already allowlisted for embeds.
+- **Self-hosted media** (e.g. uploaded video): covered by **`CSP_MEDIA_SRC`** (`'self'`, production host, dev origin). If media is served from another host, add it there.
+
+## Reference
+
+- Active directives: `settings.py` (search for `CSP_`).
+- Legacy commented header string: `mysite/middleware.py` (historical; real policy is django-csp).
