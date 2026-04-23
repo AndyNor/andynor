@@ -26,7 +26,7 @@
 		data-before-origin="{{ home_articles_stream_config.nextCursor.before_origin }}"
 		data-before-pk="{{ home_articles_stream_config.nextCursor.before_pk }}"></div>
 	{% endif %}
-	<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+	<script nonce="{{ request.csp_nonce }}">
 	(function () {
 		var cfgEl = document.getElementById('home-articles-config');
 		var stream = document.getElementById('home-articles-stream');

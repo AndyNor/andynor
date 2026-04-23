@@ -37,7 +37,7 @@
 	<script src="{{ STATIC_URL }}floatThead/jquery.floatThead.min.js"></script>
 	{% block javascript_prepend %}{% endblock %}
 
-	<script type="text/javascript" nonce="{{request.csp_nonce}}">
+	<script nonce="{{request.csp_nonce}}">
 	$(document).ready(function(){
 		$(".tablesorter").tablesorter({
 			theme: 'default',
