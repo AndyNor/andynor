@@ -23,18 +23,59 @@
 	{% if home_articles_stream_config.nextCursor %}
 	<div id="home-articles-config" class="is-hidden" aria-hidden="true"
 		data-more-url="{{ home_articles_stream_config.moreUrl }}"
+		data-newer-url="{{ home_articles_stream_config.newerUrl }}"
+		data-year-url="{{ home_articles_stream_config.yearUrl }}"
+		data-month-url="{{ home_articles_stream_config.monthUrl }}"
+		data-index-url="{{ home_articles_stream_config.indexUrl }}"
+		data-html-url="{{ home_articles_stream_config.htmlUrl }}"
 		data-before-origin="{{ home_articles_stream_config.nextCursor.before_origin }}"
 		data-before-pk="{{ home_articles_stream_config.nextCursor.before_pk }}"></div>
 	{% endif %}
+
+	<div class="home-years-spacer" aria-hidden="true"></div>
+	{% if home_years %}
+	<div id="home-bottom-nav" class="home-bottom-nav" aria-label="Arkivnavigasjon">
+		<nav id="home-years-bar" class="home-years-bar" aria-label="År">
+			<div class="home-years-bar__inner">
+				{% for year in home_years %}
+					<a class="home-years-bar__year" href="#year-{{ year }}" data-year="{{ year }}">{{ year }}</a>
+				{% endfor %}
+			</div>
+		</nav>
+		<nav id="home-months-bar" class="home-months-bar" aria-label="Måneder">
+			<div class="home-years-bar__inner home-months-bar__inner">
+			<a class="home-months-bar__month" href="#" data-month="1">jan</a>
+			<a class="home-months-bar__month" href="#" data-month="2">feb</a>
+			<a class="home-months-bar__month" href="#" data-month="3">mar</a>
+			<a class="home-months-bar__month" href="#" data-month="4">apr</a>
+			<a class="home-months-bar__month" href="#" data-month="5">mai</a>
+			<a class="home-months-bar__month" href="#" data-month="6">jun</a>
+			<a class="home-months-bar__month" href="#" data-month="7">jul</a>
+			<a class="home-months-bar__month" href="#" data-month="8">aug</a>
+			<a class="home-months-bar__month" href="#" data-month="9">sep</a>
+			<a class="home-months-bar__month" href="#" data-month="10">okt</a>
+			<a class="home-months-bar__month" href="#" data-month="11">nov</a>
+			<a class="home-months-bar__month" href="#" data-month="12">des</a>
+			<div class="home-months-bar__indicator" aria-hidden="true"></div>
+			</div>
+		</nav>
+	</div>
+	{% endif %}
+
 	<script nonce="{{ request.csp_nonce }}">
 	(function () {
 		var cfgEl = document.getElementById('home-articles-config');
 		var stream = document.getElementById('home-articles-stream');
 		var sentinel = document.getElementById('home-articles-sentinel');
-		if (!cfgEl || !stream || !sentinel) {
+		if (!stream) {
+			return;
+		}
+		if (!cfgEl || !sentinel) {
 			return;
 		}
 		var moreUrl = cfgEl.getAttribute('data-more-url');
+		var yearUrl = cfgEl.getAttribute('data-year-url');
+		var monthUrl = cfgEl.getAttribute('data-month-url');
 		var bo = cfgEl.getAttribute('data-before-origin');
 		var bp = cfgEl.getAttribute('data-before-pk');
 		if (!moreUrl || !bo || !bp) {
@@ -45,56 +86,53 @@
 			return;
 		}
 		var loading = false;
-		function appendItems(data) {
-			if (!data.items || !data.items.length) {
-				return;
-			}
-			var jq = window.jQuery;
-			data.items.forEach(function (item) {
-				var wrap = document.createElement('div');
-				wrap.innerHTML = item.html;
-				if (jq) {
-					jq(wrap).find('img').unveil(300);
+
+		function ensureYearAnchors() {
+			var posts = stream.querySelectorAll('.blog-post[data-year]');
+			var seen = {};
+			for (var i = 0; i < posts.length; i++) {
+				var y = posts[i].getAttribute('data-year');
+				if (!y || seen[y]) continue;
+				seen[y] = true;
+				if (!posts[i].id || posts[i].id.indexOf('year-') !== 0) {
+					posts[i].id = 'year-' + String(y);
 				}
+			}
+		}
+
+		function appendItems(items) {
+			if (!items || !items.length) return;
+			var jq = window.jQuery;
+			for (var i = 0; i < items.length; i++) {
+				var wrap = document.createElement('div');
+				wrap.innerHTML = items[i].html;
+				if (jq) jq(wrap).find('img').unveil(300);
 				while (wrap.firstChild) {
 					stream.insertBefore(wrap.firstChild, sentinel);
 				}
-			});
-			if (jq) {
-				jq(window).trigger('lookup.unveil');
 			}
+			if (jq) jq(window).trigger('lookup.unveil');
+			ensureYearAnchors();
 		}
+
 		function loadMore() {
-			if (loading || !nextCursor) {
-				return;
-			}
+			if (loading || !nextCursor) return;
 			loading = true;
 			var url = moreUrl + '?before_origin=' + encodeURIComponent(nextCursor.before_origin)
 				+ '&before_pk=' + encodeURIComponent(String(nextCursor.before_pk));
 			fetch(url, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
-				.then(function (r) {
-					if (!r.ok) {
-						throw new Error('load failed');
-					}
-					return r.json();
-				})
+				.then(function (r) { if (!r.ok) throw new Error('load failed'); return r.json(); })
 				.then(function (data) {
-					appendItems(data);
+					appendItems(data.items || []);
 					nextCursor = data.next_cursor || null;
 					if (!nextCursor || !data.has_more) {
-						if (sentinel.parentNode) {
-							sentinel.parentNode.removeChild(sentinel);
-						}
-						if (io) {
-							io.disconnect();
-						}
+						if (io) io.disconnect();
 					}
 				})
 				.catch(function () {})
-				.then(function () {
-					loading = false;
-				});
+				.then(function () { loading = false; });
 		}
+
 		var io = null;
 		if ('IntersectionObserver' in window) {
 			io = new IntersectionObserver(function (entries) {
@@ -106,6 +144,209 @@
 				}
 			}, { rootMargin: '200px' });
 			io.observe(sentinel);
+		}
+
+		function setActiveYear(year) {
+			var bar = document.getElementById('home-years-bar');
+			if (!bar) return;
+			var btns = bar.querySelectorAll('[data-year]');
+			for (var i = 0; i < btns.length; i++) {
+				if (String(btns[i].getAttribute('data-year')) === String(year)) btns[i].classList.add('is-active');
+				else btns[i].classList.remove('is-active');
+			}
+		}
+
+		function setYearLoading(year, isLoading) {
+			var bar = document.getElementById('home-years-bar');
+			if (!bar) return;
+			var el = bar.querySelector('[data-year=\"' + String(year) + '\"]');
+			if (!el) return;
+			if (isLoading) {
+				el.classList.add('is-loading');
+				el.setAttribute('aria-busy', 'true');
+			} else {
+				el.classList.remove('is-loading');
+				el.removeAttribute('aria-busy');
+			}
+		}
+
+		function scrollToEl(el) {
+			if (!el) return;
+			el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			window.setTimeout(function () { window.scrollBy(0, -60); }, 0);
+		}
+
+		function setActiveMonth(month) {
+			var bar = document.getElementById('home-months-bar');
+			if (!bar) return;
+			bar.style.setProperty('--active-month', String(month));
+			var btns = bar.querySelectorAll('[data-month]');
+			for (var i = 0; i < btns.length; i++) {
+				if (String(btns[i].getAttribute('data-month')) === String(month)) btns[i].classList.add('is-active');
+				else btns[i].classList.remove('is-active');
+			}
+		}
+
+		var monthsByYear = {};
+		try {
+			monthsByYear = JSON.parse('{{ home_months_by_year_json|escapejs }}');
+		} catch (e) {
+			monthsByYear = {};
+		}
+
+		function updateMonthsForYear(year) {
+			var bar = document.getElementById('home-months-bar');
+			if (!bar) return;
+			var enabled = monthsByYear[String(year)] || [];
+			var enabledSet = {};
+			for (var i = 0; i < enabled.length; i++) enabledSet[String(enabled[i])] = true;
+			var btns = bar.querySelectorAll('[data-month]');
+			for (var j = 0; j < btns.length; j++) {
+				var m = btns[j].getAttribute('data-month');
+				if (enabledSet[String(m)]) {
+					btns[j].classList.remove('is-disabled');
+					btns[j].removeAttribute('aria-disabled');
+				} else {
+					btns[j].classList.add('is-disabled');
+					btns[j].setAttribute('aria-disabled', 'true');
+				}
+			}
+		}
+
+		function updateActiveYearFromScroll() {
+			var posts = stream.querySelectorAll('.blog-post[data-year]');
+			var best = null;
+			var bestTop = Infinity;
+			for (var i = 0; i < posts.length; i++) {
+				var r = posts[i].getBoundingClientRect();
+				if (r.bottom <= 0) continue;
+				if (r.top >= 0 && r.top < bestTop) {
+					bestTop = r.top;
+					best = posts[i];
+				}
+			}
+			if (best) {
+				var y = best.getAttribute('data-year');
+				setActiveYear(y);
+				updateMonthsForYear(y);
+				var origin = best.getAttribute('data-origin');
+				if (origin && origin.length >= 7) {
+					var m = parseInt(origin.slice(5, 7), 10);
+					if (!isNaN(m)) setActiveMonth(m);
+				}
+			}
+		}
+
+		var rafPending = false;
+		window.addEventListener('scroll', function () {
+			if (rafPending) return;
+			rafPending = true;
+			window.requestAnimationFrame(function () {
+				rafPending = false;
+				updateActiveYearFromScroll();
+			});
+		}, { passive: true });
+
+		function jumpToYear(year) {
+			if (!yearUrl) return;
+			setYearLoading(year, true);
+			if (io) io.disconnect();
+
+			fetch(yearUrl + '?year=' + encodeURIComponent(String(year)), { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+				.then(function (r) { if (!r.ok) throw new Error('year load failed'); return r.json(); })
+				.then(function (data) {
+					/* Replace stream contents with slice */
+					while (stream.firstChild) {
+						stream.removeChild(stream.firstChild);
+					}
+					var wrap = document.createElement('div');
+					wrap.innerHTML = (data.items || []).map(function (it) { return it.html; }).join('');
+					var jq = window.jQuery;
+					if (jq) jq(wrap).find('img').unveil(300);
+					while (wrap.firstChild) {
+						stream.appendChild(wrap.firstChild);
+					}
+					stream.appendChild(sentinel);
+					if (jq) jq(window).trigger('lookup.unveil');
+
+					nextCursor = data.next_cursor || null;
+					ensureYearAnchors();
+					/* Content is loaded from the top; keep viewport at top. */
+					window.scrollTo(0, 0);
+					updateActiveYearFromScroll();
+				})
+				.catch(function () {})
+				.then(function () {
+					setYearLoading(year, false);
+					if (io && nextCursor) {
+						io.observe(sentinel);
+					}
+				});
+		}
+
+		function jumpToMonth(year, month) {
+			if (!monthUrl) return;
+			setYearLoading(year, true);
+			if (io) io.disconnect();
+			fetch(monthUrl + '?year=' + encodeURIComponent(String(year)) + '&month=' + encodeURIComponent(String(month)),
+				{ credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+				.then(function (r) { if (!r.ok) throw new Error('month load failed'); return r.json(); })
+				.then(function (data) {
+					while (stream.firstChild) stream.removeChild(stream.firstChild);
+					var wrap = document.createElement('div');
+					wrap.innerHTML = (data.items || []).map(function (it) { return it.html; }).join('');
+					var jq = window.jQuery;
+					if (jq) jq(wrap).find('img').unveil(300);
+					while (wrap.firstChild) stream.appendChild(wrap.firstChild);
+					stream.appendChild(sentinel);
+					if (jq) jq(window).trigger('lookup.unveil');
+					nextCursor = data.next_cursor || null;
+					ensureYearAnchors();
+					window.scrollTo(0, 0);
+					setActiveYear(year);
+					updateMonthsForYear(year);
+					setActiveMonth(month);
+				})
+				.catch(function () {})
+				.then(function () {
+					setYearLoading(year, false);
+					if (io && nextCursor) io.observe(sentinel);
+				});
+		}
+
+		var yearsBar = document.getElementById('home-years-bar');
+		if (yearsBar) {
+			yearsBar.addEventListener('click', function (e) {
+				var t = e.target;
+				while (t && t !== yearsBar && !t.getAttribute('data-year')) {
+					t = t.parentNode;
+				}
+				if (!t || t === yearsBar) {
+					return;
+				}
+				e.preventDefault();
+				var y = t.getAttribute('data-year');
+				setActiveYear(y);
+				jumpToYear(y);
+			});
+			ensureYearAnchors();
+			updateActiveYearFromScroll();
+		}
+
+		var monthsBar = document.getElementById('home-months-bar');
+		if (monthsBar) {
+			monthsBar.addEventListener('click', function (e) {
+				var t = e.target;
+				while (t && t !== monthsBar && !t.getAttribute('data-month')) t = t.parentNode;
+				if (!t || t === monthsBar) return;
+				e.preventDefault();
+				if (t.classList.contains('is-disabled')) return;
+				var m = t.getAttribute('data-month');
+				var activeYearEl = document.querySelector('#home-years-bar .is-active[data-year]');
+				var y = activeYearEl ? activeYearEl.getAttribute('data-year') : null;
+				if (!y) return;
+				jumpToMonth(y, m);
+			});
 		}
 	})();
 	</script>

@@ -3,7 +3,7 @@
 {% load l10n %}
 {% load humanize %}
 
-<div class="box">
+<div class="box blog-post" id="post-{{ blog_active.pk }}" data-year="{{ blog_active.origin|date:'Y' }}" data-origin="{{ blog_active.origin|date:'Y-m-d' }}" data-pk="{{ blog_active.pk }}">
 
 	<div class="box-header">
 		<div class="aside-header">

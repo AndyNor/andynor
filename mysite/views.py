@@ -9,6 +9,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from datetime import datetime, timedelta
 from django.db.models import Count, Q
+import json
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from mysite.site_wide_functions import get_previous_page, makeJSON, add_to_log, get_client_ip, safe_referrer
@@ -186,11 +187,229 @@ def home_articles_more(request):
 	})
 
 
+def home_articles_newer(request):
+	origin_s = request.GET.get('after_origin')
+	pk_s = request.GET.get('after_pk')
+	if not origin_s or not pk_s:
+		return HttpResponseBadRequest('missing cursor')
+	try:
+		cursor_date = datetime.strptime(origin_s, '%Y-%m-%d').date()
+		cursor_pk = int(pk_s)
+	except (ValueError, TypeError):
+		return HttpResponseBadRequest('invalid cursor')
+
+	qs = home_featured_blogs_queryset().filter(
+		Q(origin__gt=cursor_date) | Q(origin=cursor_date, pk__gt=cursor_pk)
+	)[:HOME_FEATURED_PAGE_SIZE]
+	blogs = list(qs)
+
+	items = []
+	for blog in blogs:
+		comments = Comment.objects.filter(page=blog.pk).order_by('-pk')
+		html = render_to_string(
+			'blog_show_post.html',
+			{'blog_active': blog, 'comments': comments},
+			request=request,
+		)
+		items.append({'html': html})
+
+	prev_cursor = None
+	has_more = False
+	if blogs:
+		first = blogs[0]
+		has_more = home_featured_blogs_queryset().filter(
+			Q(origin__gt=first.origin) | Q(origin=first.origin, pk__gt=first.pk)
+		).exists()
+		if has_more:
+			prev_cursor = {
+				'after_origin': first.origin.isoformat(),
+				'after_pk': first.pk,
+			}
+
+	return JsonResponse({
+		'items': items,
+		'prev_cursor': prev_cursor,
+		'has_more': has_more,
+	})
+
+
+def home_articles_year(request):
+	year_s = request.GET.get('year')
+	try:
+		year = int(year_s)
+	except (TypeError, ValueError):
+		return HttpResponseBadRequest('invalid year')
+
+	# "First article of the year" in this feed == newest post within that year.
+	first_qs = home_featured_blogs_queryset().filter(origin__year=year)
+	first = first_qs.order_by('-origin', '-pk').first()
+	if not first:
+		return JsonResponse({
+			'items': [],
+			'next_cursor': None,
+			'has_more': False,
+		})
+
+	# Limit context to the selected year only.
+	newer_qs = home_featured_blogs_queryset().filter(
+		origin__year=year
+	).filter(
+		Q(origin__gt=first.origin) | Q(origin=first.origin, pk__gt=first.pk)
+	).order_by('origin', 'pk')[:3]
+
+	older_qs = home_featured_blogs_queryset().filter(
+		origin__year=year
+	).filter(
+		Q(origin__lt=first.origin) | Q(origin=first.origin, pk__lt=first.pk)
+	).order_by('-origin', '-pk')[:3]
+
+	blogs = list(newer_qs) + [first] + list(older_qs)
+	blogs.sort(key=lambda b: (b.origin, b.pk), reverse=True)
+
+	items = []
+	for blog in blogs:
+		comments = Comment.objects.filter(page=blog.pk).order_by('-pk')
+		html = render_to_string(
+			'blog_show_post.html',
+			{'blog_active': blog, 'comments': comments},
+			request=request,
+		)
+		items.append({'html': html})
+
+	next_cursor = None
+	has_more = False
+	last = blogs[-1]
+	has_more = home_featured_blogs_queryset().filter(
+		Q(origin__lt=last.origin) | Q(origin=last.origin, pk__lt=last.pk)
+	).exists()
+	if has_more:
+		next_cursor = {
+			'before_origin': last.origin.isoformat(),
+			'before_pk': last.pk,
+		}
+
+	return JsonResponse({
+		'items': items,
+		'next_cursor': next_cursor,
+		'has_more': has_more,
+	})
+
+
+def home_articles_month(request):
+	year_s = request.GET.get('year')
+	month_s = request.GET.get('month')
+	try:
+		year = int(year_s)
+		month = int(month_s)
+	except (TypeError, ValueError):
+		return HttpResponseBadRequest('invalid year/month')
+	if month < 1 or month > 12:
+		return HttpResponseBadRequest('invalid month')
+
+	qs_month = home_featured_blogs_queryset().filter(origin__year=year, origin__month=month)
+	first = qs_month.order_by('-origin', '-pk').first()
+	if not first:
+		return JsonResponse({
+			'items': [],
+			'next_cursor': None,
+			'has_more': False,
+		})
+
+	newer_qs = qs_month.filter(
+		Q(origin__gt=first.origin) | Q(origin=first.origin, pk__gt=first.pk)
+	).order_by('origin', 'pk')[:3]
+	older_qs = qs_month.filter(
+		Q(origin__lt=first.origin) | Q(origin=first.origin, pk__lt=first.pk)
+	).order_by('-origin', '-pk')[:3]
+
+	blogs = list(newer_qs) + [first] + list(older_qs)
+	blogs.sort(key=lambda b: (b.origin, b.pk), reverse=True)
+
+	items = []
+	for blog in blogs:
+		comments = Comment.objects.filter(page=blog.pk).order_by('-pk')
+		html = render_to_string(
+			'blog_show_post.html',
+			{'blog_active': blog, 'comments': comments},
+			request=request,
+		)
+		items.append({'html': html})
+
+	next_cursor = None
+	has_more = False
+	last = blogs[-1]
+	has_more = home_featured_blogs_queryset().filter(
+		Q(origin__lt=last.origin) | Q(origin=last.origin, pk__lt=last.pk)
+	).exists()
+	if has_more:
+		next_cursor = {
+			'before_origin': last.origin.isoformat(),
+			'before_pk': last.pk,
+		}
+
+	return JsonResponse({
+		'items': items,
+		'next_cursor': next_cursor,
+		'has_more': has_more,
+	})
+
+
+def home_articles_index(request):
+	qs = home_featured_blogs_queryset().values('pk', 'origin')
+	items = []
+	for row in qs:
+		o = row['origin']
+		items.append({
+			'pk': row['pk'],
+			'origin': o.isoformat(),
+			'year': o.year,
+		})
+	return JsonResponse({'items': items})
+
+
+def home_articles_html(request):
+	pks_s = request.GET.get('pks', '')
+	if not pks_s:
+		return HttpResponseBadRequest('missing pks')
+	try:
+		pks = [int(x) for x in pks_s.split(',') if x.strip()]
+	except ValueError:
+		return HttpResponseBadRequest('invalid pks')
+	if not pks:
+		return HttpResponseBadRequest('invalid pks')
+	# Limit to keep response reasonable
+	pks = pks[:25]
+
+	blogs = list(home_featured_blogs_queryset().filter(pk__in=pks))
+	by_pk = {b.pk: b for b in blogs}
+
+	items = []
+	for pk in pks:
+		blog = by_pk.get(pk)
+		if not blog:
+			continue
+		comments = Comment.objects.filter(page=blog.pk).order_by('-pk')
+		html = render_to_string(
+			'blog_show_post.html',
+			{'blog_active': blog, 'comments': comments},
+			request=request,
+		)
+		items.append({'pk': pk, 'html': html})
+
+	return JsonResponse({'items': items})
+
+
 def index(request):
 	all_categories = Category.objects.filter(visible=True)
 
 	blogs = list(home_featured_blogs_queryset()[:HOME_FEATURED_PAGE_SIZE])
 	blogs_display = _home_blogs_display_entries(blogs)
+
+	home_years = [d.year for d in home_featured_blogs_queryset().dates('origin', 'year', order='DESC')]
+	months_by_year = {}
+	for d in home_featured_blogs_queryset().dates('origin', 'month', order='DESC'):
+		months_by_year.setdefault(d.year, set()).add(d.month)
+	months_by_year_json = json.dumps({str(y): sorted(list(ms)) for (y, ms) in months_by_year.items()})
 
 	home_articles_next_cursor = None
 	if blogs:
@@ -227,12 +446,19 @@ def index(request):
 
 	home_articles_stream_config = {
 		'moreUrl': reverse('home_articles_more'),
+		'newerUrl': reverse('home_articles_newer'),
+		'yearUrl': reverse('home_articles_year'),
+		'monthUrl': reverse('home_articles_month'),
+		'indexUrl': reverse('home_articles_index'),
+		'htmlUrl': reverse('home_articles_html'),
 		'nextCursor': home_articles_next_cursor,
 	}
 
 	return render(request, 'home.html', {
 		'category_list': all_categories,
 		'blogs_display': blogs_display,
+		'home_years': home_years,
+		'home_months_by_year_json': months_by_year_json,
 		'home_articles_stream_config': home_articles_stream_config,
 		#'school_subjects': school_subjects,
 		'sticky_blogs': sticky_blogs,
