@@ -35,30 +35,32 @@
 	<div class="home-years-spacer" aria-hidden="true"></div>
 	{% if home_years %}
 	<div id="home-bottom-nav" class="home-bottom-nav" aria-label="Arkivnavigasjon">
-		<nav id="home-years-bar" class="home-years-bar" aria-label="År">
-			<div class="home-years-bar__inner">
-				{% for year in home_years %}
-					<a class="home-years-bar__year" href="#year-{{ year }}" data-year="{{ year }}">{{ year }}</a>
-				{% endfor %}
-			</div>
-		</nav>
-		<nav id="home-months-bar" class="home-months-bar" aria-label="Måneder">
-			<div class="home-years-bar__inner home-months-bar__inner">
-			<a class="home-months-bar__month" href="#" data-month="1">jan</a>
-			<a class="home-months-bar__month" href="#" data-month="2">feb</a>
-			<a class="home-months-bar__month" href="#" data-month="3">mar</a>
-			<a class="home-months-bar__month" href="#" data-month="4">apr</a>
-			<a class="home-months-bar__month" href="#" data-month="5">mai</a>
-			<a class="home-months-bar__month" href="#" data-month="6">jun</a>
-			<a class="home-months-bar__month" href="#" data-month="7">jul</a>
-			<a class="home-months-bar__month" href="#" data-month="8">aug</a>
-			<a class="home-months-bar__month" href="#" data-month="9">sep</a>
-			<a class="home-months-bar__month" href="#" data-month="10">okt</a>
-			<a class="home-months-bar__month" href="#" data-month="11">nov</a>
-			<a class="home-months-bar__month" href="#" data-month="12">des</a>
-			<div class="home-months-bar__indicator" aria-hidden="true"></div>
-			</div>
-		</nav>
+		<div class="container home-bottom-nav__container">
+			<nav id="home-years-bar" class="home-years-bar" aria-label="År">
+				<div class="home-years-bar__inner">
+					{% for year in home_years %}
+						<a class="home-years-bar__year" href="#year-{{ year }}" data-year="{{ year }}">{{ year }}</a>
+					{% endfor %}
+				</div>
+			</nav>
+			<nav id="home-months-bar" class="home-months-bar" aria-label="Måneder">
+				<div class="home-years-bar__inner home-months-bar__inner">
+				<a class="home-months-bar__month" href="#" data-month="1">jan</a>
+				<a class="home-months-bar__month" href="#" data-month="2">feb</a>
+				<a class="home-months-bar__month" href="#" data-month="3">mar</a>
+				<a class="home-months-bar__month" href="#" data-month="4">apr</a>
+				<a class="home-months-bar__month" href="#" data-month="5">mai</a>
+				<a class="home-months-bar__month" href="#" data-month="6">jun</a>
+				<a class="home-months-bar__month" href="#" data-month="7">jul</a>
+				<a class="home-months-bar__month" href="#" data-month="8">aug</a>
+				<a class="home-months-bar__month" href="#" data-month="9">sep</a>
+				<a class="home-months-bar__month" href="#" data-month="10">okt</a>
+				<a class="home-months-bar__month" href="#" data-month="11">nov</a>
+				<a class="home-months-bar__month" href="#" data-month="12">des</a>
+				<div class="home-months-bar__indicator" aria-hidden="true"></div>
+				</div>
+			</nav>
+		</div>
 	</div>
 	{% endif %}
 

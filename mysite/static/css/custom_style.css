@@ -414,6 +414,14 @@ html, body{
 	z-index: 1030;
 	background: rgba(255, 255, 255, 0.98);
 	border-top: 1px solid #ddd;
+	overflow-x: hidden; /* avoid 1-2px indicator overflow causing page scroll */
+	box-sizing: border-box;
+}
+
+.home-bottom-nav__container{
+	/* align with main content container width */
+	padding-left: 0;
+	padding-right: 0;
 }
 
 .home-years-bar,
@@ -427,6 +435,14 @@ html, body{
 	overflow-y: hidden;
 	white-space: nowrap;
 	-webkit-overflow-scrolling: touch;
+	max-width: 100%;
+	box-sizing: border-box;
+	scrollbar-width: none; /* Firefox */
+}
+
+/* Hide horizontal scrollbars but keep scroll (touch/trackpad) */
+.home-years-bar__inner::-webkit-scrollbar{
+	height: 0;
 }
 
 .home-years-bar__year{
@@ -491,7 +507,8 @@ html, body{
 	content: "";
 	position: absolute;
 	top: -3px;
-	left: calc((var(--active-month, 1) - 1) * (100% / 11));
+	/* keep dot fully inside track at edges */
+	left: clamp(4px, calc((var(--active-month, 1) - 1) * (100% / 11)), calc(100% - 4px));
 	width: 8px;
 	height: 8px;
 	background: #255f0a;
@@ -499,6 +516,26 @@ html, body{
 	transform: translateX(-50%);
 }
 
+@media (max-width: 767px){
+	.home-years-spacer{
+		height: 96px;
+	}
+	.home-years-bar__inner{
+		padding: 6px 8px;
+	}
+	.home-years-bar__inner::-webkit-scrollbar{
+		height: 0;
+	}
+	.home-years-bar__year,
+	.home-months-bar__month{
+		padding: 5px 8px;
+		margin-right: 6px;
+		font-size: 12px;
+	}
+	.home-months-bar__inner{
+		padding-bottom: 10px;
+	}
+}
 .btn-icon-reset{
 	background: none;
 	padding: 0px;
