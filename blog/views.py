@@ -10,7 +10,7 @@ import calendar
 import os
 import re
 import hashlib
-from mysite.site_wide_functions import get_previous_page, generate_form, get_client_ip, set_redirect_session, silentremove, safe_referrer, csrf_query_token_valid
+from mysite.site_wide_functions import get_previous_page, generate_form, get_client_ip, set_redirect_session, silentremove, safe_referrer, csrf_query_token_valid, url_with_fragment
 from blog import models
 from blog.images import img_calc_thumb, img_calc_large, highest_order_nr, image_order_cleanup, image_exists
 from blog.images import images_create, images_remove
@@ -561,13 +561,16 @@ def img_comment(request, image_id):
 		})
 	else:
 		image.description = comment
+		target = url_with_fragment(
+			get_previous_page(request, APP_NAME),
+			'blog-image-%s' % image.pk,
+		)
 		try:
 			image.save()
 			messages.success(request, "Image comment updated!")
-			return HttpResponseRedirect(get_previous_page(request, APP_NAME))
-		except:
+		except Exception:
 			messages.error(request, "Not able to save comment to image")
-			return HttpResponseRedirect(get_previous_page(request, APP_NAME))
+		return HttpResponseRedirect(target)
 
 
 @permission_required('blog.blog.can_add_blog', raise_exception=True)

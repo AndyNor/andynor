@@ -77,6 +77,15 @@ def get_previous_page(request, default='root'):
 	return previous_page
 
 
+def url_with_fragment(url, fragment):
+	"""Append or replace the URL fragment (hash). ``fragment`` without leading #."""
+	if not fragment:
+		return url
+	frag = fragment.lstrip('#')
+	base = url.split('#', 1)[0]
+	return '%s#%s' % (base, frag)
+
+
 def generate_form(request, model, modelform, pk, initial=False):
 	if pk:  # update
 		#print pk

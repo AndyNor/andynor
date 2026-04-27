@@ -11,7 +11,7 @@ register = template.Library()
 from databases.models import Data
 from django.utils.safestring import mark_safe
 from django.urls import reverse
-from django.utils.http import urlencode
+from django.utils.http import quote
 from django.middleware import csrf
 
 
@@ -69,13 +69,13 @@ def gallery(request, blog_id, matchobj):
 		html.append('<div class="row-fluid"><ul class="thumbnails">')
 		images = Image.objects.filter(blog=blog_id).order_by('order')[start - 1:stop - 1]
 		for image in images:
-			html.append('<li class="span3 displayInlineBlock">')
+			html.append('<li class="span3 displayInlineBlock" id="blog-image-%s">' % image.pk)
 			path = '%s%s' % (settings.MEDIA_ROOT, image.thumbnail)
 			title = image.description if image.description != None else ''
 			if request.user.is_authenticated:
 				edit_button = ('<a href="%s?next=%s"><i class="icon-pencil"></i></a>') % (
 						reverse('image_add_comment', args=(image.pk,)),
-						request.get_full_path()
+						quote(request.get_full_path()),
 				)
 			else:
 				edit_button = ''
@@ -203,14 +203,15 @@ def image(request, blog_id, matchobj):
 		if request.user.is_authenticated:
 			edit_button = ('<a href="%s?next=%s"><i class="icon-pencil"></i></a>') % (
 					reverse('image_add_comment', args=(image.pk,)),
-					request.get_full_path()
+					quote(request.get_full_path()),
 			)
 		else:
 			edit_button = ''
 		title = image.description if image.description != None else ''
 		_loader = '%simg/loader.gif' % settings.STATIC_URL
-		html.append('<div class="%s"><img %ssrc="%s" data-src="%s%s" alt="%s"><br><small>%s %s</small></div>' % (
+		html.append('<div class="%s" id="blog-image-%s"><img %ssrc="%s" data-src="%s%s" alt="%s"><br><small>%s %s</small></div>' % (
 				image_class,
+				image.pk,
 				img_class_attr,
 				_loader,
 				settings.MEDIA_URL,
@@ -245,14 +246,15 @@ def thumb(request, blog_id, matchobj):
 		if request.user.is_authenticated:
 			edit_button = ('<a href="%s?next=%s"><i class="icon-pencil"></i></a>') % (
 				reverse('image_add_comment', args=(image.pk,)),
-				request.get_full_path()
+				quote(request.get_full_path()),
 			)
 		else:
 			edit_button = ''
 		title = image.description if image.description != None else ''
 		_loader = '%simg/loader.gif' % settings.STATIC_URL
-		html.append('<div class="%s"><a href="%s%s"><img %s src="%s" data-src="%s%s" alt="%s"></a><br><small>%s %s</small></div>' % (
+		html.append('<div class="%s" id="blog-image-%s"><a href="%s%s"><img %s src="%s" data-src="%s%s" alt="%s"></a><br><small>%s %s</small></div>' % (
 				image_class,
+				image.pk,
 				settings.MEDIA_URL,
 				image.large,
 				img_class_attr,
