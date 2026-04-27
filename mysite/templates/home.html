@@ -37,11 +37,17 @@
 	<div id="home-bottom-nav" class="home-bottom-nav" aria-label="Arkivnavigasjon">
 		<div class="container home-bottom-nav__container">
 			<nav id="home-years-bar" class="home-years-bar" aria-label="År">
+				<button type="button" class="home-scroll-btn home-scroll-btn--prev" aria-label="Scroll mot nyere år">
+					<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+				</button>
 				<div class="home-years-bar__inner">
 					{% for year in home_years %}
 						<a class="home-years-bar__year" href="#year-{{ year }}" data-year="{{ year }}">{{ year }}</a>
 					{% endfor %}
 				</div>
+				<button type="button" class="home-scroll-btn home-scroll-btn--next" aria-label="Scroll mot eldre år">
+					<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+				</button>
 			</nav>
 			<nav id="home-months-bar" class="home-months-bar" aria-label="Måneder">
 				<div class="home-years-bar__inner home-months-bar__inner">
@@ -178,6 +184,19 @@
 			window.setTimeout(function () { window.scrollBy(0, -60); }, 0);
 		}
 
+		function positionMonthIndicator() {
+			var bar = document.getElementById('home-months-bar');
+			if (!bar) return;
+			var inner = bar.querySelector('.home-months-bar__inner');
+			var active = bar.querySelector('.home-months-bar__month.is-active');
+			var track = bar.querySelector('.home-months-bar__indicator');
+			if (!inner || !active || !track) return;
+			var tr = track.getBoundingClientRect();
+			var ar = active.getBoundingClientRect();
+			var cx = ar.left + ar.width / 2 - tr.left;
+			track.style.setProperty('--indicator-dot-x', cx + 'px');
+		}
+
 		function setActiveMonth(month) {
 			var bar = document.getElementById('home-months-bar');
 			if (!bar) return;
@@ -187,6 +206,7 @@
 				if (String(btns[i].getAttribute('data-month')) === String(month)) btns[i].classList.add('is-active');
 				else btns[i].classList.remove('is-active');
 			}
+			window.requestAnimationFrame(function () { positionMonthIndicator(); });
 		}
 
 		var monthsByYear = {};
@@ -213,6 +233,7 @@
 					btns[j].setAttribute('aria-disabled', 'true');
 				}
 			}
+			window.requestAnimationFrame(function () { positionMonthIndicator(); });
 		}
 
 		function updateActiveYearFromScroll() {
@@ -337,6 +358,12 @@
 
 		var monthsBar = document.getElementById('home-months-bar');
 		if (monthsBar) {
+			var monthsInner = monthsBar.querySelector('.home-months-bar__inner');
+			if (monthsInner) {
+				monthsInner.addEventListener('scroll', function () {
+					positionMonthIndicator();
+				}, { passive: true });
+			}
 			monthsBar.addEventListener('click', function (e) {
 				var t = e.target;
 				while (t && t !== monthsBar && !t.getAttribute('data-month')) t = t.parentNode;
@@ -349,7 +376,46 @@
 				if (!y) return;
 				jumpToMonth(y, m);
 			});
+			positionMonthIndicator();
 		}
+
+		var yearsBarEl = document.getElementById('home-years-bar');
+		var updateYearScrollButtons = function () {};
+		if (yearsBarEl) {
+			var yearsInner = yearsBarEl.querySelector('.home-years-bar__inner');
+			var yPrev = yearsBarEl.querySelector('.home-scroll-btn--prev');
+			var yNext = yearsBarEl.querySelector('.home-scroll-btn--next');
+			var scrollStep = function () {
+				return Math.max(160, Math.floor((yearsInner && yearsInner.clientWidth || 320) * 0.85));
+			};
+			updateYearScrollButtons = function () {
+				if (!yearsInner || !yPrev || !yNext) return;
+				var max = yearsInner.scrollWidth - yearsInner.clientWidth;
+				var tol = 2;
+				yPrev.disabled = yearsInner.scrollLeft <= tol;
+				yNext.disabled = yearsInner.scrollLeft >= max - tol;
+				yearsBarEl.classList.toggle('home-years-bar--scrollable', max > tol);
+			};
+			if (yearsInner) {
+				yearsInner.addEventListener('scroll', updateYearScrollButtons, { passive: true });
+				if (yPrev) {
+					yPrev.addEventListener('click', function () {
+						yearsInner.scrollBy({ left: -scrollStep(), behavior: 'smooth' });
+					});
+				}
+				if (yNext) {
+					yNext.addEventListener('click', function () {
+						yearsInner.scrollBy({ left: scrollStep(), behavior: 'smooth' });
+					});
+				}
+				updateYearScrollButtons();
+			}
+		}
+
+		window.addEventListener('resize', function () {
+			positionMonthIndicator();
+			updateYearScrollButtons();
+		});
 	})();
 	</script>
 

@@ -36,7 +36,7 @@ class CountVisitor(MiddlewareMixin):
 				count.ip = ip
 				count.agent = agent
 				count.save()
-				messages.success(request, 'You are %s running %s' % (ip, agent))
+				#messages.success(request, 'You are %s running %s' % (ip, agent))
 
 		return None
 
