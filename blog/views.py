@@ -10,13 +10,11 @@ import calendar
 import os
 import re
 import hashlib
-from mysite.site_wide_functions import get_previous_page, generate_form, get_client_ip, set_redirect_session, silentremove, safe_referrer
+from mysite.site_wide_functions import get_previous_page, generate_form, get_client_ip, set_redirect_session, silentremove, safe_referrer, csrf_query_token_valid
 from blog import models
 from blog.images import img_calc_thumb, img_calc_large, highest_order_nr, image_order_cleanup, image_exists
 from blog.images import images_create, images_remove
 from django.db.models import Count  # counting frequency of tags for every blog
-from django.middleware import csrf
-
 APP_NAME = 'app_blog'
 
 @permission_required('blog.blog.can_add_blog', raise_exception=True)
@@ -262,9 +260,8 @@ def archive(request, year=False, month=False):
 
 @permission_required('blog.blog.can_add_blog', raise_exception=True)
 def delete_blog_comment(request, comment_pk):
-	csrf_token = csrf.get_token(request)
 	request_token = request.GET.get('token')
-	if request_token == csrf_token:
+	if csrf_query_token_valid(request, request_token):
 		try:
 			comment = models.Comment.objects.get(pk=comment_pk)
 			comment.delete()
@@ -350,17 +347,17 @@ def category(request, pk=False):
 	})
 
 
-def file_unlink(request, blog_id, file_id):
-	csrf_token = csrf.get_token(request)
-	request_token = request.GET.get('token')
-	if request_token == csrf_token:
-		obj = models.File.objects.get(pk=file_id)
-		rem_path = '%s%s/%s' % (settings.FILE_ROOT, blog_id, obj.filename)
-		if silentremove(request, rem_path):
-			if obj.delete():
-				return True
-	else:
-		messages.error(request, u'Token did not match')
+def file_unlink(request, blog_id, file_id, trust_post_csrf=False):
+	# GET deletes use ?token=…; POST replace uploads are CSRF-checked by middleware.
+	if not trust_post_csrf:
+		if not csrf_query_token_valid(request, request.GET.get('token')):
+			messages.error(request, u'Token did not match')
+			return HttpResponseRedirect(get_previous_page(request, APP_NAME))
+	obj = models.File.objects.get(pk=file_id)
+	rem_path = '%s%s/%s' % (settings.FILE_ROOT, blog_id, obj.filename)
+	if silentremove(request, rem_path):
+		if obj.delete():
+			return True
 
 	return HttpResponseRedirect(get_previous_page(request, APP_NAME))
 
@@ -399,7 +396,7 @@ def file_upload(request, blog_id, file_id=False):
 			if save_to_db:
 				if file_id:
 					o = models.File.objects.get(pk=file_id)
-					file_unlink(request, blog_id, o.pk)
+					file_unlink(request, blog_id, o.pk, trust_post_csrf=True)
 				else:
 					o = models.File()
 					o.owner = request.user
@@ -626,9 +623,8 @@ def tag_edit(request, pk=None):
 
 @permission_required('blog.blog.can_add_blog', raise_exception=True)
 def tag_del(request, pk):
-	csrf_token = csrf.get_token(request)
 	request_token = request.GET.get('token')
-	if request_token == csrf_token:
+	if csrf_query_token_valid(request, request_token):
 		try:
 			tag = models.Tag.objects.get(pk=pk)
 			tag.delete()

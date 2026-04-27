@@ -251,10 +251,14 @@ def edit(request, this_type, pk=False):
 			if account_param:
 				try:
 					aid = int(account_param)
-					if Account.objects.filter(pk=aid, owner=request.user).exists():
+					if Account.objects.filter(pk=aid, owner=request.user, visible=True).exists():
 						initial_account = aid
 				except (ValueError, TypeError):
 					pass
+			if not Account.objects.filter(pk=initial_account, owner=request.user, visible=True).exists():
+				first_visible = Account.objects.filter(owner=request.user, visible=True).order_by('description').first()
+				if first_visible:
+					initial_account = first_visible.pk
 			form = ExpenceForm(initial={
 				'account': initial_account,
 				'sub_category': request.user.profile.DEFAULT_EXPENCE_SUB_CATEGORY,
@@ -274,7 +278,12 @@ def edit(request, this_type, pk=False):
 				form = ExpenceForm(request.POST, instance=instance)
 		form.fields['sub_category'].choices = categories_as_choices(request.user)
 		#form.fields['account'].queryset = Account.objects.exclude(account_type=2).filter(owner=request.user)
-		form.fields['account'].queryset = Account.objects.filter(owner=request.user)
+		account_qs = Account.objects.filter(owner=request.user, visible=True)
+		if pk:
+			account_qs = Account.objects.filter(owner=request.user).filter(
+				Q(visible=True) | Q(pk=instance.account_id)
+			)
+		form.fields['account'].queryset = account_qs
 		if request.method == 'POST':
 			if form.is_valid():
 				if form.cleaned_data:

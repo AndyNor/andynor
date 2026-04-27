@@ -105,3 +105,29 @@ def makeJSON(queryset):
 
 	queryset = list(queryset)
 	return json.dumps(queryset, default=handleDecimal)
+
+
+def csrf_query_token_valid(request, query_token):
+	"""Validate ``?token=`` using the CSRF secret (not string-equal to ``get_token()``)."""
+	from django.middleware.csrf import (
+		CsrfViewMiddleware,
+		InvalidTokenFormat,
+		_check_token_format,
+		_does_token_match,
+	)
+
+	if not query_token:
+		return False
+	try:
+		_check_token_format(query_token)
+	except InvalidTokenFormat:
+		return False
+
+	middleware = CsrfViewMiddleware(lambda req: None)
+	try:
+		secret = middleware._get_secret(request)
+	except InvalidTokenFormat:
+		return False
+	if secret is None:
+		return False
+	return _does_token_match(query_token, secret)

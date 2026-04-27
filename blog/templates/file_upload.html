@@ -29,7 +29,7 @@
 				<td>{{ file.filename }}</td>
 				<td>{{ file.size }}</td>
 				<td>{{ file.created }}</td>
-				<td><a href="{% url 'file_remove' file.blog.pk file.pk %}?token={{csrf_token}}"><i class="icon-remove"></i></a></td>
+				<td><a href="{% url 'file_remove' file.blog.pk file.pk %}?token={{ csrf_token|urlencode }}"><i class="icon-remove"></i></a></td>
 			</tr>
 		{% endfor %}
 		</tbody>
