@@ -63,6 +63,7 @@ def gallery(request, blog_id, matchobj):
 	start = int(matchobj.group(1))
 	end = int(matchobj.group(2))
 	html = []
+	import html as _html
 	if start <= end and start > 0:
 		demanded_images = end - start
 		printed_images = 0
@@ -73,6 +74,7 @@ def gallery(request, blog_id, matchobj):
 			html.append('<li class="span3 displayInlineBlock" id="blog-image-%s">' % image.pk)
 			path = '%s%s' % (settings.MEDIA_ROOT, image.thumbnail)
 			title = image.description if image.description != None else ''
+			title_attr = _html.escape(title, quote=True)
 			if request.user.is_authenticated:
 				edit_button = ('<a href="%s?next=%s"><i class="icon-pencil"></i></a>') % (
 						reverse('image_add_comment', args=(image.pk,)),
@@ -82,9 +84,11 @@ def gallery(request, blog_id, matchobj):
 				edit_button = ''
 			if os.path.isfile(path):
 				_loader = static('img/loader.gif')
-				html.append('<a href="%s%s"><img class="thumbnail blog-post-img-fluid" src="%s" data-src="%s%s" alt="%s"></a><small>%s %s</small>' % (
+				html.append('<a href="%s%s" class="js-lightbox" data-gallery="blog-%s" data-caption="%s"><img class="thumbnail blog-post-img-fluid" src="%s" data-src="%s%s" alt="%s"></a><small>%s %s</small>' % (
 						settings.MEDIA_URL,
 						image.large,
+						blog_id,
+						title_attr,
 						_loader,
 						settings.MEDIA_URL,
 						image.thumbnail,
