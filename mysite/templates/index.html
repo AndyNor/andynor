@@ -99,15 +99,30 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
 				{% block navigation_menu %}
 				<div class="navbar-always-visible">
-					<ul class="nav nav--always">
-						<li class="nav-icon-item nav-icon-item--home">
-							{% url "root" as url %}
-							<a class="nav-icon-link nav-icon-link--home nav-icon-link--home-green" href="{{ url }}" aria-label="Forside" data-label="Forside">
-								<i class="fa-solid fa-house" aria-hidden="true"></i>
-								<span class="nav-icon-link__label" aria-hidden="true">Forside</span>
-							</a>
-						</li>
-					</ul>
+					<div class="navbar-left-group">
+						<ul class="nav nav--always">
+							<li class="nav-icon-item nav-icon-item--home">
+								{% url "root" as url %}
+								<a class="nav-icon-link nav-icon-link--home nav-icon-link--home-green" href="{{ url }}" aria-label="Forside" data-label="Forside">
+									<i class="fa-solid fa-house" aria-hidden="true"></i>
+									<span class="nav-icon-link__label" aria-hidden="true">Forside</span>
+								</a>
+							</li>
+						</ul>
+					</div>
+
+					{% if "/money/" in request.path %}
+						{% url "money_search" as action %}
+					{% else %}
+						{% url "search" as action %}
+					{% endif %}
+					<form class="navbar-search navbar-search--in-nav" action="{{ action }}" method="get" role="search" aria-label="Søk">
+						<input type="text" class="search-query search-query--wide" id="id_q" placeholder="Søk" name="q" value="{{query_string}}">
+						<button type="submit" class="btn-icon-reset" aria-label="Søk">
+							<i class="icon-search" aria-hidden="true"></i>
+						</button>
+					</form>
+
 					<div class="navbar-right-icons">
 						<ul class="nav pull-right nav--quicklinks nav--always" aria-label="Hurtiglenker">
 							<li class="nav-icon-item">
@@ -204,19 +219,6 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 						{% endif %}
 					</div>
 				</div>
-				<div class="navbar-search-row">
-					{% if "/money/" in request.path %}
-						{% url "money_search" as action %}
-					{% else %}
-						{% url "search" as action %}
-					{% endif %}
-					<form class="navbar-search navbar-search--in-nav" action="{{ action }}" method="get" role="search" aria-label="Søk">
-						<input type="text" class="search-query search-query--wide" id="id_q" placeholder="Søk" name="q" value="{{query_string}}">
-						<button type="submit" class="btn-icon-reset" aria-label="Søk">
-							<i class="icon-search" aria-hidden="true"></i>
-						</button>
-					</form>
-				</div>
 				{% endblock %}
 
 
@@ -246,6 +248,8 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 </div>
 
 {% block javascript_append %}{% endblock %}
+
+	<script src="{% static 'js/auto_hide_nav.js' %}"></script>
 
 {% block credits %}{% endblock %}
 
