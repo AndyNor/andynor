@@ -229,6 +229,33 @@ body {
 	margin-bottom: 0px;
 }
 
+/* Mobile: show 2 thumbnails per row */
+@media (max-width: 767px) {
+	ul.thumbnails{
+		margin-left: 0;
+		display: flex;
+		flex-wrap: wrap;
+	}
+	ul.thumbnails > li{
+		float: none !important;
+		width: 50% !important;
+		flex: 0 0 50%;
+		margin-left: 0;
+		box-sizing: border-box;
+		padding-left: 6px;
+		padding-right: 6px;
+	}
+	/* Bootstrap 2 grid spans override width on phones; force 2-up */
+	ul.thumbnails > li[class*="span"]{
+		float: none !important;
+		width: 50% !important;
+		flex: 0 0 50%;
+	}
+	ul.thumbnails > li:nth-child(2n+1){
+		clear: none !important;
+	}
+}
+
 pre.code{
 	display:inline-block;
 	width: 99%;
