@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	var TOP_HIDE_DELAY_MS = 1750;
+	var TOP_HIDE_DELAY_MS = 4000;
 	var SCROLL_TOP_EPS = 2;
 
 	var body = document.body;

@@ -745,7 +745,7 @@ html, body{
 /* Auto-hide top navbar + bottom archive bars after idle scroll (mobile-friendly). */
 body.ui-autohide-enabled .navbar-fixed-top,
 body.ui-autohide-enabled .home-bottom-nav{
-	transition: transform 750ms cubic-bezier(0.22, 1, 0.36, 1);
+	transition: transform 4000ms cubic-bezier(0.22, 1, 0.36, 1);
 	will-change: transform;
 }
 
