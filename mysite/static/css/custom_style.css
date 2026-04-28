@@ -15,6 +15,37 @@ body {
 	}
 }
 
+/* Navbar: keep "Forside" + socials always visible (Bootstrap 2) */
+.navbar-always-visible{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.navbar-always-visible .nav{
+	margin-bottom: 0;
+}
+
+.navbar-always-visible .nav--always{
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0;
+}
+
+/* Ensure pull-right social list doesn't wrap below on desktop */
+.navbar-always-visible .nav--social{
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+/* Slightly tighter social icons in the always-visible row */
+.navbar-always-visible .social-nav-item > a.social-icon{
+	padding: 10px 6px;
+}
+
 .thumbnails li{
 	margin-bottom: 0px;
 }
@@ -406,6 +437,47 @@ html, body{
 	height: 82px;
 }
 
+.home-top-categories{
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 40px; /* below bootstrap navbar */
+	z-index: 1025; /* below .navbar-fixed-top (1030), above content */
+	background: rgba(255, 255, 255, 0.98);
+	border-bottom: 1px solid #ddd;
+	overflow-x: hidden;
+	box-sizing: border-box;
+}
+
+.home-top-categories__container{
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.home-top-categories-spacer{
+	height: 42px;
+}
+
+/* Categories bar: center items when they fit */
+.home-categories-bar__inner{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: center;
+	gap: 7px;
+	white-space: normal; /* flex handles layout; keep scroll via overflow-x */
+}
+
+/* When scroll buttons are shown (scrollable), left-align to avoid collisions */
+.home-years-bar--scrollable .home-categories-bar__inner{
+	justify-content: flex-start;
+}
+
+.home-categories-bar__cat{
+	margin-right: 0; /* gap handles spacing */
+}
+
 .home-bottom-nav{
 	position: fixed;
 	left: 0;
@@ -686,6 +758,67 @@ html, body{
 
 .blog-post-content{
 	margin-right: 15px;
+}
+
+/* Blog posts: more minimalistic than generic .box */
+.blog-post.box{
+	border: 1px solid rgba(0, 0, 0, 0.08);
+	border-radius: 8px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+	margin-bottom: 18px;
+	position: relative;
+}
+
+/* Subtle “new post starts” accent (low contrast) */
+.blog-post.box::before{
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 10px;
+	bottom: 10px;
+	width: 3px;
+	background: rgba(37, 95, 10, 0.22);
+	border-top-left-radius: 8px;
+	border-bottom-left-radius: 8px;
+}
+
+.blog-post .box-header{
+	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.blog-post .aside-header{
+	padding: 8px 12px 6px 12px;
+}
+
+.blog-post-title{
+	margin: 0 0 2px 0;
+	font-size: 18px;
+	line-height: 1.2;
+}
+
+.blog-post-meta{
+	color: rgba(0, 0, 0, 0.55);
+	font-weight: normal;
+	font-size: 12px;
+}
+
+.blog-post-tags{
+	margin-top: 4px;
+	font-size: 12px;
+	color: rgba(0, 0, 0, 0.55);
+}
+
+.blog-post-tags a{
+	color: #255f0a;
+}
+
+.blog-post .box-content{
+	padding: 10px 12px 12px 12px;
+	margin: 0;
+}
+
+.blog-post .blog-post-content{
+	margin-right: 0;
 }
 
 .clear-both{

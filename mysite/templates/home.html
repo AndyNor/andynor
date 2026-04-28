@@ -5,9 +5,29 @@
 {% load bbcodes %}
 {% block body_main %}
 
-<div class="container">
+{% if category_list %}
+<div class="home-top-categories" aria-label="Kategorier">
+	<div class="container home-top-categories__container">
+		<nav id="home-categories-bar" class="home-years-bar home-categories-bar" aria-label="Kategorier">
+			<button type="button" class="home-scroll-btn home-scroll-btn--prev" aria-label="Scroll mot første kategorier">
+				<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+			</button>
+			<div class="home-years-bar__inner home-categories-bar__inner">
+				{% for cat in category_list %}
+					<a class="home-years-bar__year home-categories-bar__cat{% if cat.pk in home_selected_category_ids %} is-active{% endif %}"
+					   href="?cat={{ cat.pk }}" data-cat="{{ cat.pk }}">{{ cat.category|capfirst }}</a>
+				{% endfor %}
+			</div>
+			<button type="button" class="home-scroll-btn home-scroll-btn--next" aria-label="Scroll mot siste kategorier">
+				<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+			</button>
+		</nav>
+	</div>
+</div>
+<div class="home-top-categories-spacer" aria-hidden="true"></div>
+{% endif %}
 
-	{% include "blog_category_menu.html" %}
+<div class="container">
 
 	<div class="row-fluid">
 
@@ -20,7 +40,6 @@
 
 	</div>
 
-	{% if home_articles_stream_config.nextCursor %}
 	<div id="home-articles-config" class="is-hidden" aria-hidden="true"
 		data-more-url="{{ home_articles_stream_config.moreUrl }}"
 		data-newer-url="{{ home_articles_stream_config.newerUrl }}"
@@ -28,14 +47,16 @@
 		data-month-url="{{ home_articles_stream_config.monthUrl }}"
 		data-index-url="{{ home_articles_stream_config.indexUrl }}"
 		data-html-url="{{ home_articles_stream_config.htmlUrl }}"
+		data-selected-cats="{{ home_articles_stream_config.selectedCategoryIds|join:',' }}"
+		{% if home_articles_stream_config.nextCursor %}
 		data-before-origin="{{ home_articles_stream_config.nextCursor.before_origin }}"
-		data-before-pk="{{ home_articles_stream_config.nextCursor.before_pk }}"></div>
-	{% endif %}
+		data-before-pk="{{ home_articles_stream_config.nextCursor.before_pk }}"
+		{% endif %}></div>
 
 	<div class="home-years-spacer" aria-hidden="true"></div>
-	{% if home_years %}
 	<div id="home-bottom-nav" class="home-bottom-nav" aria-label="Arkivnavigasjon">
 		<div class="container home-bottom-nav__container">
+			{% if home_years %}
 			<nav id="home-years-bar" class="home-years-bar" aria-label="År">
 				<button type="button" class="home-scroll-btn home-scroll-btn--prev" aria-label="Scroll mot nyere år">
 					<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
@@ -66,9 +87,9 @@
 				<div class="home-months-bar__indicator" aria-hidden="true"></div>
 				</div>
 			</nav>
+			{% endif %}
 		</div>
 	</div>
-	{% endif %}
 
 	<script nonce="{{ request.csp_nonce }}">
 	(function () {
@@ -84,16 +105,39 @@
 		var moreUrl = cfgEl.getAttribute('data-more-url');
 		var yearUrl = cfgEl.getAttribute('data-year-url');
 		var monthUrl = cfgEl.getAttribute('data-month-url');
+		var initialCats = cfgEl.getAttribute('data-selected-cats') || '';
 		var bo = cfgEl.getAttribute('data-before-origin');
 		var bp = cfgEl.getAttribute('data-before-pk');
-		if (!moreUrl || !bo || !bp) {
+		if (!moreUrl) {
 			return;
 		}
-		var nextCursor = { before_origin: bo, before_pk: parseInt(bp, 10) };
-		if (isNaN(nextCursor.before_pk)) {
-			return;
+		var nextCursor = null;
+		if (bo && bp) {
+			var pkNum = parseInt(bp, 10);
+			if (!isNaN(pkNum)) {
+				nextCursor = { before_origin: bo, before_pk: pkNum };
+			}
 		}
 		var loading = false;
+
+		function selectedCatsCsv() {
+			var bar = document.getElementById('home-categories-bar');
+			if (!bar) {
+				return initialCats;
+			}
+			var btns = bar.querySelectorAll('[data-cat].is-active');
+			var out = [];
+			for (var i = 0; i < btns.length; i++) {
+				var v = btns[i].getAttribute('data-cat');
+				if (v) out.push(String(v));
+			}
+			return out.join(',');
+		}
+
+		function catsQueryParam() {
+			var csv = selectedCatsCsv();
+			return 'cats=' + encodeURIComponent(csv);
+		}
 
 		function ensureYearAnchors() {
 			var posts = stream.querySelectorAll('.blog-post[data-year]');
@@ -129,7 +173,8 @@
 			}
 			loading = true;
 			var url = moreUrl + '?before_origin=' + encodeURIComponent(nextCursor.before_origin)
-				+ '&before_pk=' + encodeURIComponent(String(nextCursor.before_pk));
+				+ '&before_pk=' + encodeURIComponent(String(nextCursor.before_pk))
+				+ '&' + catsQueryParam();
 			return fetch(url, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
 				.then(function (r) { if (!r.ok) throw new Error('load failed'); return r.json(); })
 				.then(function (data) {
@@ -329,7 +374,8 @@
 			setYearLoading(year, true);
 			if (io) io.disconnect();
 
-			fetch(yearUrl + '?year=' + encodeURIComponent(String(year)), { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+			fetch(yearUrl + '?year=' + encodeURIComponent(String(year)) + '&' + catsQueryParam(),
+				{ credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
 				.then(function (r) { if (!r.ok) throw new Error('year load failed'); return r.json(); })
 				.then(function (data) {
 					/* Replace stream contents with slice */
@@ -365,7 +411,7 @@
 			if (!monthUrl) return;
 			setYearLoading(year, true);
 			if (io) io.disconnect();
-			fetch(monthUrl + '?year=' + encodeURIComponent(String(year)) + '&month=' + encodeURIComponent(String(month)),
+			fetch(monthUrl + '?year=' + encodeURIComponent(String(year)) + '&month=' + encodeURIComponent(String(month)) + '&' + catsQueryParam(),
 				{ credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
 				.then(function (r) { if (!r.ok) throw new Error('month load failed'); return r.json(); })
 				.then(function (data) {
@@ -473,6 +519,84 @@
 		window.addEventListener('resize', function () {
 			positionMonthIndicator();
 			updateYearScrollButtons();
+		});
+
+		var categoriesBarEl = document.getElementById('home-categories-bar');
+		var updateCategoryScrollButtons = function () {};
+		if (categoriesBarEl) {
+			var catInner = categoriesBarEl.querySelector('.home-years-bar__inner');
+			var cPrev = categoriesBarEl.querySelector('.home-scroll-btn--prev');
+			var cNext = categoriesBarEl.querySelector('.home-scroll-btn--next');
+			var catScrollStep = function () {
+				return Math.max(160, Math.floor((catInner && catInner.clientWidth || 320) * 0.85));
+			};
+			updateCategoryScrollButtons = function () {
+				if (!catInner || !cPrev || !cNext) return;
+				var max = catInner.scrollWidth - catInner.clientWidth;
+				var tol = 2;
+				cPrev.disabled = catInner.scrollLeft <= tol;
+				cNext.disabled = catInner.scrollLeft >= max - tol;
+				categoriesBarEl.classList.toggle('home-years-bar--scrollable', max > tol);
+			};
+			if (catInner) {
+				catInner.addEventListener('scroll', updateCategoryScrollButtons, { passive: true });
+				if (cPrev) {
+					cPrev.addEventListener('click', function () {
+						catInner.scrollBy({ left: -catScrollStep(), behavior: 'smooth' });
+					});
+				}
+				if (cNext) {
+					cNext.addEventListener('click', function () {
+						catInner.scrollBy({ left: catScrollStep(), behavior: 'smooth' });
+					});
+				}
+				updateCategoryScrollButtons();
+			}
+
+			categoriesBarEl.addEventListener('click', function (e) {
+				var t = e.target;
+				while (t && t !== categoriesBarEl && !t.getAttribute('data-cat')) t = t.parentNode;
+				if (!t || t === categoriesBarEl) return;
+				e.preventDefault();
+				var clickedId = t.getAttribute('data-cat');
+				if (!clickedId) return;
+
+				var allBtns = categoriesBarEl.querySelectorAll('[data-cat]');
+				var activeBtns = categoriesBarEl.querySelectorAll('[data-cat].is-active');
+				var isCurrentlySingle = activeBtns.length === 1;
+				var isClickedActive = t.classList.contains('is-active');
+
+				// Default view = "all categories". Clicking a category switches to only that category.
+				// If already single-selected and clicking it again -> reset back to "all".
+				var makeAllActive = isCurrentlySingle && isClickedActive;
+				if (makeAllActive) {
+					for (var a = 0; a < allBtns.length; a++) {
+						allBtns[a].classList.add('is-active');
+					}
+				} else {
+					for (var j = 0; j < allBtns.length; j++) {
+						if (String(allBtns[j].getAttribute('data-cat')) === String(clickedId)) {
+							allBtns[j].classList.add('is-active');
+						} else {
+							allBtns[j].classList.remove('is-active');
+						}
+					}
+				}
+
+				var params = new URLSearchParams(window.location.search || '');
+				params.delete('cat');
+				if (makeAllActive) {
+					// Remove filter so server defaults to all categories.
+					params.delete('cats');
+				} else {
+					params.set('cats', String(clickedId));
+				}
+				window.location.search = params.toString();
+			});
+		}
+
+		window.addEventListener('resize', function () {
+			updateCategoryScrollButtons();
 		});
 	})();
 	</script>

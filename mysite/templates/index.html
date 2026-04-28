@@ -101,49 +101,53 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 				</a>
 
 				{% block navigation_menu %}
-				<div>
-					<div class="nav-collapse">
-						<ul class="nav">
-							{% url "root" as url %}{% pri_nav_item request.path url 'Forside' 'icon-book' %}
-							{% url "app_databases" as url %}{% pri_nav_item request.path url 'Anbefalinger' 'icon-thumbs-up' %}
-							{% url "blog_show" 60 as url %}{% pri_nav_item request.path url 'Om meg' 'icon-user' %}
-							{% if user.is_authenticated %}
-								{% url "app_power" as url %}{% pri_nav_item request.path url 'Strøm' 'icon-fire' %}
-								{% url "app_stocks" as url %}{% pri_nav_item request.path url 'Aksjer' 'icon-tasks' %}
-								{% url "app_money" as url %}{% pri_nav_item request.path url 'Regnskap' 'icon-tasks' %}
-								{% url "profile" as url %}{% pri_nav_item request.path url 'Min pålogging' 'icon-user' %}
-								{% url "user_logout" as url %}{% pri_nav_item request.path url 'Logg ut' 'icon-user' %}
-							{% else %}
-								{% url "user_login" as url %}{% pri_nav_item request.path url 'Logg inn' 'icon-user' %}
-							{% endif %}
-							<li class="social-nav-item">
-								<a href="https://github.com/andynor" class="social-icon github" title="GitHub" target="_blank" rel="noopener noreferrer">
-									<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#icon-github"></use></svg>
-								</a>
-							</li>
-							<li class="social-nav-item">
-								<a href="https://instagram.com/andynor/" class="social-icon instagram" title="Instagram" target="_blank" rel="noopener noreferrer">
-									<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-instagram"></use></svg>
-								</a>
-							</li>
-							<li class="social-nav-item">
-								<a href="https://open.spotify.com/user/andynor" class="social-icon spotify" title="Spotify" target="_blank" rel="noopener noreferrer">
-									<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-spotify"></use></svg>
-								</a>
-							</li>
-							<li class="social-nav-item">
-								<a href="https://www.youtube.com/channel/UCfkKzLGF6qYFhrJgbTigMSw" class="social-icon youtube" title="YouTube" target="_blank" rel="noopener noreferrer">
-									<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-youtube"></use></svg>
-								</a>
-							</li>
-							<li class="social-nav-item">
-								<a href="http://feeds.feedburner.com/andynor/" class="social-icon rss" title="RSS" target="_blank" rel="noopener noreferrer">
-									<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-rss"></use></svg>
-								</a>
-							</li>
+				<div class="navbar-always-visible">
+					<ul class="nav nav--always">
+						{% url "root" as url %}{% pri_nav_item request.path url 'Forside' 'icon-book' %}
+					</ul>
+					<ul class="nav pull-right nav--social nav--always">
+						<li class="social-nav-item">
+							<a href="https://github.com/andynor" class="social-icon github" title="GitHub" target="_blank" rel="noopener noreferrer">
+								<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#icon-github"></use></svg>
+							</a>
+						</li>
+						<li class="social-nav-item">
+							<a href="https://instagram.com/andynor/" class="social-icon instagram" title="Instagram" target="_blank" rel="noopener noreferrer">
+								<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-instagram"></use></svg>
+							</a>
+						</li>
+						<li class="social-nav-item">
+							<a href="https://open.spotify.com/user/andynor" class="social-icon spotify" title="Spotify" target="_blank" rel="noopener noreferrer">
+								<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-spotify"></use></svg>
+							</a>
+						</li>
+						<li class="social-nav-item">
+							<a href="https://www.youtube.com/channel/UCfkKzLGF6qYFhrJgbTigMSw" class="social-icon youtube" title="YouTube" target="_blank" rel="noopener noreferrer">
+								<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-youtube"></use></svg>
+							</a>
+						</li>
+						<li class="social-nav-item">
+							<a href="http://feeds.feedburner.com/andynor/" class="social-icon rss" title="RSS" target="_blank" rel="noopener noreferrer">
+								<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-rss"></use></svg>
+							</a>
+						</li>
+					</ul>
+				</div>
 
-						</ul>
-					</div>
+				<div class="nav-collapse collapse">
+					<ul class="nav">
+						{% url "app_databases" as url %}{% pri_nav_item request.path url 'Anbefalinger' 'icon-thumbs-up' %}
+						{% url "blog_show" 60 as url %}{% pri_nav_item request.path url 'Om meg' 'icon-user' %}
+						{% if user.is_authenticated %}
+							{% url "app_power" as url %}{% pri_nav_item request.path url 'Strøm' 'icon-fire' %}
+							{% url "app_stocks" as url %}{% pri_nav_item request.path url 'Aksjer' 'icon-tasks' %}
+							{% url "app_money" as url %}{% pri_nav_item request.path url 'Regnskap' 'icon-tasks' %}
+							{% url "profile" as url %}{% pri_nav_item request.path url 'Min pålogging' 'icon-user' %}
+							{% url "user_logout" as url %}{% pri_nav_item request.path url 'Logg ut' 'icon-user' %}
+						{% else %}
+							{% url "user_login" as url %}{% pri_nav_item request.path url 'Logg inn' 'icon-user' %}
+						{% endif %}
+					</ul>
 				</div>
 				{% endblock %}
 

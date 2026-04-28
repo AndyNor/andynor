@@ -36,16 +36,19 @@
 			</div>
 			{% endif %}
 
-			<h3><a href='{% url "blog_show" blog_active.pk %}'>{{ blog_active.title }}</a></h3>
+			<h3 class="blog-post-title"><a href='{% url "blog_show" blog_active.pk %}'>{{ blog_active.title }}</a></h3>
 
-			{{ blog_active.origin.day }} {{ blog_active.origin|date:"N" }} {{ blog_active.origin.year|unlocalize }}
+			<div class="blog-post-meta">
+				<span class="blog-post-date">{{ blog_active.origin|date:"j" }}. {{ blog_active.origin|date:"F"|lower }} {{ blog_active.origin|date:"Y" }}</span>
+			</div>
 
 			{% if blog_active.tags.all %}
-				<br><i class="icon-tags"></i> Tags:
+				<div class="blog-post-tags"><i class="icon-tags"></i> Tags:
 				{% for tag in blog_active.tags.all %}
 					<a href='{% url "blog_tag_view" tag.pk %}'></i>{{ tag|capfirst }}</a>
 					{% if not forloop.last %}, {% endif %}
 				{% endfor %}
+				</div>
 			{% endif %}
 
 
