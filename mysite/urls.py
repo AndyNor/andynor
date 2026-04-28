@@ -5,7 +5,6 @@ from blog.feeds import LatestEntriesFeed
 from django.views.generic.base import RedirectView
 from mysite import views
 from django.urls import path
-from django.templatetags.static import static
 
 handler403 = 'mysite.views.my_custom_permission_denied_view'
 admin.autodiscover()
@@ -30,7 +29,9 @@ urlpatterns = [
 	path('counter/<int:year>/<int:month>/', views.counter, name='counter'),
 	re_path(r'^profiles/update/$', views.profile_update, name='profile_update'),
 	re_path(r'^rss/$', LatestEntriesFeed(), name='rss'),
-	re_path(r'^robots\.txt$', RedirectView.as_view(url=static('robots.txt'))),
+	# Keep as a stable URL (not manifest-hashed) to avoid requiring the staticfiles
+	# manifest at import time (e.g. during collectstatic).
+	re_path(r'^robots\.txt$', RedirectView.as_view(url=settings.STATIC_URL + 'robots.txt')),
 ]
 
 # Apps
