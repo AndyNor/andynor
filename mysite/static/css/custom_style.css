@@ -4,13 +4,23 @@ body {
 }
 @media (max-width: 979px) {
 	body {
-		padding-top: 0px;
+		/* Keep fixed navbar from overlapping content */
+		padding-top: 50px;
 		padding-bottom: 0px;
+	}
+
+	/* Bootstrap 2 responsive turns fixed navbars into static; override */
+	.navbar-fixed-top{
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 1030;
 	}
 }
 @media (max-width: 767px) {
 	body {
-		padding-top: 0px;
+		padding-top: 50px;
 		padding-bottom: 0px;
 	}
 }
@@ -21,6 +31,13 @@ body {
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
+}
+
+.navbar-right-icons{
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 10px;
 }
 
 .navbar-always-visible .nav{
@@ -39,6 +56,131 @@ body {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+}
+
+/* Quicklinks group (icon-only; labels on hover) */
+.navbar-always-visible .nav--quicklinks{
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding-right: 10px;
+	margin-right: 4px;
+	border-right: 1px solid rgba(37, 95, 10, 0.25);
+}
+
+.navbar-always-visible .nav--quicklinks .nav-icon-item{
+	position: relative;
+}
+
+.nav-icon-link{
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 10px 8px;
+	text-decoration: none;
+	line-height: 1;
+}
+
+.nav-icon-link--quick{
+	color: #1f6a0d; /* higher contrast green */
+}
+
+.nav-icon-link--home{
+	color: #255f0a;
+}
+
+.nav-icon-link--home:hover,
+.nav-icon-link--home:focus{
+	color: #0f4b0a;
+	text-decoration: none;
+}
+
+.nav-icon-link--login{
+	color: #0f4b0a;
+	border: 1px solid rgba(37, 95, 10, 0.55);
+	border-radius: 999px;
+	padding: 9px 10px;
+	background: rgba(37, 95, 10, 0.08);
+}
+
+.nav-icon-link--quick:hover,
+.nav-icon-link--quick:focus{
+	color: #0f4b0a;
+	text-decoration: none;
+}
+
+.nav-icon-link--login:hover,
+.nav-icon-link--login:focus{
+	background: rgba(37, 95, 10, 0.18);
+	color: #0b3a07;
+	text-decoration: none;
+}
+
+.nav-icon-link i{
+	font-size: 14px;
+}
+
+.nav-icon-link--home{
+	gap: 6px;
+	padding: 10px 10px;
+	font-weight: bold;
+}
+
+.nav-icon-link--home i{
+	font-size: 16px;
+}
+
+.nav-icon-link__label{
+	position: absolute;
+	top: 100%;
+	right: 0;
+	margin-top: 2px;
+	padding: 2px 7px;
+	border-radius: 999px;
+	border: 1px solid rgba(37, 95, 10, 0.35);
+	background: rgba(255, 255, 255, 0.98);
+	color: #0f4b0a;
+	font-size: 11px;
+	white-space: nowrap;
+	opacity: 0;
+	transform: translateY(-2px);
+	pointer-events: none;
+	transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.nav-icon-link:hover .nav-icon-link__label,
+.nav-icon-link:focus .nav-icon-link__label,
+.nav-icon-link:focus-visible .nav-icon-link__label{
+	opacity: 1;
+	transform: translateY(0);
+}
+
+/* Inline label variant (used for "Forside") */
+.nav-icon-link__label--inline{
+	position: static;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	opacity: 1;
+	transform: none;
+	pointer-events: none;
+	font-size: 13px;
+}
+
+/* Navbar container: consistent horizontal breathing room */
+.navbar-fixed-top .navbar-inner .container{
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+/* Smallest screens: add a bit of breathing room against chrome edges */
+@media (max-width: 480px){
+	.navbar-fixed-top .navbar-inner .container{
+		padding-left: 8px;
+		padding-right: 8px;
+	}
 }
 
 /* Slightly tighter social icons in the always-visible row */
@@ -434,28 +576,8 @@ html, body{
 
 /* Front page bottom year slider */
 .home-years-spacer{
-	height: 82px;
-}
-
-.home-top-categories{
-	position: fixed;
-	left: 0;
-	right: 0;
-	top: 40px; /* below bootstrap navbar */
-	z-index: 1025; /* below .navbar-fixed-top (1030), above content */
-	background: rgba(255, 255, 255, 0.98);
-	border-bottom: 1px solid #ddd;
-	overflow-x: hidden;
-	box-sizing: border-box;
-}
-
-.home-top-categories__container{
-	padding-left: 0;
-	padding-right: 0;
-}
-
-.home-top-categories-spacer{
-	height: 42px;
+	/* extra space since bottom nav now includes categories + year + month bars */
+	height: 124px;
 }
 
 /* Categories bar: center items when they fit */
@@ -593,18 +715,25 @@ html, body{
 	display: inline-block;
 	margin-right: 7px;
 	padding: 3px 11px;
-	border: 1px solid #255f0a;
+	border: 1px solid rgba(37, 95, 10, 0.35);
 	border-radius: 999px;
 	background: transparent;
-	color: #255f0a;
+	color: #0f4b0a;
 	text-decoration: none;
 	font-size: 12px;
 	line-height: 1;
 }
 
+.home-years-bar__year:hover,
+.home-years-bar__year:focus{
+	background: rgba(37, 95, 10, 0.08);
+	text-decoration: none;
+}
+
 .home-years-bar__year.is-active{
-	background: #255f0a;
-	color: #fff;
+	background: rgba(37, 95, 10, 0.18);
+	color: #0b3a07;
+	border-color: rgba(37, 95, 10, 0.55);
 }
 
 .home-years-bar__year.is-loading{
@@ -632,8 +761,9 @@ html, body{
 }
 
 .home-months-bar__month.is-active{
-	background: #255f0a;
-	color: #fff;
+	background: rgba(37, 95, 10, 0.18);
+	color: #0b3a07;
+	border-color: rgba(37, 95, 10, 0.55);
 }
 
 .home-months-bar__inner{

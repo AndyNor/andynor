@@ -103,41 +103,73 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 				{% block navigation_menu %}
 				<div class="navbar-always-visible">
 					<ul class="nav nav--always">
-						{% url "root" as url %}{% pri_nav_item request.path url 'Forside' 'icon-book' %}
-					</ul>
-					<ul class="nav pull-right nav--social nav--always">
-						<li class="social-nav-item">
-							<a href="https://github.com/andynor" class="social-icon github" title="GitHub" target="_blank" rel="noopener noreferrer">
-								<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#icon-github"></use></svg>
-							</a>
-						</li>
-						<li class="social-nav-item">
-							<a href="https://instagram.com/andynor/" class="social-icon instagram" title="Instagram" target="_blank" rel="noopener noreferrer">
-								<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-instagram"></use></svg>
-							</a>
-						</li>
-						<li class="social-nav-item">
-							<a href="https://open.spotify.com/user/andynor" class="social-icon spotify" title="Spotify" target="_blank" rel="noopener noreferrer">
-								<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-spotify"></use></svg>
-							</a>
-						</li>
-						<li class="social-nav-item">
-							<a href="https://www.youtube.com/channel/UCfkKzLGF6qYFhrJgbTigMSw" class="social-icon youtube" title="YouTube" target="_blank" rel="noopener noreferrer">
-								<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-youtube"></use></svg>
-							</a>
-						</li>
-						<li class="social-nav-item">
-							<a href="http://feeds.feedburner.com/andynor/" class="social-icon rss" title="RSS" target="_blank" rel="noopener noreferrer">
-								<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-rss"></use></svg>
+						<li class="nav-icon-item nav-icon-item--home">
+							{% url "root" as url %}
+							<a class="nav-icon-link nav-icon-link--home" href="{{ url }}" aria-label="Forside" data-label="Forside">
+								<i class="fa-solid fa-house" aria-hidden="true"></i>
+								<span class="nav-icon-link__label nav-icon-link__label--inline" aria-hidden="true">Forside</span>
 							</a>
 						</li>
 					</ul>
+					<div class="navbar-right-icons">
+						<ul class="nav pull-right nav--quicklinks nav--always" aria-label="Hurtiglenker">
+							<li class="nav-icon-item">
+								{% url "app_databases" as url %}
+								<a class="nav-icon-link nav-icon-link--quick" href="{{ url }}" aria-label="Anbefalinger" data-label="Anbefalinger">
+									<i class="fa-solid fa-heart" aria-hidden="true"></i>
+									<span class="nav-icon-link__label" aria-hidden="true">Anbefalinger</span>
+								</a>
+							</li>
+							<li class="nav-icon-item">
+								{% url "blog_show" 60 as url %}
+								<a class="nav-icon-link nav-icon-link--quick" href="{{ url }}" aria-label="Om meg" data-label="Om meg">
+									<i class="fa-solid fa-user" aria-hidden="true"></i>
+									<span class="nav-icon-link__label" aria-hidden="true">Om meg</span>
+								</a>
+							</li>
+							{% if not user.is_authenticated %}
+							<li class="nav-icon-item nav-icon-item--login">
+								{% url "user_login" as url %}
+								<a class="nav-icon-link nav-icon-link--login" href="{{ url }}" aria-label="Logg inn" data-label="Logg inn">
+									<i class="fa-solid fa-lock" aria-hidden="true"></i>
+									<span class="nav-icon-link__label" aria-hidden="true">Logg inn</span>
+								</a>
+							</li>
+							{% endif %}
+						</ul>
+
+						<ul class="nav pull-right nav--social nav--always" aria-label="Sosiale lenker">
+							<li class="social-nav-item">
+								<a href="https://github.com/andynor" class="social-icon github" title="GitHub" target="_blank" rel="noopener noreferrer">
+									<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><use href="#icon-github"></use></svg>
+								</a>
+							</li>
+							<li class="social-nav-item">
+								<a href="https://instagram.com/andynor/" class="social-icon instagram" title="Instagram" target="_blank" rel="noopener noreferrer">
+									<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-instagram"></use></svg>
+								</a>
+							</li>
+							<li class="social-nav-item">
+								<a href="https://open.spotify.com/user/andynor" class="social-icon spotify" title="Spotify" target="_blank" rel="noopener noreferrer">
+									<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-spotify"></use></svg>
+								</a>
+							</li>
+							<li class="social-nav-item">
+								<a href="https://www.youtube.com/channel/UCfkKzLGF6qYFhrJgbTigMSw" class="social-icon youtube" title="YouTube" target="_blank" rel="noopener noreferrer">
+									<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-youtube"></use></svg>
+								</a>
+							</li>
+							<li class="social-nav-item">
+								<a href="http://feeds.feedburner.com/andynor/" class="social-icon rss" title="RSS" target="_blank" rel="noopener noreferrer">
+									<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#icon-rss"></use></svg>
+								</a>
+							</li>
+						</ul>
+					</div>
 				</div>
 
 				<div class="nav-collapse collapse">
 					<ul class="nav">
-						{% url "app_databases" as url %}{% pri_nav_item request.path url 'Anbefalinger' 'icon-thumbs-up' %}
-						{% url "blog_show" 60 as url %}{% pri_nav_item request.path url 'Om meg' 'icon-user' %}
 						{% if user.is_authenticated %}
 							{% url "app_power" as url %}{% pri_nav_item request.path url 'Strøm' 'icon-fire' %}
 							{% url "app_stocks" as url %}{% pri_nav_item request.path url 'Aksjer' 'icon-tasks' %}
@@ -145,7 +177,7 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 							{% url "profile" as url %}{% pri_nav_item request.path url 'Min pålogging' 'icon-user' %}
 							{% url "user_logout" as url %}{% pri_nav_item request.path url 'Logg ut' 'icon-user' %}
 						{% else %}
-							{% url "user_login" as url %}{% pri_nav_item request.path url 'Logg inn' 'icon-user' %}
+							{# Login is presented as an icon in the always-visible row #}
 						{% endif %}
 					</ul>
 				</div>

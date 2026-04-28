@@ -5,28 +5,6 @@
 {% load bbcodes %}
 {% block body_main %}
 
-{% if category_list %}
-<div class="home-top-categories" aria-label="Kategorier">
-	<div class="container home-top-categories__container">
-		<nav id="home-categories-bar" class="home-years-bar home-categories-bar" aria-label="Kategorier">
-			<button type="button" class="home-scroll-btn home-scroll-btn--prev" aria-label="Scroll mot første kategorier">
-				<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-			</button>
-			<div class="home-years-bar__inner home-categories-bar__inner">
-				{% for cat in category_list %}
-					<a class="home-years-bar__year home-categories-bar__cat{% if cat.pk in home_selected_category_ids %} is-active{% endif %}"
-					   href="?cat={{ cat.pk }}" data-cat="{{ cat.pk }}">{{ cat.category|capfirst }}</a>
-				{% endfor %}
-			</div>
-			<button type="button" class="home-scroll-btn home-scroll-btn--next" aria-label="Scroll mot siste kategorier">
-				<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-			</button>
-		</nav>
-	</div>
-</div>
-<div class="home-top-categories-spacer" aria-hidden="true"></div>
-{% endif %}
-
 <div class="container">
 
 	<div class="row-fluid">
@@ -56,6 +34,23 @@
 	<div class="home-years-spacer" aria-hidden="true"></div>
 	<div id="home-bottom-nav" class="home-bottom-nav" aria-label="Arkivnavigasjon">
 		<div class="container home-bottom-nav__container">
+			{% if category_list %}
+			<nav id="home-categories-bar" class="home-years-bar home-categories-bar" aria-label="Kategorier">
+				<button type="button" class="home-scroll-btn home-scroll-btn--prev" aria-label="Scroll mot første kategorier">
+					<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+				</button>
+				<div class="home-years-bar__inner home-categories-bar__inner">
+					{% for cat in category_list %}
+						<a class="home-years-bar__year home-categories-bar__cat{% if cat.pk in home_selected_category_ids %} is-active{% endif %}"
+						   href="?cat={{ cat.pk }}" data-cat="{{ cat.pk }}">{{ cat.category|capfirst }}</a>
+					{% endfor %}
+				</div>
+				<button type="button" class="home-scroll-btn home-scroll-btn--next" aria-label="Scroll mot siste kategorier">
+					<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+				</button>
+			</nav>
+			{% endif %}
+
 			{% if home_years %}
 			<nav id="home-years-bar" class="home-years-bar" aria-label="År">
 				<button type="button" class="home-scroll-btn home-scroll-btn--prev" aria-label="Scroll mot nyere år">
