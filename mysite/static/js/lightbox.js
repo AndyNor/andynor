@@ -7,6 +7,64 @@
 		return null;
 	}
 
+	function enableDragPan(overlay) {
+		if (!overlay || overlay._dragPanBound) return;
+		overlay._dragPanBound = true;
+
+		var isDown = false;
+		var moved = false;
+		var startX = 0;
+		var startY = 0;
+		var startScrollLeft = 0;
+		var startScrollTop = 0;
+		var figure = null;
+
+		function onDown(e) {
+			var ov = document.getElementById('site-lightbox');
+			if (!ov || ov.classList.contains('is-hidden') || !ov.classList.contains('is-zoomed')) return;
+			var img = closest(e.target, '.lightbox-img');
+			if (!img) return;
+			figure = ov.querySelector('.lightbox-figure');
+			if (!figure) return;
+
+			isDown = true;
+			moved = false;
+			startX = e.clientX;
+			startY = e.clientY;
+			startScrollLeft = figure.scrollLeft;
+			startScrollTop = figure.scrollTop;
+			try { img.setPointerCapture(e.pointerId); } catch (err) {}
+			e.preventDefault();
+		}
+
+		function onMove(e) {
+			if (!isDown || !figure) return;
+			var dx = e.clientX - startX;
+			var dy = e.clientY - startY;
+			if (!moved && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+				moved = true;
+			}
+			figure.scrollLeft = startScrollLeft - dx;
+			figure.scrollTop = startScrollTop - dy;
+		}
+
+		function onUp(e) {
+			if (!isDown) return;
+			isDown = false;
+			if (moved) {
+				// Suppress the click that follows a drag (prevents toggling zoom)
+				overlay._suppressClickUntil = Date.now() + 350;
+			}
+			moved = false;
+			figure = null;
+		}
+
+		document.addEventListener('pointerdown', onDown, { passive: false });
+		document.addEventListener('pointermove', onMove, { passive: true });
+		document.addEventListener('pointerup', onUp, { passive: true });
+		document.addEventListener('pointercancel', onUp, { passive: true });
+	}
+
 	function ensureLightbox() {
 		var existing = document.getElementById('site-lightbox');
 		if (existing) return existing;
@@ -31,6 +89,7 @@
 			'</div>';
 
 		document.body.appendChild(overlay);
+		enableDragPan(overlay);
 		return overlay;
 	}
 
@@ -38,6 +97,7 @@
 		var overlay = ensureLightbox();
 		var img = overlay.querySelector('.lightbox-img');
 		var cap = overlay.querySelector('.lightbox-caption');
+		overlay.classList.remove('is-zoomed');
 
 		var gallery = anchor.getAttribute('data-gallery') || '';
 		var anchors = [];
@@ -58,6 +118,7 @@
 			var href = a.getAttribute('href') || '';
 			var caption = a.getAttribute('data-caption') || '';
 
+			overlay.classList.remove('is-zoomed');
 			img.src = href;
 			img.alt = caption || 'Bilde';
 			cap.textContent = caption;
@@ -90,6 +151,7 @@
 		if (!overlay) return;
 		overlay.classList.add('is-hidden');
 		overlay.classList.remove('is-open');
+		overlay.classList.remove('is-zoomed');
 		document.documentElement.classList.remove('lightbox-open');
 
 		var img = overlay.querySelector('.lightbox-img');
@@ -133,6 +195,20 @@
 			e.preventDefault();
 			openLightbox(a);
 			return;
+		}
+		// Toggle "fullscreen" (prioritize height) by tapping/clicking the image.
+		var overlay = document.getElementById('site-lightbox');
+		if (overlay && !overlay.classList.contains('is-hidden')) {
+			var sup = overlay._suppressClickUntil || 0;
+			if (sup && Date.now() < sup) {
+				return;
+			}
+			var lbImg = closest(e.target, '.lightbox-img');
+			if (lbImg) {
+				e.preventDefault();
+				overlay.classList.toggle('is-zoomed');
+				return;
+			}
 		}
 		if (closest(e.target, '#site-lightbox')) {
 			handleOverlayAction(e.target);

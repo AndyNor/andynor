@@ -985,6 +985,45 @@ html, body{
 	border-radius: 10px;
 	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
 	background: rgba(255, 255, 255, 0.02);
+	cursor: zoom-in;
+}
+
+/* "Fullscreen" mode: prioritize filling height */
+.lightbox-overlay.is-zoomed .lightbox-img{
+	max-height: none;
+	max-width: none;
+	height: 92vh;
+	width: auto;
+	cursor: grab;
+}
+
+/* In zoomed mode we want top/bottom to align with viewport and allow panning */
+.lightbox-overlay.is-zoomed .lightbox-panel{
+	inset: 0;
+	align-items: stretch;
+	justify-content: stretch;
+}
+
+.lightbox-overlay.is-zoomed .lightbox-figure{
+	max-width: none;
+	max-height: none;
+	width: 100vw;
+	height: 100vh;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	padding-top: 0;
+}
+
+.lightbox-overlay.is-zoomed .lightbox-caption{
+	padding: 8px 12px 14px;
+}
+
+.lightbox-overlay.is-zoomed .lightbox-img:active{
+	cursor: grabbing;
 }
 .lightbox-caption{
 	margin-top: 8px;
