@@ -94,20 +94,16 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 		<div class="navbar-inner">
 			<div class="container">
 
-				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</a>
+				{# Collapse is currently unused (nav is icon-based), but keep markup easy to restore. #}
 
 				{% block navigation_menu %}
 				<div class="navbar-always-visible">
 					<ul class="nav nav--always">
 						<li class="nav-icon-item nav-icon-item--home">
 							{% url "root" as url %}
-							<a class="nav-icon-link nav-icon-link--home" href="{{ url }}" aria-label="Forside" data-label="Forside">
+							<a class="nav-icon-link nav-icon-link--home nav-icon-link--home-green" href="{{ url }}" aria-label="Forside" data-label="Forside">
 								<i class="fa-solid fa-house" aria-hidden="true"></i>
-								<span class="nav-icon-link__label nav-icon-link__label--inline" aria-hidden="true">Forside</span>
+								<span class="nav-icon-link__label" aria-hidden="true">Forside</span>
 							</a>
 						</li>
 					</ul>
@@ -122,11 +118,48 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 							</li>
 							<li class="nav-icon-item">
 								{% url "blog_show" 60 as url %}
-								<a class="nav-icon-link nav-icon-link--quick" href="{{ url }}" aria-label="Om meg" data-label="Om meg">
+								<a class="nav-icon-link nav-icon-link--quick nav-icon-link--about" href="{{ url }}" aria-label="Om meg" data-label="Om meg">
 									<i class="fa-solid fa-user" aria-hidden="true"></i>
 									<span class="nav-icon-link__label" aria-hidden="true">Om meg</span>
 								</a>
 							</li>
+							{% if user.is_authenticated %}
+							<li class="nav-icon-item">
+								{% url "app_power" as url %}
+								<a class="nav-icon-link nav-icon-link--quick" href="{{ url }}" aria-label="Strøm" data-label="Strøm">
+									<i class="fa-solid fa-bolt" aria-hidden="true"></i>
+									<span class="nav-icon-link__label" aria-hidden="true">Strøm</span>
+								</a>
+							</li>
+							<li class="nav-icon-item">
+								{% url "app_stocks" as url %}
+								<a class="nav-icon-link nav-icon-link--quick" href="{{ url }}" aria-label="Aksjer" data-label="Aksjer">
+									<i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+									<span class="nav-icon-link__label" aria-hidden="true">Aksjer</span>
+								</a>
+							</li>
+							<li class="nav-icon-item">
+								{% url "app_money" as url %}
+								<a class="nav-icon-link nav-icon-link--quick" href="{{ url }}" aria-label="Regnskap" data-label="Regnskap">
+									<i class="fa-solid fa-wallet" aria-hidden="true"></i>
+									<span class="nav-icon-link__label" aria-hidden="true">Regnskap</span>
+								</a>
+							</li>
+							<li class="nav-icon-item">
+								{% url "profile" as url %}
+								<a class="nav-icon-link nav-icon-link--quick" href="{{ url }}" aria-label="Min pålogging" data-label="Min pålogging">
+									<i class="fa-solid fa-user-gear" aria-hidden="true"></i>
+									<span class="nav-icon-link__label" aria-hidden="true">Min pålogging</span>
+								</a>
+							</li>
+							<li class="nav-icon-item nav-icon-item--logout">
+								{% url "user_logout" as url %}
+								<a class="nav-icon-link nav-icon-link--logout" href="{{ url }}" aria-label="Logg ut" data-label="Logg ut">
+									<i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+									<span class="nav-icon-link__label" aria-hidden="true">Logg ut</span>
+								</a>
+							</li>
+							{% else %}
 							{% if not user.is_authenticated %}
 							<li class="nav-icon-item nav-icon-item--login">
 								{% url "user_login" as url %}
@@ -136,8 +169,10 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 								</a>
 							</li>
 							{% endif %}
+							{% endif %}
 						</ul>
 
+						{% if not user.is_authenticated %}
 						<ul class="nav pull-right nav--social nav--always" aria-label="Sosiale lenker">
 							<li class="social-nav-item">
 								<a href="https://github.com/andynor" class="social-icon github" title="GitHub" target="_blank" rel="noopener noreferrer">
@@ -165,21 +200,21 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 								</a>
 							</li>
 						</ul>
+						{% endif %}
 					</div>
 				</div>
-
-				<div class="nav-collapse collapse">
-					<ul class="nav">
-						{% if user.is_authenticated %}
-							{% url "app_power" as url %}{% pri_nav_item request.path url 'Strøm' 'icon-fire' %}
-							{% url "app_stocks" as url %}{% pri_nav_item request.path url 'Aksjer' 'icon-tasks' %}
-							{% url "app_money" as url %}{% pri_nav_item request.path url 'Regnskap' 'icon-tasks' %}
-							{% url "profile" as url %}{% pri_nav_item request.path url 'Min pålogging' 'icon-user' %}
-							{% url "user_logout" as url %}{% pri_nav_item request.path url 'Logg ut' 'icon-user' %}
-						{% else %}
-							{# Login is presented as an icon in the always-visible row #}
-						{% endif %}
-					</ul>
+				<div class="navbar-search-row">
+					{% if "/money/" in request.path %}
+						{% url "money_search" as action %}
+					{% else %}
+						{% url "search" as action %}
+					{% endif %}
+					<form class="navbar-search navbar-search--in-nav" action="{{ action }}" method="get" role="search" aria-label="Søk">
+						<input type="text" class="search-query search-query--wide" id="id_q" placeholder="Søk" name="q" value="{{query_string}}">
+						<button type="submit" class="btn-icon-reset" aria-label="Søk">
+							<i class="icon-search" aria-hidden="true"></i>
+						</button>
+					</form>
 				</div>
 				{% endblock %}
 
@@ -198,22 +233,9 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 
 	{% block search_bar %}
 	<div class="row-fluid">
-
 		{% block messages %}
 			{% include "messages.html" %}
 		{% endblock %}
-
-		{% if "/money/" in request.path %}
-			{% url "money_search" as action %}
-		{% else %}
-			{% url "search" as action %}
-		{% endif %}
-		<form class="navbar-search pull-right navbar-search--tight" action="{{ action }}" method="get">
-			<input type="text" class="search-query search-query--wide" id="id_q" placeholder="Søk" name="q" value="{{query_string}}">
-			<button type="submit" class="btn-icon-reset">
-				<i class="icon-search"></i>
-			</button>
-		</form>
 	</div>
 	{% endblock %}
 
