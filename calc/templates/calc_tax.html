@@ -1,6 +1,7 @@
 {% extends "index.html" %}
 {% load humanize %}
 {% load percent %}
+{% load static %}
 
 
 {% block body_main %}
@@ -142,6 +143,6 @@ Skatteetaten tar ikke inn beløp under <b>{{constant.innkrevingsgrense|intcomma}
 {% endblock %}
 
 {% block javascript_append %}
-<script src="{{STATIC_URL}}js/highcharts-v2.3.5.js"></script>
-<script src="{{STATIC_URL}}js/tax_chart.js"></script>
+<script src="{% static 'js/highcharts-v2.3.5.js' %}"></script>
+<script src="{% static 'js/tax_chart.js' %}"></script>
 {% endblock %}

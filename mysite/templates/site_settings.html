@@ -1,6 +1,7 @@
 {% extends "index.html" %}
 {% load upto %}
 {% load humanize %}
+{% load static %}
 {% block body_main %}
 	<h1>My dashboard</h1>
 	<p>Week {{ current_time|date:"W, l jS F Y, G:i (O)" }}</p>
@@ -73,6 +74,6 @@
 {% endblock %}
 
 {% block javascript_append %}
-<script src="{{ STATIC_URL }}js/highcharts-2.2.5.js"></script>
-<script src="{{ STATIC_URL }}js/visit_graph.js"></script>
+<script src="{% static 'js/highcharts-2.2.5.js' %}"></script>
+<script src="{% static 'js/visit_graph.js' %}"></script>
 {% endblock %}

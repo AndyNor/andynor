@@ -1,5 +1,6 @@
 {% load breadcrumbs %}
 {% load pri_nav_item %}
+{% load static %}
 <!doctype html>
 <html lang="no">
 <head>
@@ -10,31 +11,31 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 	{% block head_css_override %}
-	<link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap.min.css">
-	<link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap-responsive.min.css">
-	<link rel="stylesheet" href="{{ STATIC_URL }}css/smoothness/jquery-ui-1.8.20.custom.css">
-	<link rel="stylesheet" href="{{ STATIC_URL }}css/chosen.min.css">
-	<link rel="stylesheet" href="{{ STATIC_URL }}css/prettify.css">
-	<link rel="stylesheet" href="{{ STATIC_URL }}css/custom_style.css">
+	<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/bootstrap-responsive.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/smoothness/jquery-ui-1.8.20.custom.css' %}">
+	<link rel="stylesheet" href="{% static 'css/chosen.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/prettify.css' %}">
+	<link rel="stylesheet" href="{% static 'css/custom_style.css' %}">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-	<link rel="shortcut icon" href="{{ STATIC_URL }}favicon.png">
-	<link rel="apple-touch-icon" href="{{ STATIC_URL }}favicon_apple.png">
-	<link rel="stylesheet" href="{{ STATIC_URL }}tablesorter/theme.default.css">
-	<link rel="stylesheet" href="{{ STATIC_URL }}tablesorter/filter.formatter.css">
+	<link rel="shortcut icon" href="{% static 'favicon.png' %}">
+	<link rel="apple-touch-icon" href="{% static 'favicon_apple.png' %}">
+	<link rel="stylesheet" href="{% static 'tablesorter/theme.default.css' %}">
+	<link rel="stylesheet" href="{% static 'tablesorter/filter.formatter.css' %}">
 	{% endblock %}
 
 
-	<script src="{{ STATIC_URL }}js/jquery-2.2.4.min.js"></script>
-	<script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
-	<script src="{{ STATIC_URL }}js/jscolor/jscolor.js"></script>
-	<script src="{{ STATIC_URL }}js/prettify/prettify.js"></script>
-	<script src="{{ STATIC_URL }}js/jquery-ui-1.10.1.custom.min.js"></script>
-	<script src="{{ STATIC_URL }}js/chosen.jquery.min.js"></script>
-	<script src="{{ STATIC_URL }}js/jquery.unveil.min.js"></script>
-	<script src="{{ STATIC_URL }}js/site-wide-javascript.js"></script>
-	<script src="{{ STATIC_URL }}tablesorter/jquery.tablesorter.js"></script>
-	<script src="{{ STATIC_URL }}tablesorter/jquery.tablesorter.widgets.js"></script>
-	<script src="{{ STATIC_URL }}floatThead/jquery.floatThead.min.js"></script>
+	<script src="{% static 'js/jquery-2.2.4.min.js' %}"></script>
+	<script src="{% static 'js/bootstrap.min.js' %}"></script>
+	<script src="{% static 'js/jscolor/jscolor.js' %}"></script>
+	<script src="{% static 'js/prettify/prettify.js' %}"></script>
+	<script src="{% static 'js/jquery-ui-1.10.1.custom.min.js' %}"></script>
+	<script src="{% static 'js/chosen.jquery.min.js' %}"></script>
+	<script src="{% static 'js/jquery.unveil.min.js' %}"></script>
+	<script src="{% static 'js/site-wide-javascript.js' %}"></script>
+	<script src="{% static 'tablesorter/jquery.tablesorter.js' %}"></script>
+	<script src="{% static 'tablesorter/jquery.tablesorter.widgets.js' %}"></script>
+	<script src="{% static 'floatThead/jquery.floatThead.min.js' %}"></script>
 	{% block javascript_prepend %}{% endblock %}
 
 	<script nonce="{{request.csp_nonce}}">

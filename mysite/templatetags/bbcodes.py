@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.utils.http import quote
 from django.middleware import csrf
+from django.templatetags.static import static
 
 
 # Inspired by https://code.djangoproject.com/wiki/CookBookTemplateFilterBBCode
@@ -80,7 +81,7 @@ def gallery(request, blog_id, matchobj):
 			else:
 				edit_button = ''
 			if os.path.isfile(path):
-				_loader = '%simg/loader.gif' % settings.STATIC_URL
+				_loader = static('img/loader.gif')
 				html.append('<a href="%s%s"><img class="thumbnail blog-post-img-fluid" src="%s" data-src="%s%s" alt="%s"></a><small>%s %s</small>' % (
 						settings.MEDIA_URL,
 						image.large,
@@ -95,8 +96,8 @@ def gallery(request, blog_id, matchobj):
 				)
 			else:
 				html.append('<img class="thumbnail" src="%s%s" alt="Image missing">' % (
-					settings.STATIC_URL,
-					'img/image_missing.png'
+					static('img/image_missing.png'),
+					''
 					)
 				)
 			html.append('</li>')
@@ -111,8 +112,8 @@ def gallery(request, blog_id, matchobj):
 					html.append('</ul></div><div class="row-fluid"><ul class="thumbnails">')
 				printed_images += 1
 				html.append('<li class="span3"><img class="thumbnail" src="%s%s" alt="Image missing">' % (
-					settings.STATIC_URL,
-					'img/image_upload.png'
+					static('img/image_upload.png'),
+					''
 					)
 				)
 		html.append('</ul></div>')
@@ -177,9 +178,9 @@ def file_link(matchobj):
 		icon = "unknown"
 	url = "%s%s/%s" % (settings.FILE_URL, file_obj.blog.pk, file_obj.filename)
 
-	return '<div><a href="%s"><img class="floatLeft filePreviewMargin" src="/static/img/files/%s.png">%s</a>%s<br><u>size</u> %s<br>sha256: %s...%s</div><br class="clearBoth">' % (
+	return '<div><a href="%s"><img class="floatLeft filePreviewMargin" src="%s">%s</a>%s<br><u>size</u> %s<br>sha256: %s...%s</div><br class="clearBoth">' % (
 			url,
-			icon,
+			static('img/files/%s.png' % icon),
 			name,
 			description,
 			sizeof_fmt(file_obj.size),
@@ -208,7 +209,7 @@ def image(request, blog_id, matchobj):
 		else:
 			edit_button = ''
 		title = image.description if image.description != None else ''
-		_loader = '%simg/loader.gif' % settings.STATIC_URL
+		_loader = static('img/loader.gif')
 		html.append('<div class="%s" id="blog-image-%s"><img %ssrc="%s" data-src="%s%s" alt="%s"><br><small>%s %s</small></div>' % (
 				image_class,
 				image.pk,
@@ -225,8 +226,8 @@ def image(request, blog_id, matchobj):
 		return ''.join(html)
 	except:
 		return '<img class="" src="%s%s" alt="Image missing">' % (
-					settings.STATIC_URL,
-					'img/image_upload.png'
+					static('img/image_upload.png'),
+					''
 					)
 
 
@@ -251,7 +252,7 @@ def thumb(request, blog_id, matchobj):
 		else:
 			edit_button = ''
 		title = image.description if image.description != None else ''
-		_loader = '%simg/loader.gif' % settings.STATIC_URL
+		_loader = static('img/loader.gif')
 		html.append('<div class="%s" id="blog-image-%s"><a href="%s%s"><img %s src="%s" data-src="%s%s" alt="%s"></a><br><small>%s %s</small></div>' % (
 				image_class,
 				image.pk,
@@ -269,9 +270,30 @@ def thumb(request, blog_id, matchobj):
 		return ''.join(html)
 	except:
 		return '<img class="" src="%s%s" alt="Image missing">' % (
-					settings.STATIC_URL,
-					'img/image_upload.png'
+					static('img/image_upload.png'),
+					''
 				)
+
+
+def mindmap_link(matchobj):
+	link = matchobj.group(1)
+	return '<div><a class="link_ext" target="_blank" href="%s"><img class="mindmapPreviewMargin" src="%s">%s</a></div><br class="clearBoth">' % (
+		link,
+		static('img/mindmap.png'),
+		link,
+	)
+
+
+def static_file_link(matchobj):
+	name = matchobj.group(1)
+	ext = matchobj.group(2)
+	desc = matchobj.group(3)
+	return '<div><a href="%s"><img class="floatLeft filePreviewMargin" src="%s">%s</a><br>%s</div><br class="clearBoth">' % (
+		static('files/%s.%s' % (name, ext)),
+		static('img/files/%s.png' % ext),
+		name,
+		desc,
+	)
 
 
 
@@ -319,8 +341,8 @@ def bbcode_render(context, text, blog_id):
 			(r'\[stryk=(.+?)\]', r'<span class="textLineThrough">\1</span>'),
 
 			# Icons
-			(r'\[mindmap=([^\]]*)\]', r'<div><a class="link_ext" target="_blank" href="\1"><img class="mindmapPreviewMargin src="/static/img/mindmap.png">\1</a></div><br class="clearBoth">'),
-			(r'\[file=([^,\]]*),([^,\]]*),([^,\]]*)\]', r'<div><a href="/static/files/\1.\2"><img class="floatLeft filePreviewMargin" src="/static/img/files/\2.png">\1</a><br>\3</div><br class="clearBoth">'),
+			(r'\[mindmap=([^\]]*)\]', partial(mindmap_link)),
+			(r'\[file=([^,\]]*),([^,\]]*),([^,\]]*)\]', partial(static_file_link)),
 			(r'\[file=(?P<id>\d{1,10})(\s(?P<desc>[^\]]+))?\]', partial(file_link)),
 
 	]

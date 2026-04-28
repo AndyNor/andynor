@@ -124,6 +124,14 @@ if THIS_ENVIRONMENT == "DEV":
 	STATIC_ROOT = '_static/'
 	STATIC_URL = '/static/'
 
+# Use manifest-hashed filenames for static files (cache-busting).
+# Requires running `collectstatic` after changes to static assets.
+STORAGES = {
+	"staticfiles": {
+		"BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+	},
+}
+
 
 STATICFILES_DIRS = (
 )

@@ -2,6 +2,7 @@
 {% load humanize %}
 {% load i18n %}
 {% load l10n %}
+{% load static %}
 
 {% block search %}
 	{% url "money_search" as action %} {% include "search_form.html" with action=action %}
@@ -84,7 +85,7 @@
 
 
 {% block javascript_append %}
-<script src="{{ STATIC_URL }}js/highcharts-2.2.5.js"></script>
+<script src="{% static 'js/highcharts-2.2.5.js' %}"></script>
 <script type="text/javascript" nonce="{{request.csp_nonce}}">
 
 var SalaryL1Graphs = (function() {
