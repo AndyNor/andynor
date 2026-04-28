@@ -220,6 +220,15 @@
 					}
 				} catch (err) {}
 
+				// Make horizontal intent obvious: snap to left / center / right thirds.
+				// - left third -> show left edge
+				// - right third -> show right edge
+				// - middle third -> center
+				var snappedX = 0.5;
+				if (clickRatioX <= (1 / 3)) snappedX = 0;
+				else if (clickRatioX >= (2 / 3)) snappedX = 1;
+				else snappedX = 0.5;
+
 				overlay.classList.toggle('is-zoomed');
 				if (willZoom) {
 					// After layout updates for zoomed mode, pan the scroll container.
@@ -228,7 +237,7 @@
 						if (!fig) return;
 						var maxX = Math.max(0, fig.scrollWidth - fig.clientWidth);
 						var maxY = Math.max(0, fig.scrollHeight - fig.clientHeight);
-						fig.scrollLeft = Math.round(maxX * clickRatioX);
+						fig.scrollLeft = Math.round(maxX * snappedX);
 						fig.scrollTop = Math.round(maxY * clickRatioY);
 					});
 				}
