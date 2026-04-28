@@ -231,15 +231,38 @@
 
 				overlay.classList.toggle('is-zoomed');
 				if (willZoom) {
-					// After layout updates for zoomed mode, pan the scroll container.
-					window.requestAnimationFrame(function () {
+					var applyPan = function () {
 						var fig = overlay.querySelector('.lightbox-figure');
 						if (!fig) return;
 						var maxX = Math.max(0, fig.scrollWidth - fig.clientWidth);
 						var maxY = Math.max(0, fig.scrollHeight - fig.clientHeight);
+						if (maxX > 0) {
+							overlay.classList.add('is-overflow-x');
+						} else {
+							overlay.classList.remove('is-overflow-x');
+						}
 						fig.scrollLeft = Math.round(maxX * snappedX);
 						fig.scrollTop = Math.round(maxY * clickRatioY);
+					};
+
+					// After layout updates for zoomed mode, pan the scroll container.
+					window.requestAnimationFrame(function () {
+						window.requestAnimationFrame(function () {
+							applyPan();
+						});
 					});
+
+					// iOS Safari: image/layout might not be ready immediately; apply again on load.
+					if (!lbImg.complete) {
+						var onLoad = function () {
+							lbImg.removeEventListener('load', onLoad);
+							window.requestAnimationFrame(function () { applyPan(); });
+							window.setTimeout(applyPan, 30);
+						};
+						lbImg.addEventListener('load', onLoad);
+					} else {
+						window.setTimeout(applyPan, 30);
+					}
 				}
 				return;
 			}

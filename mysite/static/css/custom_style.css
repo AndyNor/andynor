@@ -972,13 +972,18 @@ html, body{
 }
 .lightbox-figure{
 	margin: 0;
+	width: 100%;
 	max-width: min(980px, 96vw);
 	max-height: 90vh;
 	pointer-events: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 .lightbox-img{
 	display: block;
-	max-width: 96vw;
+	max-width: 100%;
 	max-height: 80vh;
 	width: auto;
 	height: auto;
@@ -992,7 +997,8 @@ html, body{
 .lightbox-overlay.is-zoomed .lightbox-img{
 	max-height: none;
 	max-width: none;
-	height: 92vh;
+	/* Fill the viewport height, leaving room for caption at bottom */
+	height: calc(100vh - 56px - env(safe-area-inset-bottom));
 	width: auto;
 	cursor: grab;
 }
@@ -1015,11 +1021,21 @@ html, body{
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
-	padding-top: 0;
+	padding-top: 10px;
+}
+
+/* When the zoomed image overflows horizontally, align to the left so panning reaches edges */
+.lightbox-overlay.is-zoomed.is-overflow-x .lightbox-figure{
+	align-items: flex-start;
 }
 
 .lightbox-overlay.is-zoomed .lightbox-caption{
-	padding: 8px 12px 14px;
+	margin-top: auto; /* push caption to bottom */
+	padding: 10px 12px calc(14px + env(safe-area-inset-bottom));
+	width: 100%;
+	box-sizing: border-box;
+	background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.35));
+	font-size: 24px;
 }
 
 .lightbox-overlay.is-zoomed .lightbox-img:active{
@@ -1028,7 +1044,7 @@ html, body{
 .lightbox-caption{
 	margin-top: 8px;
 	color: rgba(255, 255, 255, 0.85);
-	font-size: 12px;
+	font-size: 18px;
 	text-align: center;
 }
 .lightbox-close{
