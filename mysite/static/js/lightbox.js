@@ -206,7 +206,32 @@
 			var lbImg = closest(e.target, '.lightbox-img');
 			if (lbImg) {
 				e.preventDefault();
+				var willZoom = !overlay.classList.contains('is-zoomed');
+				// Remember where inside the image the user clicked, so zoom starts near that area.
+				var clickRatioX = 0.5;
+				var clickRatioY = 0.5;
+				try {
+					var r = lbImg.getBoundingClientRect();
+					if (r && r.width > 0 && r.height > 0) {
+						clickRatioX = (e.clientX - r.left) / r.width;
+						clickRatioY = (e.clientY - r.top) / r.height;
+						clickRatioX = Math.max(0, Math.min(1, clickRatioX));
+						clickRatioY = Math.max(0, Math.min(1, clickRatioY));
+					}
+				} catch (err) {}
+
 				overlay.classList.toggle('is-zoomed');
+				if (willZoom) {
+					// After layout updates for zoomed mode, pan the scroll container.
+					window.requestAnimationFrame(function () {
+						var fig = overlay.querySelector('.lightbox-figure');
+						if (!fig) return;
+						var maxX = Math.max(0, fig.scrollWidth - fig.clientWidth);
+						var maxY = Math.max(0, fig.scrollHeight - fig.clientHeight);
+						fig.scrollLeft = Math.round(maxX * clickRatioX);
+						fig.scrollTop = Math.round(maxY * clickRatioY);
+					});
+				}
 				return;
 			}
 		}
