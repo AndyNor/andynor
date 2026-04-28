@@ -193,7 +193,31 @@ def _home_blogs_display_entries(blogs):
 	return blogs_display
 
 
+def _home_articles_redirect_if_direct_nav(request):
+	"""
+	These endpoints are designed for XHR/fetch (infinite scroll) and return JSON.
+	If a user navigates here directly, redirect to the normal HTML home page.
+	"""
+	accept = request.headers.get('Accept', '') or ''
+	xrw = request.headers.get('X-Requested-With', '') or ''
+	if ('application/json' in accept) or (xrw == 'XMLHttpRequest'):
+		return None
+
+	cats = request.GET.get('cats')
+	cat_list = request.GET.getlist('cat')
+	target = reverse('root')
+	if cats:
+		target = '%s?cats=%s' % (target, cats)
+	elif cat_list:
+		target = '%s?cats=%s' % (target, ','.join(cat_list))
+	return HttpResponseRedirect(target)
+
+
 def home_articles_more(request):
+	resp = _home_articles_redirect_if_direct_nav(request)
+	if resp:
+		return resp
+
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
 
@@ -243,6 +267,10 @@ def home_articles_more(request):
 
 
 def home_articles_newer(request):
+	resp = _home_articles_redirect_if_direct_nav(request)
+	if resp:
+		return resp
+
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
 
@@ -292,6 +320,10 @@ def home_articles_newer(request):
 
 
 def home_articles_year(request):
+	resp = _home_articles_redirect_if_direct_nav(request)
+	if resp:
+		return resp
+
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
 
@@ -357,6 +389,10 @@ def home_articles_year(request):
 
 
 def home_articles_month(request):
+	resp = _home_articles_redirect_if_direct_nav(request)
+	if resp:
+		return resp
+
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
 
@@ -419,6 +455,10 @@ def home_articles_month(request):
 
 
 def home_articles_index(request):
+	resp = _home_articles_redirect_if_direct_nav(request)
+	if resp:
+		return resp
+
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
 
@@ -435,6 +475,10 @@ def home_articles_index(request):
 
 
 def home_articles_html(request):
+	resp = _home_articles_redirect_if_direct_nav(request)
+	if resp:
+		return resp
+
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
 

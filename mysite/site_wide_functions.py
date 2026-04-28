@@ -74,6 +74,41 @@ def get_previous_page(request, default='root'):
 		if previous_page is None:
 			previous_page = reverse(default)
 
+	# Guard against redirecting to JSON-only "articles" endpoints when coming
+	# from edit forms (e.g. image comment edit). Those endpoints are intended
+	# for XHR/infinite-scroll and will render as raw JSON in the browser.
+	try:
+		from urllib.parse import urlparse, parse_qs, urlencode
+		parsed = urlparse(str(previous_page))
+		# Disallow absolute URLs (basic open-redirect guard) and normalize to path.
+		if parsed.scheme or parsed.netloc:
+			previous_page = reverse(default)
+		else:
+			blocked_paths = {
+				'/articles/more/',
+				'/articles/newer/',
+				'/articles/year/',
+				'/articles/month/',
+				'/articles/index/',
+				'/articles/html/',
+			}
+			if parsed.path in blocked_paths:
+				qs = parse_qs(parsed.query or '')
+				# Preserve category selection, since the home page supports it.
+				params = {}
+				if 'cats' in qs and qs['cats']:
+					params['cats'] = qs['cats'][-1]
+				elif 'cat' in qs and qs['cat']:
+					# If cats isn't present, translate repeated cat= into cats=csv.
+					params['cats'] = ','.join(qs['cat'])
+				target = reverse(default)
+				if params:
+					target = '%s?%s' % (target, urlencode(params))
+				previous_page = target
+	except Exception:
+		# Fail safe: keep the original behavior if parsing fails.
+		pass
+
 	return previous_page
 
 
