@@ -34,6 +34,92 @@
 	<div class="home-years-spacer" aria-hidden="true"></div>
 	<div id="home-bottom-nav" class="home-bottom-nav" aria-label="Arkivnavigasjon">
 		<div class="container home-bottom-nav__container">
+			{% if home_years %}
+			<div id="home-bottom-compact" class="home-bottom-compact" aria-label="Arkiv (mobil)">
+				<div class="home-bottom-compact__left" aria-label="Aktiv periode">
+					<span class="home-bottom-compact__ym">
+						<span id="home-compact-year" class="home-bottom-compact__year">—</span>
+						<span class="home-bottom-compact__sep" aria-hidden="true">·</span>
+						<span id="home-compact-month" class="home-bottom-compact__month">—</span>
+					</span>
+				</div>
+				<div class="home-bottom-compact__actions" aria-label="Velg filter">
+					<button type="button" class="home-bottom-compact__btn" data-open-overlay="years" aria-haspopup="dialog" aria-controls="home-overlay-years">
+						År
+					</button>
+					<button type="button" class="home-bottom-compact__btn" data-open-overlay="months" aria-haspopup="dialog" aria-controls="home-overlay-months">
+						Måned
+					</button>
+					<button type="button" class="home-bottom-compact__btn" data-open-overlay="cats" aria-haspopup="dialog" aria-controls="home-overlay-cats">
+						Kategorier
+					</button>
+				</div>
+			</div>
+
+			<div id="home-overlay-years" class="home-overlay is-hidden" role="dialog" aria-modal="true" aria-label="Velg år">
+				<div class="home-overlay__backdrop" data-close-overlay></div>
+				<div class="home-overlay__panel" role="document">
+					<div class="home-overlay__header">
+						<strong>Velg år</strong>
+						<button type="button" class="home-overlay__close" data-close-overlay aria-label="Lukk">×</button>
+					</div>
+					<div class="home-overlay__body">
+						<div class="home-overlay__grid" id="home-overlay-years-grid">
+							{% for year in home_years %}
+								<button type="button" class="home-overlay__pill" data-year="{{ year }}">{{ year }}</button>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="home-overlay-months" class="home-overlay is-hidden" role="dialog" aria-modal="true" aria-label="Velg måned">
+				<div class="home-overlay__backdrop" data-close-overlay></div>
+				<div class="home-overlay__panel" role="document">
+					<div class="home-overlay__header">
+						<strong>Velg måned</strong>
+						<button type="button" class="home-overlay__close" data-close-overlay aria-label="Lukk">×</button>
+					</div>
+					<div class="home-overlay__body">
+						<div class="home-overlay__grid" id="home-overlay-months-grid">
+							<button type="button" class="home-overlay__pill" data-month="1">jan</button>
+							<button type="button" class="home-overlay__pill" data-month="2">feb</button>
+							<button type="button" class="home-overlay__pill" data-month="3">mar</button>
+							<button type="button" class="home-overlay__pill" data-month="4">apr</button>
+							<button type="button" class="home-overlay__pill" data-month="5">mai</button>
+							<button type="button" class="home-overlay__pill" data-month="6">jun</button>
+							<button type="button" class="home-overlay__pill" data-month="7">jul</button>
+							<button type="button" class="home-overlay__pill" data-month="8">aug</button>
+							<button type="button" class="home-overlay__pill" data-month="9">sep</button>
+							<button type="button" class="home-overlay__pill" data-month="10">okt</button>
+							<button type="button" class="home-overlay__pill" data-month="11">nov</button>
+							<button type="button" class="home-overlay__pill" data-month="12">des</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			{% endif %}
+
+			{% if category_list %}
+			<div id="home-overlay-cats" class="home-overlay is-hidden" role="dialog" aria-modal="true" aria-label="Velg kategorier">
+				<div class="home-overlay__backdrop" data-close-overlay></div>
+				<div class="home-overlay__panel" role="document">
+					<div class="home-overlay__header">
+						<strong>Velg kategori</strong>
+						<button type="button" class="home-overlay__close" data-close-overlay aria-label="Lukk">×</button>
+					</div>
+					<div class="home-overlay__body">
+						<div class="home-overlay__grid">
+							<button type="button" class="home-overlay__pill" data-cat="__all__">Alle</button>
+							{% for cat in category_list %}
+								<button type="button" class="home-overlay__pill" data-cat="{{ cat.pk }}">{{ cat.category|capfirst }}</button>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+			{% endif %}
+
 			{% if category_list %}
 			<nav id="home-categories-bar" class="home-years-bar home-categories-bar" aria-label="Kategorier">
 				<button type="button" class="home-scroll-btn home-scroll-btn--prev" aria-label="Scroll mot første kategorier">
@@ -303,6 +389,18 @@
 			window.requestAnimationFrame(function () { positionMonthIndicator(); });
 		}
 
+		var MONTH_LABELS = ['jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','des'];
+		function updateCompactLabel(year, month) {
+			var yEl = document.getElementById('home-compact-year');
+			var mEl = document.getElementById('home-compact-month');
+			if (!yEl || !mEl) return;
+			if (year) yEl.textContent = String(year);
+			if (month) {
+				var mi = parseInt(month, 10);
+				if (!isNaN(mi) && mi >= 1 && mi <= 12) mEl.textContent = MONTH_LABELS[mi - 1];
+			}
+		}
+
 		var monthsByYear = {};
 		try {
 			monthsByYear = JSON.parse('{{ home_months_by_year_json|escapejs }}');
@@ -330,6 +428,21 @@
 			window.requestAnimationFrame(function () { positionMonthIndicator(); });
 		}
 
+		function updateMonthsOverlayForYear(year) {
+			var grid = document.getElementById('home-overlay-months-grid');
+			if (!grid) return;
+			var enabled = monthsByYear[String(year)] || [];
+			var enabledSet = {};
+			for (var i = 0; i < enabled.length; i++) enabledSet[String(enabled[i])] = true;
+			var btns = grid.querySelectorAll('[data-month]');
+			for (var j = 0; j < btns.length; j++) {
+				var m = btns[j].getAttribute('data-month');
+				var ok = enabledSet[String(m)];
+				btns[j].disabled = !ok;
+				btns[j].classList.toggle('is-disabled', !ok);
+			}
+		}
+
 		function updateActiveYearFromScroll() {
 			var posts = stream.querySelectorAll('.blog-post[data-year]');
 			var best = null;
@@ -350,7 +463,9 @@
 				if (origin && origin.length >= 7) {
 					var m = parseInt(origin.slice(5, 7), 10);
 					if (!isNaN(m)) setActiveMonth(m);
+					updateCompactLabel(y, m);
 				}
+				updateMonthsOverlayForYear(y);
 			}
 		}
 
@@ -472,6 +587,107 @@
 				jumpToMonth(y, m);
 			});
 			positionMonthIndicator();
+		}
+
+		function closeAllOverlays() {
+			var overlays = document.querySelectorAll('.home-overlay');
+			for (var i = 0; i < overlays.length; i++) overlays[i].classList.add('is-hidden');
+		}
+
+		function openOverlay(id) {
+			closeAllOverlays();
+			var el = document.getElementById('home-overlay-' + String(id));
+			if (!el) return;
+			el.classList.remove('is-hidden');
+			try { el.querySelector('.home-overlay__panel').focus(); } catch (e) {}
+		}
+
+		var compact = document.getElementById('home-bottom-compact');
+		if (compact) {
+			compact.addEventListener('click', function (e) {
+				var t = e.target;
+				while (t && t !== compact && !t.getAttribute('data-open-overlay')) t = t.parentNode;
+				if (!t || t === compact) return;
+				e.preventDefault();
+				var id = t.getAttribute('data-open-overlay');
+				if (id === 'months') {
+					var activeYearEl = document.querySelector('#home-years-bar .is-active[data-year]');
+					var y = activeYearEl ? activeYearEl.getAttribute('data-year') : null;
+					if (y) updateMonthsOverlayForYear(y);
+				}
+				openOverlay(id);
+			});
+		}
+
+		document.addEventListener('click', function (e) {
+			var t = e.target;
+			if (!t) return;
+			if (t.getAttribute && t.getAttribute('data-close-overlay') !== null) {
+				closeAllOverlays();
+			}
+		});
+
+		document.addEventListener('keydown', function (e) {
+			if (e && (e.key === 'Escape' || e.keyCode === 27)) {
+				closeAllOverlays();
+			}
+		});
+
+		var yearsOverlay = document.getElementById('home-overlay-years');
+		if (yearsOverlay) {
+			yearsOverlay.addEventListener('click', function (e) {
+				var t = e.target;
+				while (t && t !== yearsOverlay && !t.getAttribute('data-year')) t = t.parentNode;
+				if (!t || t === yearsOverlay) return;
+				e.preventDefault();
+				var y = t.getAttribute('data-year');
+				if (!y) return;
+				setActiveYear(y);
+				updateMonthsForYear(y);
+				updateMonthsOverlayForYear(y);
+				updateCompactLabel(y, null);
+				jumpToYear(y);
+				closeAllOverlays();
+			});
+		}
+
+		var monthsOverlay = document.getElementById('home-overlay-months');
+		if (monthsOverlay) {
+			monthsOverlay.addEventListener('click', function (e) {
+				var t = e.target;
+				while (t && t !== monthsOverlay && !t.getAttribute('data-month')) t = t.parentNode;
+				if (!t || t === monthsOverlay) return;
+				e.preventDefault();
+				if (t.disabled || t.classList.contains('is-disabled')) return;
+				var m = t.getAttribute('data-month');
+				var activeYearEl = document.querySelector('#home-years-bar .is-active[data-year]');
+				var y = activeYearEl ? activeYearEl.getAttribute('data-year') : null;
+				if (!y || !m) return;
+				setActiveMonth(m);
+				updateCompactLabel(y, m);
+				jumpToMonth(y, m);
+				closeAllOverlays();
+			});
+		}
+
+		var catsOverlay = document.getElementById('home-overlay-cats');
+		if (catsOverlay) {
+			catsOverlay.addEventListener('click', function (e) {
+				var t = e.target;
+				while (t && t !== catsOverlay && !t.getAttribute('data-cat')) t = t.parentNode;
+				if (!t || t === catsOverlay) return;
+				e.preventDefault();
+				var cat = t.getAttribute('data-cat');
+				if (!cat) return;
+				var params = new URLSearchParams(window.location.search || '');
+				params.delete('cat');
+				if (cat === '__all__') {
+					params.delete('cats');
+				} else {
+					params.set('cats', String(cat));
+				}
+				window.location.search = params.toString();
+			});
 		}
 
 		var yearsBarEl = document.getElementById('home-years-bar');

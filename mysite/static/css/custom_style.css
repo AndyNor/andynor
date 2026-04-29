@@ -742,19 +742,120 @@ html, body{
 	box-sizing: border-box;
 }
 
-/* Auto-hide top navbar + bottom archive bars after idle scroll (mobile-friendly). */
-body.ui-autohide-enabled .navbar-fixed-top,
-body.ui-autohide-enabled .home-bottom-nav{
-	transition: transform 4000ms cubic-bezier(0.22, 1, 0.36, 1);
-	will-change: transform;
+/* Mobile bottom nav: compact bar + overlays */
+.home-bottom-compact{
+	display: none;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+}
+.home-bottom-compact__ym{
+	display: inline-flex;
+	align-items: baseline;
+	gap: 6px;
+	font-weight: 700;
+	color: rgba(0, 0, 0, 0.68);
+}
+.home-bottom-compact__year{
+	color: #0b3a07;
+}
+.home-bottom-compact__month{
+	color: rgba(0, 0, 0, 0.6);
+	text-transform: lowercase;
+}
+.home-bottom-compact__actions{
+	display: inline-flex;
+	gap: 6px;
+}
+.home-bottom-compact__btn{
+	border: 1px solid rgba(37, 95, 10, 0.45);
+	background: rgba(37, 95, 10, 0.06);
+	color: #0f4b0a;
+	border-radius: 999px;
+	padding: 6px 10px;
+	font-size: 12px;
+	line-height: 1;
+}
+.home-bottom-compact__btn:active{
+	background: rgba(37, 95, 10, 0.12);
 }
 
-body.ui-autohide-hidden .navbar-fixed-top{
-	transform: translateY(-110%);
+.home-overlay{
+	position: fixed;
+	inset: 0;
+	z-index: 1900;
+}
+.home-overlay__backdrop{
+	position: absolute;
+	inset: 0;
+	background: rgba(0,0,0,0.55);
+}
+.home-overlay__panel{
+	position: absolute;
+	left: 10px;
+	right: 10px;
+	bottom: calc(10px + env(safe-area-inset-bottom));
+	max-height: min(70vh, 520px);
+	background: rgba(255,255,255,0.98);
+	border: 1px solid rgba(0,0,0,0.12);
+	border-radius: 14px;
+	box-shadow: 0 12px 38px rgba(0,0,0,0.25);
+	overflow: hidden;
+}
+.home-overlay__header{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 12px;
+	border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.home-overlay__close{
+	border: 0;
+	background: transparent;
+	font-size: 24px;
+	line-height: 1;
+	padding: 0 6px;
+	color: rgba(0,0,0,0.65);
+}
+.home-overlay__body{
+	padding: 12px;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.home-overlay__grid{
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.home-overlay__pill{
+	border: 1px solid rgba(37, 95, 10, 0.45);
+	background: transparent;
+	color: #0f4b0a;
+	border-radius: 999px;
+	padding: 8px 12px;
+	font-size: 13px;
+	line-height: 1;
+}
+.home-overlay__pill.is-disabled,
+.home-overlay__pill:disabled{
+	opacity: 0.35;
+	pointer-events: none;
 }
 
-body.ui-autohide-hidden .home-bottom-nav{
-	transform: translateY(110%);
+/* Auto-hide: on mobile we keep "Forside + search" visible, and hide the icon row. */
+body.ui-autohide-enabled .navbar-fixed-top .navbar-right-icons{
+	max-height: 140px;
+	overflow: hidden;
+	transition: max-height 260ms cubic-bezier(0.22, 1, 0.36, 1), transform 260ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms ease;
+	will-change: max-height, transform, opacity;
+}
+
+body.ui-autohide-hidden .navbar-fixed-top .navbar-right-icons{
+	max-height: 0;
+	transform: translateY(-12px);
+	opacity: 0;
+	pointer-events: none;
 }
 
 /* When lightbox photo viewer is open, never show navs. */
@@ -767,6 +868,18 @@ html.lightbox-open body.ui-autohide-enabled .home-bottom-nav{
 
 html.lightbox-open body.ui-autohide-enabled .navbar-fixed-top{
 	transform: translateY(-110%);
+}
+
+/* Lightbox should hide navs even when auto-hide is disabled (desktop). */
+html.lightbox-open .navbar-fixed-top{
+	transform: translateY(-110%);
+	opacity: 0;
+	pointer-events: none;
+}
+html.lightbox-open .home-bottom-nav{
+	transform: translateY(110%);
+	opacity: 0;
+	pointer-events: none;
 }
 
 .home-bottom-nav__container{
@@ -935,6 +1048,27 @@ html.lightbox-open body.ui-autohide-enabled .navbar-fixed-top{
 	row-gap: 2px;
 }
 
+/* Desktop: menus are permanent, so make archive controls roomier. */
+@media (min-width: 980px){
+	.home-years-spacer{
+		height: 150px;
+	}
+	.home-years-bar > .home-years-bar__inner{
+		padding: 6px 0;
+	}
+	.home-years-bar__year{
+		padding: 6px 13px;
+		font-size: 13px;
+	}
+	.home-months-bar__month{
+		padding: 6px 10px;
+		font-size: 13px;
+	}
+	.home-months-bar__inner{
+		padding: 6px 10px 10px;
+	}
+}
+
 .home-months-bar__indicator{
 	position: absolute;
 	left: 10px;
@@ -960,7 +1094,16 @@ html.lightbox-open body.ui-autohide-enabled .navbar-fixed-top{
 
 @media (max-width: 767px){
 	.home-years-spacer{
-		height: 72px;
+		height: 56px;
+	}
+	/* Mobile: use compact nav bar + overlays instead of the big bars */
+	#home-categories-bar,
+	#home-years-bar,
+	#home-months-bar{
+		display: none;
+	}
+	.home-bottom-compact{
+		display: flex;
 	}
 	.home-years-bar > .home-years-bar__inner{
 		padding: 2px 0;
