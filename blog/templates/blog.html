@@ -3,72 +3,79 @@
 {% block body_main %}
 {% block blog_content %}
 
-{% include "blog_category_menu.html" %}
+{% if request.resolver_match.url_name != "blog_show" %}
+	{% include "blog_category_menu.html" %}
+{% endif %}
 
 <div class="row">
-
-	<div class="span9">
-		{% include 'blog_show_post.html' %}
-	</div>
-
-	<div class="span3">
-	{% block blog_side_menu %}
-
-		<div class="box">
-			<div class="box-header">
-				<span class="aside-header">Snarveier</span>
-			</div>
-			<div class="box-content box-content--sm">
-				<ul class="nav nav-pills nav-stacked">
-					<li class="{% if blog.pk == blog_active.pk %}active{% endif %}">
-						{% url "blog_archive" as url %}<a href="{{url}}">Arkiv</a>
-					</li>
-					<li class="{% if blog.pk == blog_active.pk %}active{% endif %}">
-						{% url "blog_tag" as url %}<a href="{{url}}">Tagsky</a>
-					</li>
-					<li class="{% if blog.pk == blog_active.pk %}active{% endif %}">
-						{% url "app_calc" as url %}<a href="{{url}}">Kalkulatorer</a>
-					</li>
-				</ul>
-			</div>
+	{% if request.resolver_match.url_name == "blog_show" %}
+		<div class="span12">
+			{% include 'blog_show_post.html' %}
+		</div>
+	{% else %}
+		<div class="span9">
+			{% include 'blog_show_post.html' %}
 		</div>
 
-		<div class="box">
-			<div class="box-header">
-				<span class="aside-header">Flere fra {{blog_active.category}}</span>
-			</div>
-			<div class="box-content box-content--md">
+		<div class="span3">
+		{% block blog_side_menu %}
 
-				<ul class="nav nav-pills nav-stacked">
-					{% for blog in blog_history %}
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header">Snarveier</span>
+				</div>
+				<div class="box-content box-content--sm">
+					<ul class="nav nav-pills nav-stacked">
 						<li class="{% if blog.pk == blog_active.pk %}active{% endif %}">
-							<a href="{% url 'blog_show' blog.pk %}">
-							{% if not blog.published %}<i class="icon-file"></i>{% endif %}
-							{% if not blog.linked %}<i class="icon-filter"></i>{% endif %}
-							{% if blog.sticky %}<i class="icon-star"></i>{% endif %}
-							{{ blog.title }}
-							</a>
+							{% url "blog_archive" as url %}<a href="{{url}}">Arkiv</a>
 						</li>
-					{% endfor %}
-				</ul>
-
-				{% if pagination != None %}
-				<div class="pagination pagination-centered">
-					<ul>
-					<li><a href="{% url 'category_history' category_pk 1 %}">&laquo;</a></li>
-					{% for p in pagination %}
-					<li class="{{ p.class }}"><a href="{% url 'category_history' category_pk p.page %}">{{ p.page }}</a></li>
-					{% endfor %}
-					<li><a href="{% url 'category_history' category_pk page_last %}">&raquo;</a></li>
+						<li class="{% if blog.pk == blog_active.pk %}active{% endif %}">
+							{% url "blog_tag" as url %}<a href="{{url}}">Tagsky</a>
+						</li>
+						<li class="{% if blog.pk == blog_active.pk %}active{% endif %}">
+							{% url "app_calc" as url %}<a href="{{url}}">Kalkulatorer</a>
+						</li>
 					</ul>
 				</div>
-				{% endif %}
 			</div>
+
+			<div class="box">
+				<div class="box-header">
+					<span class="aside-header">Flere fra {{blog_active.category}}</span>
+				</div>
+				<div class="box-content box-content--md">
+
+					<ul class="nav nav-pills nav-stacked">
+						{% for blog in blog_history %}
+							<li class="{% if blog.pk == blog_active.pk %}active{% endif %}">
+								<a href="{% url 'blog_show' blog.pk %}">
+								{% if not blog.published %}<i class="icon-file"></i>{% endif %}
+								{% if not blog.linked %}<i class="icon-filter"></i>{% endif %}
+								{% if blog.sticky %}<i class="icon-star"></i>{% endif %}
+								{{ blog.title }}
+								</a>
+							</li>
+						{% endfor %}
+					</ul>
+
+					{% if pagination != None %}
+					<div class="pagination pagination-centered">
+						<ul>
+						<li><a href="{% url 'category_history' category_pk 1 %}">&laquo;</a></li>
+						{% for p in pagination %}
+						<li class="{{ p.class }}"><a href="{% url 'category_history' category_pk p.page %}">{{ p.page }}</a></li>
+						{% endfor %}
+						<li><a href="{% url 'category_history' category_pk page_last %}">&raquo;</a></li>
+						</ul>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+
+			{% endblock %}
+
 		</div>
-
-		{% endblock %}
-
-	</div>
+	{% endif %}
 </div>
 {% endblock %}
 {% endblock %}

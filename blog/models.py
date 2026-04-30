@@ -103,10 +103,97 @@ class Blog(models.Model):
 
 class BlogForm(forms.ModelForm):
 	formfield_callback = make_custom_plugins
+	tags_text = forms.CharField(
+		label="Tagger",
+		required=False,
+		help_text='Skriv tagger separert med mellomrom. Bruk "anførselstegn" for tagger med mellomrom.',
+	)
 
 	class Meta:
 		model = Blog
-		exclude = ('owner', 'created', 'updated')
+		exclude = ('owner', 'created', 'updated', 'tags')
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		# Ensure tags field appears right after `origin` and before `content`.
+		if 'tags_text' in self.fields and 'origin' in self.fields:
+			tags_field = self.fields.pop('tags_text')
+			new_fields = {}
+			for name, field in self.fields.items():
+				new_fields[name] = field
+				if name == 'origin':
+					new_fields['tags_text'] = tags_field
+			# Fallback: if origin wasn't encountered for some reason, append at end.
+			if 'tags_text' not in new_fields:
+				new_fields['tags_text'] = tags_field
+			self.fields = new_fields
+
+		if self.instance and getattr(self.instance, 'pk', None):
+			self.fields['tags_text'].initial = " ".join([t.tag for t in self.instance.tags.order_by('tag')])
+
+	def clean_tags_text(self):
+		raw = (self.cleaned_data.get('tags_text') or '').strip()
+		if not raw:
+			return []
+
+		import shlex
+
+		try:
+			parts = shlex.split(raw)
+		except ValueError:
+			# Fallback: best-effort split on whitespace
+			parts = raw.split()
+
+		normalized = []
+		seen = set()
+		for p in parts:
+			tag = str(p).strip().lower()
+			if not tag:
+				continue
+			if tag in seen:
+				continue
+			seen.add(tag)
+			normalized.append(tag)
+		return normalized
+
+	def _apply_tags_text(self):
+		"""
+		Apply `tags_text` to the instance by creating missing Tag rows and
+		setting the M2M relation to match the provided tags.
+		"""
+		tags = self.cleaned_data.get('tags_text')
+		if tags is None:
+			return
+
+		tag_objs = []
+		for tag in tags:
+			obj, _created = Tag.objects.get_or_create(tag=tag, defaults={"description": ""})
+			tag_objs.append(obj)
+		self.instance.tags.set(tag_objs)
+
+	def save(self, commit=True):
+		"""
+		Django overwrites `save_m2m()` on the *instance* when `save(commit=False)`
+		is called. The blog edit view uses that pattern, so we wrap the generated
+		`save_m2m()` here to ensure tags are always applied.
+		"""
+		instance = super().save(commit=commit)
+
+		# If commit=False, Django sets self.save_m2m dynamically; wrap it.
+		if not commit:
+			original_save_m2m = getattr(self, 'save_m2m', None)
+
+			def _wrapped_save_m2m():
+				if callable(original_save_m2m):
+					original_save_m2m()
+				self._apply_tags_text()
+
+			self.save_m2m = _wrapped_save_m2m
+		else:
+			# If commit=True, instance is already saved so we can apply immediately.
+			self._apply_tags_text()
+
+		return instance
 
 
 class Comment(models.Model):

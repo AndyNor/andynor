@@ -168,7 +168,25 @@ CSP_IMG_SRC = ("'self' data:")
 CSP_STYLE_SRC = (
     "'self'", 
     "https://cdnjs.cloudflare.com",
-    "'sha256-hMEnt2qMHAmQZgCjWJ4hweKuzi+3YEdUo00f8k/ebMo='" # jQuery's inline style
+    "'sha256-hMEnt2qMHAmQZgCjWJ4hweKuzi+3YEdUo00f8k/ebMo='", # jQuery's inline style
+    # tablesorter "resizable" widget injects <style>...</style> via JS at runtime (no nonce possible)
+    "'sha256-8SUl9xHjYV2TArOfAnCQwB7/lPW4lKCyVf7o9IF6gs8='",
+    # Allow specific inline style attributes (hash-gated). Needed for Highcharts v2.x.
+    "'unsafe-hashes'",
+    "'sha256-hWpqL1fUAe+M/LBQ6MvD31cdBke4O8LGpeQW0BwxpIQ='",
+    "'sha256-wEe2cVPWcahRqtxb85tIwnj5E9dG1l0I7mr7pNapLkk='",
+    "'sha256-DMC6ej3jzGzjmc7bfB5X3Oimqi/klZFbUuoQ1fR/T6Q='",
+    "'sha256-iZSKTnlOHyuHMmNpKxKYhbid4mi5iHQ4kdC+gpUD7fc='",
+    "'sha256-p+h0XBqudpPs2Kloxo7cvtlQWfr/X6/rNNXAsbHP/rQ='",
+    "'sha256-RQohx+PTp36ArWThHdtSU7LRgqwKKRXo/A1BdEzwucU='",
+    "'sha256-szhVfgj2hyQAoeNprDOHqdZaHhh459vtclAufhBuDdE='",
+    "'sha256-3KHtoSonYNExmR87M+KpToUu75p7jc98/RVmWM7ajJ4='",
+    "'sha256-Tx8v/FptZJUMQFfJ7y0DXyxPpgGrunw78VrXxxeuudQ='",
+    "'sha256-ewA5W4xBiDrI4y0heiOQbxfxTZNPeiVdsKr/6Gu+NqE='",
+    # empty style string (some libs set style="")
+    "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
+    "'sha256-kX3Hqi1b8NB+7bEk3eWfxKkGqbOpf1H5FxmPJxAuHeA='",
+    "'sha256-QPjlk2N/aD37vpIfioRmXr+tePa5htK7w81+hykUJLY='",
 )
 CSP_FONT_SRC = ("'self'", "https://cdnjs.cloudflare.com")
 CSP_CONNECT_SRC = ("'self'", "https://andynor.net")

@@ -139,7 +139,21 @@ chromium.org/developers/how-tos/chrome-frame-getting-started -->
 									<span class="nav-icon-link__label" aria-hidden="true">Om meg</span>
 								</a>
 							</li>
+							<li class="nav-icon-item">
+								{% url "app_calc" as url %}
+								<a class="nav-icon-link nav-icon-link--quick" href="{{ url }}" aria-label="Kalkulatorer" data-label="Kalkulatorer">
+									<i class="fa-solid fa-calculator" aria-hidden="true"></i>
+									<span class="nav-icon-link__label" aria-hidden="true">Kalkulatorer</span>
+								</a>
+							</li>
 							{% if user.is_authenticated %}
+							<li class="nav-icon-item">
+								{% url "blog_new" as url %}
+								<a class="nav-icon-link nav-icon-link--quick" href="{{ url }}" aria-label="Ny bloggpost" data-label="Ny bloggpost">
+									<i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+									<span class="nav-icon-link__label" aria-hidden="true">Ny bloggpost</span>
+								</a>
+							</li>
 							<li class="nav-icon-item">
 								{% url "app_power" as url %}
 								<a class="nav-icon-link nav-icon-link--quick" href="{{ url }}" aria-label="Strøm" data-label="Strøm">

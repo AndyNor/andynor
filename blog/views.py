@@ -590,10 +590,6 @@ def img_relarge(request, image_id):
 
 
 def tag_view(request, tag=None):
-
-	val_min = 40
-	val_max = 230
-
 	if tag:
 		blogs = models.Blog.objects.filter(published=True, tags__in=[tag]).order_by('-origin')
 	else:
@@ -603,8 +599,18 @@ def tag_view(request, tag=None):
 	freqs = models.Tag.objects.annotate(frequency=Count('blog__tags'))
 	if freqs:
 		freq_max = freqs.order_by('-frequency')[0].frequency
-		for tag in freqs:
-			tag.frequency = (float(tag.frequency) / float(freq_max)) * (val_max - val_min) + val_min
+		freq_min = freqs.order_by('frequency')[0].frequency
+
+		# Bucket into 5 readable sizes (1..5), avoids tiny/huge extremes.
+		denom = float(freq_max - freq_min) if freq_max != freq_min else 0.0
+		for t in freqs:
+			if denom == 0.0:
+				t.size_class = 3
+				t.weight = 0.5
+			else:
+				pos = (float(t.frequency) - float(freq_min)) / denom  # 0..1
+				t.size_class = max(1, min(5, int(round(pos * 4)) + 1))
+				t.weight = pos
 	else:
 		freqs = None
 

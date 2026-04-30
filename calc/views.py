@@ -6,6 +6,7 @@ from django.template import RequestContext  # required for csrf
 #from django.contrib import messages  # Message system
 import json  # used for json export
 import math
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 
 APP_NAME = 'app_calc'
@@ -17,7 +18,19 @@ class Object(object):
 
 
 def readPost(attr, default, request):
-	return float(request.POST.get(attr, default).replace(' ', '').replace(',', '.'))
+	raw = request.POST.get(attr, default)
+	if raw is None:
+		raw = default
+	raw = str(raw).strip()
+	if raw == '':
+		raw = default
+	raw = raw.replace(' ', '').replace(',', '.')
+	try:
+		# Keep user input sane; avoid float artifacts in later display.
+		d = Decimal(raw).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+		return float(d)
+	except (InvalidOperation, ValueError, TypeError):
+		return float(default)
 
 
 def index(request):
