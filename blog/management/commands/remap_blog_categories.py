@@ -51,7 +51,6 @@ class Command(BaseCommand):
 
 		changed = 0
 		by_mapping = defaultdict(int)
-		by_source = defaultdict(int)
 
 		def process():
 			nonlocal changed
@@ -75,7 +74,6 @@ class Command(BaseCommand):
 
 				changed += 1
 				by_mapping[(old_cat_id, new_cat_id)] += 1
-				by_source[old_cat_id] += 1
 
 				self.stdout.write(
 					f"{'UPDATED' if apply_changes else 'WOULD UPDATE'} "
@@ -91,14 +89,14 @@ class Command(BaseCommand):
 			process()
 
 		self.stdout.write("")
-		self.stdout.write("Oppsummert per opprinnelig kategori:")
-		for src, count in sorted(by_source.items(), key=lambda kv: (-kv[1], kv[0])):
-			self.stdout.write(f"{count} blogginnlegg flyttet fra {categories[src].category} ({src})")
-
-		self.stdout.write("")
-		self.stdout.write("Oppsummert per mapping:")
-		for (src, dst), count in sorted(by_mapping.items()):
+		self.stdout.write("Oppsummert (flyttet blogginnlegg fra kategori til kategori):")
+		for (src, dst), count in sorted(by_mapping.items(), key=lambda kv: (-kv[1], kv[0][0], kv[0][1])):
 			self.stdout.write(
 				f"{count} blogginnlegg: {categories[src].category} ({src}) -> {categories[dst].category} ({dst})"
 			)
 		self.stdout.write(f"Total: {changed} {'updated' if apply_changes else 'to update'}")
+		if not apply_changes:
+			self.stdout.write("")
+			self.stdout.write("Dry-run: ingen endringer ble lagret i databasen.")
+			self.stdout.write("Kjør følgende for å utføre oppdateringen:")
+			self.stdout.write("  python manage.py remap_blog_categories --apply")
