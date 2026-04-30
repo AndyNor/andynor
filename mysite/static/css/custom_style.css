@@ -1550,6 +1550,13 @@ html.lightbox-open .home-bottom-nav{
 	padding: 0;
 }
 
+.money-account-chart-wrap{
+	position: relative;
+	height: 220px;
+	max-width: 100%;
+	margin-bottom: 1.25em;
+}
+
 .graph-per-account{
 	height: 200px;
 }

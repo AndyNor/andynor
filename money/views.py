@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import json
 from collections import defaultdict
 
 from urllib.parse import quote
 
 from django.contrib.humanize.templatetags.humanize import intcomma
-from django.db.models import Exists, OuterRef, Q, Sum
+from django.db.models import Exists, Max, OuterRef, Q, Sum
 from django.db.models.fields import DecimalField as ModelDecimalField
 from django.http import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -29,6 +30,52 @@ APP_NAME = 'app_money'
 MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 ACCOUNT_TRANSACTIONS_PAGE_SIZE = 100
+ACCOUNT_BALANCE_CHART_DAYS = 365
+
+
+def _account_daily_balance_chart_series(owner, account_pk, days=ACCOUNT_BALANCE_CHART_DAYS):
+	"""
+	End-of-day cumulative balance for each calendar day in [chart_end - days, chart_end],
+	where chart_end is the date of the newest transaction for this account (or today if none),
+	matching Transaction.balance() (sum of amounts with date <= that day).
+	"""
+	last_txn = Transaction.objects.filter(owner=owner, account_id=account_pk).aggregate(
+		d=Max('date'),
+	)['d']
+	chart_end = last_txn if last_txn is not None else date.today()
+	chart_start = chart_end - timedelta(days=days)
+	sum_before = Transaction.objects.filter(
+		owner=owner,
+		account_id=account_pk,
+		date__lt=chart_start,
+	).aggregate(s=Sum('amount'))['s']
+	if sum_before is None:
+		sum_before = Decimal(0)
+	else:
+		sum_before = Decimal(sum_before)
+
+	day_nets = {
+		row['date']: Decimal(row['d'] or 0)
+		for row in (
+			Transaction.objects.filter(
+				owner=owner,
+				account_id=account_pk,
+				date__gte=chart_start,
+				date__lte=chart_end,
+			)
+			.values('date')
+			.annotate(d=Sum('amount'))
+		)
+	}
+
+	series = []
+	running = sum_before
+	d = chart_start
+	while d <= chart_end:
+		running += day_nets.get(d, Decimal(0))
+		series.append({'d': d.isoformat(), 'b': float(running)})
+		d += timedelta(days=1)
+	return series
 
 
 def _money_amount_display(v):
@@ -962,6 +1009,7 @@ def year(request, year):  # "2013"
 def account(request, account):
 	acc = get_object_or_404(Account, pk=int(account), owner=request.user)
 	request.session['redirect_url'] = request.path
+	chart_series = _account_daily_balance_chart_series(request.user, acc.pk)
 	return render(
 		request,
 		'money_account.html',
@@ -970,6 +1018,8 @@ def account(request, account):
 			'account_id': acc.pk,
 			'transactions_api_url': reverse('money_account_transactions', args=[acc.pk]),
 			'back_link': request.session.get('redirect_url'),
+			'account_chart_json': json.dumps(chart_series),
+			'account_chart_days': ACCOUNT_BALANCE_CHART_DAYS,
 		},
 	)
 
