@@ -3,10 +3,21 @@
 
 {% block body_main %}
 
-<h3>Calculators</h3>
-<ul>
-	<li><a href="{% url "calc_tax" %}">Norsk skattekalkulator</a></li>
-	<li><a href="{% url "calc_loan" %}">Serie og annuitetslån</a></li>
-</ul>
+<h3>Kalkulatorer</h3>
+
+<div class="row">
+	<div class="span6">
+		<a class="btn btn-large btn-block calc-link-btn" href="{% url "calc_tax" %}">
+			<i class="fa-solid fa-receipt" aria-hidden="true"></i>
+			Norsk skattekalkulator
+		</a>
+	</div>
+	<div class="span6">
+		<a class="btn btn-large btn-block calc-link-btn" href="{% url "calc_loan" %}">
+			<i class="fa-solid fa-house-circle-check" aria-hidden="true"></i>
+			Serie og annuitetslån
+		</a>
+	</div>
+</div>
 
 {% endblock %}

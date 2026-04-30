@@ -77,13 +77,14 @@
 	<ul>
 		<li>Trygdeskatten er <b>{{constant.avgift_trygd|percent}}</b> på ordinær lønn. Hvis ordinær lønn er mindre enn <b>{{constant.avgift_trygd_innslag|intcomma}}</b> betales ikke trygdeskatt. Så lenge ordinær lønn er høyere, betales det fra første krone, men fortsatt ikke mer enn at skatten maksimalt kan bli <b>{{constant.avgift_trygd_max|percent}}</b> av det som overstiger dette "fribeløpet". Beregnet til <span class="badge badge-important">{{ trygdeskatt|floatformat:"0"|intcomma }}</span></li>
 
-		<li>Inntektskatt har fem nivåer:
+		<li>Inntektskatt har seks nivåer:
 			<ul>
 				<li><b>{{constant.skatt|percent}}</b> på all ordinær lønn og kapitalinntekter etter at fradragene er trukket fra: <span class="badge badge-important">{{ arbeidsinntektskatt|floatformat:"0"|intcomma }}</span></li>
-				<li>Trinnskatt nivå 1 <b>{{constant.toppskatt_trinn01|percent}}</b> på ordinær lønn for alt mellom {{constant.toppskatt_trinn01_innslag|intcomma}} og {{constant.toppskatt_trinn02_innslag|intcomma}}: <span class="badge badge-important">{{ toppskatt_trinn01|floatformat:"0"|intcomma }}</span></li>
-				<li>Trinnskatt nivå 2 <b>{{constant.toppskatt_trinn02|percent}}</b> på ordinær lønn for alt mellom {{constant.toppskatt_trinn02_innslag|intcomma}} og {{constant.toppskatt_trinn1_innslag|intcomma}}: <span class="badge badge-important">{{ toppskatt_trinn02|floatformat:"0"|intcomma }}</span></li>
-				<li>Toppskatt nivå 1 <b>{{constant.toppskatt_trinn1|percent}}</b> på ordinær lønn for alt mellom {{constant.toppskatt_trinn1_innslag|intcomma}} og {{constant.toppskatt_trinn2_innslag|intcomma}}: <span class="badge badge-important">{{ toppskatt_trinn1|floatformat:"0"|intcomma }}</span></li>
-				<li>Toppskatt nivå 2 <b>{{constant.toppskatt_trinn2|percent}}</b> på ordinær lønn for alt over {{constant.toppskatt_trinn2_innslag|intcomma}}: <span class="badge badge-important">{{ toppskatt_trinn2|floatformat:"0"|intcomma }}</span></li>
+				<li>Trinnskatt trinn 1 <b>{{constant.toppskatt_trinn01|percent}}</b> på ordinær lønn for alt mellom {{constant.toppskatt_trinn01_innslag|intcomma}} og {{constant.toppskatt_trinn02_innslag|intcomma}}: <span class="badge badge-important">{{ toppskatt_trinn01|floatformat:"0"|intcomma }}</span></li>
+				<li>Trinnskatt trinn 2 <b>{{constant.toppskatt_trinn02|percent}}</b> på ordinær lønn for alt mellom {{constant.toppskatt_trinn02_innslag|intcomma}} og {{constant.toppskatt_trinn1_innslag|intcomma}}: <span class="badge badge-important">{{ toppskatt_trinn02|floatformat:"0"|intcomma }}</span></li>
+				<li>Trinnskatt trinn 3 <b>{{constant.toppskatt_trinn1|percent}}</b> på ordinær lønn for alt mellom {{constant.toppskatt_trinn1_innslag|intcomma}} og {{constant.toppskatt_trinn2_innslag|intcomma}}: <span class="badge badge-important">{{ toppskatt_trinn1|floatformat:"0"|intcomma }}</span></li>
+				<li>Trinnskatt trinn 4 <b>{{constant.toppskatt_trinn2|percent}}</b> på ordinær lønn for alt mellom {{constant.toppskatt_trinn2_innslag|intcomma}} og {{constant.toppskatt_trinn3_innslag|intcomma}}: <span class="badge badge-important">{{ toppskatt_trinn2|floatformat:"0"|intcomma }}</span></li>
+				<li>Trinnskatt trinn 5 <b>{{constant.toppskatt_trinn3|percent}}</b> på ordinær lønn for alt over {{constant.toppskatt_trinn3_innslag|intcomma}}: <span class="badge badge-important">{{ toppskatt_trinn3|floatformat:"0"|intcomma }}</span></li>
 			</ul>
 		<b>Fradrag</b>:
 			<ul>
@@ -125,7 +126,7 @@ Boligsparing Ungdom gir et direkte fradrag på <b>{{constant.bsu_frigrense|perce
 		<li>Maksimalt <b>{{constant.bsu_frigrense_max|intcomma}}</b></li>
 	</ul>
 
-<p><b>Total skatt blir da <span class="badge badge-important">{{ total_skatt|floatformat:"0"|intcomma }}</span> ({{ total_skatt_prosent|percent }})</b></p>
+<p><b>Total skatt blir da <span class="badge badge-important">{{ total_skatt|floatformat:"0"|intcomma }}</span> ({{ total_skatt_prosent|percent }})</b> (Og i tillegg må arbeidsgiver betale arbeidsgiveravgift)</p>
 
 Skatteetaten tar ikke inn beløp under <b>{{constant.innkrevingsgrense|intcomma}}</b>. For å ha litt ekstra å rute med i sommerferien og ved juletider trekkes det halv skatt i desember og ingen skatt i sommerferiemåneden. Denne skatten må derfor samles inn de resterende 10.5 månedene. Dette gir et månedlig skattetrekk på <b>{{justert_skatt|percent}}</b>. De fleste har tabelltrekk med ganske høy prosentsats på ekstrainntekt. Skatten blir forhåndstrukket og når det endelige regnestykket er klart året etter, får man enten penger igjen på skatten eller restskatt.
 

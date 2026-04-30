@@ -31,9 +31,17 @@ var visitGraphs = (function() {
 				min: 0
 			},
 			tooltip: {
-				enabled: true
+				enabled: false
 			},
 			plotOptions: {
+				series: {
+					enableMouseTracking: false,
+					states: {
+						hover: {
+							enabled: false
+						}
+					}
+				},
 				area: {
 					stacking: stacking,
 					allowPointSelect: false,

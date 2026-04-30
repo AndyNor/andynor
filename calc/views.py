@@ -108,10 +108,63 @@ def loan(request):
 	})
 
 
-def tax(request, year=2016):
+def tax(request, year=2026):
 	""" Norwegian tax calculator """
 
 	year = int(year)
+
+	if year == 2026:
+		constant = Object()
+		constant.VERSION = 2026
+
+		# Official 2026 rates (Finansdepartementet / Skatteetaten)
+		# - Alminnelig inntekt: 22%
+		# - Trygdeavgift (lønn): 7.6%, nedre grense 99 650, opptrapping maks 25%
+		# - Trinnskatt: 5 trinn (226 100 / 318 300 / 725 050 / 980 100 / 1 467 200)
+		# - Personfradrag (klasse 1): 114 540
+		# - Minstefradrag lønn: 46% (min 4 000, maks 95 700)
+		# - Fagforeningsfradrag: maks 8 700 (bruker inputfeltet)
+		# - Formuesskatt: bunnfradrag 1 900 000; kommune 0.35%, stat 0.65% (0.75% over 21.5m)
+		# - BSU skattefradrag: 10% av årlig sparing (maks sparing 27 500 -> maks fradrag 2 750)
+
+		constant.innkrevingsgrense = 100
+		constant.klassefradrag = 114540
+		constant.minstefradrag = 0.46
+		constant.minstefradrag_min = 4000
+		constant.minstefradrag_max = 95700
+
+		constant.fagforeningssats = 0.0
+		constant.fagforeningssats_max = 8700
+
+		constant.pensjonstrekk = 0.0
+
+		constant.formue_frigrense = 1900000
+		constant.formueskatt_kommune = 0.0035
+		constant.formueskatt_stat = 0.0065
+		constant.formueskatt_stat_trinn2 = 0.0075
+		constant.formueskatt_trinn2_innslag = 21500000
+
+		constant.bsu_frigrense = 0.10
+		constant.bsu_frigrense_max = 2750
+
+		constant.skatt = 0.22
+		constant.avgift_trygd = 0.076
+		constant.avgift_trygd_innslag = 99650
+		constant.avgift_trygd_max = 0.25
+
+		constant.toppskatt_trinn01 = 0.017
+		constant.toppskatt_trinn01_innslag = 226100
+		constant.toppskatt_trinn02 = 0.04
+		constant.toppskatt_trinn02_innslag = 318300
+		constant.toppskatt_trinn1 = 0.137
+		constant.toppskatt_trinn1_innslag = 725050
+		constant.toppskatt_trinn2 = 0.168
+		constant.toppskatt_trinn2_innslag = 980100
+		constant.toppskatt_trinn3 = 0.178
+		constant.toppskatt_trinn3_innslag = 1467200
+
+		constant.aksje_skjermingsfradrag = 0.03
+		constant.frivillig_maks = 25000
 
 	if year == 2016:
 		constant = Object()							#
@@ -226,16 +279,16 @@ def tax(request, year=2016):
 		constant.frivillig_maks = 12000
 
 	user_var = Object()
-	user_var.arbeidsinntekter = readPost('arbeidsinntekter', '450000', request)
+	user_var.arbeidsinntekter = readPost('arbeidsinntekter', '650000', request)
 	user_var.renteinntekter = readPost('renteinntekter', '0', request)
-	user_var.renteutgifter = readPost('renteutgifter', '0', request)
+	user_var.renteutgifter = readPost('renteutgifter', '100000', request)
 	user_var.utleie_overskudd = readPost('utleie_overskudd', '0', request)
 	user_var.aksjeutbytte = readPost('aksjeutbytte', '0', request)
 	user_var.bsu_sparing = readPost('bsu_sparing', '0', request)
 	user_var.formue = readPost('formue', '0', request)
 	user_var.gjeld = readPost('gjeld', '0', request)
 	user_var.frivillig = readPost('frivillig', '0', request)
-	user_var.fagforening = readPost('fagforening', '0', request)
+	user_var.fagforening = readPost('fagforening', '4000', request)
 	user_var.pensjon = readPost('pensjon', '0', request)
 
 	def limit(amount, pct, max, min=0.0):
@@ -289,7 +342,9 @@ def tax(request, year=2016):
 		result.arbeidsinntektskatt = positive(skattemessig_arbeidsinntekt * constant.skatt)
 
 		#toppskatt
-		result.toppskatt_trinn2 = positive((user_var.arbeidsinntekter - constant.toppskatt_trinn2_innslag) * constant.toppskatt_trinn2)
+		result.toppskatt_trinn3 = positive((user_var.arbeidsinntekter - constant.toppskatt_trinn3_innslag) * constant.toppskatt_trinn3)
+		tt2_grunnlag = limit(user_var.arbeidsinntekter, 1, constant.toppskatt_trinn3_innslag)
+		result.toppskatt_trinn2 = positive((tt2_grunnlag - constant.toppskatt_trinn2_innslag) * constant.toppskatt_trinn2)
 		tt1_grunnlag = limit(user_var.arbeidsinntekter, 1, constant.toppskatt_trinn2_innslag)
 		result.toppskatt_trinn1 = positive((tt1_grunnlag - constant.toppskatt_trinn1_innslag) * constant.toppskatt_trinn1)
 
@@ -307,16 +362,22 @@ def tax(request, year=2016):
 			result.toppskatt_trinn01 = 0.0
 			constant.toppskatt_trinn01 = 0.0
 
-		#formue
-		formue_skattbar = positive(user_var.formue - user_var.gjeld - constant.formue_frigrense)
-		skatt_formue_stat = formue_skattbar * constant.formueskatt_stat
+		#formue (2026: kommune 0.35% + stat 0.65% (0.75% over 21.5m))
+		formue_netto = positive(user_var.formue - user_var.gjeld)
+		formue_skattbar = positive(formue_netto - constant.formue_frigrense)
 		skatt_formue_kommune = formue_skattbar * constant.formueskatt_kommune
+		try:
+			formue_trinn2 = positive(formue_netto - constant.formueskatt_trinn2_innslag)
+			formue_trinn1_del = formue_skattbar - formue_trinn2
+			skatt_formue_stat = (formue_trinn1_del * constant.formueskatt_stat) + (formue_trinn2 * constant.formueskatt_stat_trinn2)
+		except:
+			skatt_formue_stat = formue_skattbar * constant.formueskatt_stat
 		result.formueskatt = skatt_formue_stat + skatt_formue_kommune
 
 		result.bsu_fradrag = limit(user_var.bsu_sparing, constant.bsu_frigrense, constant.bsu_frigrense_max)
 		#summer endelig skatt
-		result.total_skatt = positive(result.trygdeskatt + result.arbeidsinntektskatt + result.toppskatt_trinn1 + result.toppskatt_trinn2 + result.toppskatt_trinn01 + result.toppskatt_trinn02 + result.formueskatt - result.bsu_fradrag)
-		result.delvis_skatt = positive(result.trygdeskatt + result.arbeidsinntektskatt + result.toppskatt_trinn1 + result.toppskatt_trinn2 + result.toppskatt_trinn01 + result.toppskatt_trinn02)
+		result.total_skatt = positive(result.trygdeskatt + result.arbeidsinntektskatt + result.toppskatt_trinn1 + result.toppskatt_trinn2 + result.toppskatt_trinn3 + result.toppskatt_trinn01 + result.toppskatt_trinn02 + result.formueskatt - result.bsu_fradrag)
+		result.delvis_skatt = positive(result.trygdeskatt + result.arbeidsinntektskatt + result.toppskatt_trinn1 + result.toppskatt_trinn2 + result.toppskatt_trinn3 + result.toppskatt_trinn01 + result.toppskatt_trinn02)
 		result.netto = user_var.arbeidsinntekter + user_var.renteinntekter + user_var.utleie_overskudd + user_var.aksjeutbytte - result.delvis_skatt
 		try:
 			result.total_skatt_prosent = result.total_skatt / (user_var.arbeidsinntekter + result.kapitalinntekter)
@@ -334,31 +395,60 @@ def tax(request, year=2016):
 	series_trygdeskatt = []
 	series_toppskatt_trinn1 = []
 	series_toppskatt_trinn2 = []
+	series_toppskatt_trinn3 = []
 	series_toppskatt_trinn01 = []
 	series_toppskatt_trinn02 = []
 	series_netto = []
 	salary = 0.0
-	max_salary = 1200000.0
+	max_salary = 2000000.0
+
+	# Charts should only depend on salary (arbeidsinntekter), not the other inputs.
+	chart_user_var = Object()
+	chart_user_var.renteinntekter = 0.0
+	chart_user_var.renteutgifter = 0.0
+	chart_user_var.utleie_overskudd = 0.0
+	chart_user_var.aksjeutbytte = 0.0
+	chart_user_var.bsu_sparing = 0.0
+	chart_user_var.formue = 0.0
+	chart_user_var.gjeld = 0.0
+	chart_user_var.frivillig = 0.0
+	chart_user_var.fagforening = 0.0
+	chart_user_var.pensjon = 0.0
+
 	user_var.arbeidsinntekter_tmp = user_var.arbeidsinntekter
 	while salary < max_salary:
-		user_var.arbeidsinntekter = salary
-		instance = calc_tax(constant, user_var)
+		chart_user_var.arbeidsinntekter = salary
+		instance = calc_tax(constant, chart_user_var)
 		series_arbeidsinntektskatt.append({'x': int(salary), 'y': int(instance.arbeidsinntektskatt)})
 		series_trygdeskatt.append({'x': int(salary), 'y': int(instance.trygdeskatt)})
 		series_toppskatt_trinn1.append({'x': int(salary), 'y': int(instance.toppskatt_trinn1)})
 		series_toppskatt_trinn2.append({'x': int(salary), 'y': int(instance.toppskatt_trinn2)})
+		series_toppskatt_trinn3.append({'x': int(salary), 'y': int(instance.toppskatt_trinn3)})
 		series_toppskatt_trinn01.append({'x': int(salary), 'y': int(instance.toppskatt_trinn01)})
 		series_toppskatt_trinn02.append({'x': int(salary), 'y': int(instance.toppskatt_trinn02)})
 		series_netto.append({'x': int(salary), 'y': int(instance.netto)})
 
 		salary = (salary + 1000) * 1.08
 
+	# Ensure we include an endpoint exactly at max_salary
+	chart_user_var.arbeidsinntekter = max_salary
+	instance = calc_tax(constant, chart_user_var)
+	series_arbeidsinntektskatt.append({'x': int(max_salary), 'y': int(instance.arbeidsinntektskatt)})
+	series_trygdeskatt.append({'x': int(max_salary), 'y': int(instance.trygdeskatt)})
+	series_toppskatt_trinn1.append({'x': int(max_salary), 'y': int(instance.toppskatt_trinn1)})
+	series_toppskatt_trinn2.append({'x': int(max_salary), 'y': int(instance.toppskatt_trinn2)})
+	series_toppskatt_trinn3.append({'x': int(max_salary), 'y': int(instance.toppskatt_trinn3)})
+	series_toppskatt_trinn01.append({'x': int(max_salary), 'y': int(instance.toppskatt_trinn01)})
+	series_toppskatt_trinn02.append({'x': int(max_salary), 'y': int(instance.toppskatt_trinn02)})
+	series_netto.append({'x': int(max_salary), 'y': int(instance.netto)})
+
 	chart_series = [
 		{'name': 'Netto inntekt', 'color': '#B1DEFA', 'data': series_netto},
-		{'name': 'Toppskatt nivå 2', 'color': '#0D400B', 'data': series_toppskatt_trinn2},
-		{'name': 'Toppskatt nivå 1', 'color': '#2A8A27', 'data': series_toppskatt_trinn1},
-		{'name': 'Trinnskatt nivå 2', 'color': '#2A8A17', 'data': series_toppskatt_trinn02},
-		{'name': 'Trinnskatt nivå 1', 'color': '#2A8A07', 'data': series_toppskatt_trinn01},
+		{'name': 'Trinnskatt trinn 5', 'color': '#003200', 'data': series_toppskatt_trinn3},
+		{'name': 'Trinnskatt trinn 4', 'color': '#0D400B', 'data': series_toppskatt_trinn2},
+		{'name': 'Trinnskatt trinn 3', 'color': '#2A8A27', 'data': series_toppskatt_trinn1},
+		{'name': 'Trinnskatt trinn 2', 'color': '#2A8A17', 'data': series_toppskatt_trinn02},
+		{'name': 'Trinnskatt trinn 1', 'color': '#2A8A07', 'data': series_toppskatt_trinn01},
 		{'name': 'Inntektskatt', 'color': '#7AE876', 'data': series_arbeidsinntektskatt},
 		{'name': 'Trygdeskatt', 'color': '#B51616', 'data': series_trygdeskatt},
 	]
@@ -379,6 +469,7 @@ def tax(request, year=2016):
 		'toppskatt_trinn02': result.toppskatt_trinn02,
 		'toppskatt_trinn1': result.toppskatt_trinn1,
 		'toppskatt_trinn2': result.toppskatt_trinn2,
+		'toppskatt_trinn3': result.toppskatt_trinn3,
 		'totale_fradrag': result.totale_fradrag,
 		'total_skatt': result.total_skatt,
 		'total_skatt_prosent': result.total_skatt_prosent,

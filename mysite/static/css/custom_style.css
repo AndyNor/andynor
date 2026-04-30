@@ -76,6 +76,28 @@ body {
 	border-right: 1px solid rgba(37, 95, 10, 0.25);
 }
 
+/* Highcharts: keep legend visible, but non-interactive (CSP-friendly) */
+#tax_chart1 .highcharts-legend,
+#tax_chart1 .highcharts-legend *,
+#tax_chart2 .highcharts-legend,
+#tax_chart2 .highcharts-legend *{
+	pointer-events: none;
+}
+
+/* /calc/ landing buttons */
+.calc-link-btn{
+	background-color: #f2f2f2;
+	border-color: #cfcfcf;
+	color: #333;
+	text-shadow: none;
+}
+.calc-link-btn:hover,
+.calc-link-btn:focus{
+	background-color: #e6e6e6;
+	border-color: #bdbdbd;
+	color: #222;
+}
+
 .navbar-always-visible .nav--quicklinks .nav-icon-item{
 	position: relative;
 }
