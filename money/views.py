@@ -1190,8 +1190,6 @@ def search(request):
 def index(request):
 	request.session['redirect_url'] = request.path
 
-	MAX_HISTORY = 15
-
 	def year_summary(request):
 		year_data = []
 		unique_years = Transaction.objects.filter(owner=request.user).dates('date', 'year').reverse()
@@ -1228,7 +1226,7 @@ def index(request):
 		'balance_data': balance_data,
 		'balance_json': makeJSON(balance_data["data"]),
 		'year_data': year_data[0:5],
-		'year_json': makeJSON(year_data[0:MAX_HISTORY]),
+		'year_chart_json': makeJSON(year_data),
 		'APP_NAME': APP_NAME,
 	})
 

@@ -1,6 +1,8 @@
 {% extends "index.html" %}
 {% load breadcrumbs %}
 
+{% block body_attrs %} class="money-app"{% endblock %}
+
 {% block search %}
 	{% url "money_search" as action %} {% include "search_form.html" with action=action %}
 {% endblock %}
@@ -10,39 +12,48 @@
 	<div class="span12">
 		<h3>{% block money_title %}{% endblock %}</h3>
 		{% block money_actions %}
-		<div class="pull-right money-actions-toolbar">
-			<a class="btn btn-small money-actions-btn"
-				href='{% url "app_money" %}?next={{ request.get_full_path|urlencode }}'>
-				<i class="icon-th"></i> Oversikt</a>
+		<div class="pull-right money-actions-toolbar" role="toolbar" aria-label="Regnskap — hurtigvalg">
+			<a class="btn btn-small money-actions-btn money-actions-btn--index"
+				href='{% url "app_money" %}?next={{ request.get_full_path|urlencode }}'
+				aria-label="Oversikt">
+				<i class="icon-th" aria-hidden="true"></i><span class="money-actions-btn-text"> Oversikt</span></a>
 			{% comment %}			
 				<a class="btn btn-small money-actions-btn"
 				href='{% url "bank_transactions" %}?next={{ request.get_full_path|urlencode }}'>
 				<i class="icon-list-alt"></i> Transaksjoner</a>
 			{% endcomment %}	
+			<a class="btn btn-small money-actions-btn money-actions-btn--ledger"
+				href='{% url "money_new" "expence" %}?next={{ request.get_full_path|urlencode }}{% if account_id %}&account={{ account_id }}{% endif %}'
+				aria-label="Manuell utgift">
+				<i class="icon-plus-sign" aria-hidden="true"></i><span class="money-actions-btn-text"> Manuell utgift</span></a>
+			<a class="btn btn-small money-actions-btn money-actions-btn--ledger"
+				href='{% url "money_new" "downpayment" %}?next={{ request.get_full_path|urlencode }}'
+				aria-label="Lån">
+				<i class="icon-briefcase" aria-hidden="true"></i><span class="money-actions-btn-text"> Lån</span></a>
+			<a class="btn btn-small money-actions-btn money-actions-btn--ledger"
+				href='{% url "money_new" "salary" %}?next={{ request.get_full_path|urlencode }}'
+				aria-label="Registrer lønn">
+				<i class="icon-edit" aria-hidden="true"></i><span class="money-actions-btn-text"> Registrer lønn</span></a>
 			<a class="btn btn-small money-actions-btn"
-				href='{% url "money_new" "expence" %}?next={{ request.get_full_path|urlencode }}{% if account_id %}&account={{ account_id }}{% endif %}'>
-				<i class="icon-plus-sign"></i> Manuell utgift</a>
+				href='/admin/money/salary/'
+				aria-label="Vis lønn">
+				<i class="icon-list-alt" aria-hidden="true"></i><span class="money-actions-btn-text"> Vis lønn</span></a>
+			<a class="btn btn-small money-actions-btn money-actions-btn--ledger"
+				href='{% url "money_new" "transaction" %}?next={{ request.get_full_path|urlencode }}'
+				aria-label="Overfør">
+				<i class="icon-share-alt" aria-hidden="true"></i><span class="money-actions-btn-text"> Overfør</span></a>
 			<a class="btn btn-small money-actions-btn"
-				href='{% url "money_new" "downpayment" %}?next={{ request.get_full_path|urlencode }}'>
-				<i class="icon-briefcase"></i> Lån</a>
+				href="{% url 'money_admin_add_account' %}"
+				aria-label="Kontoer">
+				<i class="icon-hdd" aria-hidden="true"></i><span class="money-actions-btn-text"> Kontoer</span></a>
 			<a class="btn btn-small money-actions-btn"
-				href='{% url "money_new" "salary" %}?next={{ request.get_full_path|urlencode }}'>
-				<i class="icon-edit"></i> Registrer lønn</a>
+				href="{% url 'money_admin_category' %}"
+				aria-label="Kategorier">
+				<i class="icon-tags" aria-hidden="true"></i><span class="money-actions-btn-text"> Kategorier</span></a>
 			<a class="btn btn-small money-actions-btn"
-				href='/admin/money/salary/'>
-				<i class="icon-list-alt"></i> Vis lønn</a>
-			<a class="btn btn-small money-actions-btn"
-				href='{% url "money_new" "transaction" %}?next={{ request.get_full_path|urlencode }}'>
-				<i class="icon-share-alt"></i> Overfør</a>
-			<a class="btn btn-small money-actions-btn"
-				href="{% url 'money_admin_add_account' %}">
-				<i class="icon-hdd"></i> Kontoer</a>
-			<a class="btn btn-small money-actions-btn"
-				href="{% url 'money_admin_category' %}">
-				<i class="icon-tags"></i> Kategorier</a>
-			<a class="btn btn-small money-actions-btn"
-				href="{% url 'money_admin_subcategory' %}">
-				<i class="icon-tag"></i> Subkategorier</a>
+				href="{% url 'money_admin_subcategory' %}"
+				aria-label="Subkategorier">
+				<i class="icon-tag" aria-hidden="true"></i><span class="money-actions-btn-text"> Subkategorier</span></a>
 		</div>
 		{% endblock %}
 	</div>

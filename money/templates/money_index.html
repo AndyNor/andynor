@@ -39,11 +39,12 @@
 			</tbody>
 		</table>
 
-		<div id="graph_per_account" class="graph-per-account">
-			<script type="text/javascript" nonce="{{request.csp_nonce}}">
-				var balance_data = {{ balance_json|safe }};
-				var year_data = {{ year_json|safe }};
-			</script>
+		<script type="text/javascript" nonce="{{request.csp_nonce}}">
+			var balance_data = {{ balance_json|safe }};
+			var year_chart_data = {{ year_chart_json|safe }};
+		</script>
+		<div class="money-index-chartjs-wrap">
+			<canvas id="moneyChartjsAccounts" aria-label="Kontobalanse"></canvas>
 		</div>
 
 	</div>
@@ -72,7 +73,9 @@
 			</tbody>
 		</table>
 
-		<div id="graph_per_year" class="graph-per-year"></div>
+		<div class="money-index-chartjs-wrap money-index-chartjs-wrap--year">
+			<canvas id="moneyChartjsYears" aria-label="Lønn per år"></canvas>
+		</div>
 
 	</div>
 
@@ -85,144 +88,141 @@
 
 
 {% block javascript_append %}
-<script src="{% static 'js/highcharts-2.2.5.js' %}"></script>
+<script src="{% static 'chart/chart.umd.min.js' %}"></script>
 <script type="text/javascript" nonce="{{request.csp_nonce}}">
-
-var SalaryL1Graphs = (function() {
-
-	function stringToTimeStamp( string ) {//YYYY-mm-dd to javascript date
-		return new Date( Date.parse( string ) ).getTime();
+(function() {
+	function formatMoneyNb(value) {
+		var n = parseFloat(value);
+		if (isNaN(n)) {
+			return "";
+		}
+		return n.toLocaleString("nb-NO", { maximumFractionDigits: 0 }) + " kr";
 	}
 
-	function formatMoney(sSymbol, value) {
-		vValue = parseFloat( value );
-		aDigits = vValue.toFixed(0).split(" ");
-		aDigits[0] = aDigits[0].split("").reverse().join("").replace(/(\d{3})(?=\d)/g, "$1 ").split("").reverse().join("");
-		return sSymbol + aDigits.join(".");
-	}
-
-	function extractDataYear( data ) {
-		var loop = [ Array("tax", "#dc6c6c", "Skatt"), Array("nett", "#9bd569", "Netto") ];
-		var series = [];
-		for ( j in loop ) {
-			var seriesData = [];
-			var categories = [];
-			for (var i in data) {
-				seriesData.push({
-					y: data[ i ][ loop[ j ][ 0 ] ],
-				});
-				categories.push(String(data[ i ].year));
-			}
-			series.push({
-				data: seriesData,
-				categories: categories,
-				name: loop[ j ][2],
-				color: loop[ j ][1],
-				tooltip: {
-					enabled: false,
+	$(document).ready(function() {
+		if (typeof Chart === "undefined") {
+			return;
+		}
+		var accEl = document.getElementById("moneyChartjsAccounts");
+		if (accEl && typeof balance_data !== "undefined" && balance_data && balance_data.length) {
+			var accLabels = [];
+			var accValues = [];
+			var accColors = [];
+			for (var i = 0; i < balance_data.length; i++) {
+				var row = balance_data[i];
+				var y = row.real;
+				if (y == null) {
+					y = 0;
 				}
+				accLabels.push(row.account || "");
+				accValues.push(y);
+				accColors.push(y < 0 ? "#dc6c6c" : "#9bd569");
+			}
+			new Chart(accEl, {
+				type: "bar",
+				data: {
+					labels: accLabels,
+					datasets: [{
+						data: accValues,
+						backgroundColor: accColors,
+						borderColor: accColors,
+						borderWidth: 1,
+					}],
+				},
+				options: {
+					indexAxis: "y",
+					responsive: true,
+					maintainAspectRatio: false,
+					animation: false,
+					plugins: {
+						legend: { display: false },
+						tooltip: {
+							callbacks: {
+								label: function (ctx) {
+									return formatMoneyNb(ctx.parsed.x);
+								},
+							},
+						},
+					},
+					scales: {
+						x: {
+							ticks: {
+								callback: function (v) {
+									return typeof v === "number" ? v.toLocaleString("nb-NO", { maximumFractionDigits: 0 }) : v;
+								},
+							},
+						},
+						y: {
+							reverse: false,
+							ticks: { autoSkip: false },
+						},
+					},
+				},
 			});
 		}
-		return series;
-	}
 
-	function extractDataAccount( data ) {
-		//console.log( data );
-		var series = [];
-		var seriesData = [];
-		var categories = [];
-		for (var i in data) {
-			yValue = data[i].real;
-			if (yValue < 0) {
-				color = "#dc6c6c"
-			}
-			else {
-				color = "#9bd569"
-			}
-			seriesData.push({
-				name: formatMoney( ' ', data[i].real ),
-				y: yValue,
-				color: color,
-			})
-			categories.push( data[i].account );
-		}
-		series.push({
-			data: seriesData,
-			categories: categories,
-			tooltip: {
-				enabled: true,
-				formatter: function() {
-						return this.point.name;
-				}
-			}
-		})
-		//console.log( series )
-		return series;
-	}
-
-	function display_graph( series, renderTo, title, chartType, yMin, legend, stacked, reversed ) {
-		var chart = new Highcharts.Chart({
-			chart: {
-				renderTo: renderTo,
-				backgroundColor: false,
-				animation: false,
-				type: chartType,
-			},
-			credits: {
-				enabled: false,
-			},
-			legend: {
-				enabled: legend,
-			},
-			title: {
-				text: title,
-			},
-			subtitle: {
-				text: ''
-			},
-			xAxis: {
-				reversed: reversed,
-				categories: series[0].categories,
-			},
-			yAxis: {
-				allowDecimals: false,
-				title: {
-					text: ''
+		var yrEl = document.getElementById("moneyChartjsYears");
+		if (yrEl && typeof year_chart_data !== "undefined" && year_chart_data && year_chart_data.length) {
+			var rev = year_chart_data.slice().reverse();
+			var yrLabels = rev.map(function (r) { return String(r.year); });
+			var taxVals = rev.map(function (r) { return r.tax != null ? r.tax : 0; });
+			var nettVals = rev.map(function (r) { return r.nett != null ? r.nett : 0; });
+			new Chart(yrEl, {
+				type: "bar",
+				data: {
+					labels: yrLabels,
+					datasets: [
+						{
+							label: "Netto",
+							data: nettVals,
+							backgroundColor: "#9bd569",
+							borderColor: "#89c55a",
+							borderWidth: 1,
+						},
+						{
+							label: "Skatt",
+							data: taxVals,
+							backgroundColor: "#dc6c6c",
+							borderColor: "#c55a5a",
+							borderWidth: 1,
+						},
+					],
 				},
-				min: yMin,
-			},
-			tooltip: series[0].tooltip,
-			plotOptions: {
-				series: {
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
 					animation: false,
-					stacking: stacked,
+					plugins: {
+						legend: { display: true, position: "top" },
+						tooltip: {
+							callbacks: {
+								label: function (ctx) {
+									var label = ctx.dataset.label || "";
+									if (label) {
+										label += ": ";
+									}
+									return label + formatMoneyNb(ctx.parsed.y);
+								},
+							},
+						},
+					},
+					scales: {
+						x: { stacked: true },
+						y: {
+							stacked: true,
+							min: 0,
+							ticks: {
+								callback: function (v) {
+									return typeof v === "number" ? v.toLocaleString("nb-NO", { maximumFractionDigits: 0 }) : v;
+								},
+							},
+						},
+					},
 				},
-			column: {
-				pointPadding: 0.05,
-				groupPadding: 0.05,
-				borderWidth: 1,
-			},
-			},
-			series: series,
-		})
-		return chart
-	}
-
-	return {
-		draw: display_graph,
-		extractDataAccount: extractDataAccount,
-		extractDataYear: extractDataYear
-	}
-
+			});
+		}
+	});
 })();
-
-$(document).ready(function() {
-	var balance_data_prepared = SalaryL1Graphs.extractDataAccount( balance_data );
-	var graph_balance_data = SalaryL1Graphs.draw( balance_data_prepared, 'graph_per_account', '', 'bar', undefined, false, false, true );
-
-	var year_data_prepared = SalaryL1Graphs.extractDataYear( year_data );
-	var graph_year_data = SalaryL1Graphs.draw( year_data_prepared, 'graph_per_year', '', 'column', 0, true, true, true );
-})
 </script>
 
 {% endblock %}
