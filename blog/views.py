@@ -72,15 +72,17 @@ def index(request, blog_pk=False, category_id=1, category_history=False):
 	#BLOG_ORDER_BY = ['-sticky', '-origin']
 	BLOG_ORDER_BY = ['-origin']
 
+	# Category menu should only show categories that have public entries.
+	menu_links_query = models.Blog.objects.filter(published=True, linked=True)
+	category_ids_with_blogs = menu_links_query.values_list('category_id', flat=True).distinct()
+	all_categories = models.Category.objects.filter(visible=True, pk__in=category_ids_with_blogs)
+
 	if request.user.is_authenticated:
 		blogs_query = models.Blog.objects.all()
 		links_query = blogs_query
 	else:
 		blogs_query = models.Blog.objects.filter(published=True)
 		links_query = blogs_query.filter(linked=True)
-
-	category_ids_with_blogs = links_query.values_list('category_id', flat=True).distinct()
-	all_categories = models.Category.objects.filter(visible=True, pk__in=category_ids_with_blogs)
 
 	blog_history_query = links_query.values('pk', 'title', 'linked', 'published', 'sticky').order_by(*BLOG_ORDER_BY)
 
