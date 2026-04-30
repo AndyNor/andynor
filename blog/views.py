@@ -71,7 +71,6 @@ def index(request, blog_pk=False, category_id=1, category_history=False):
 	#BLOG_ORDER_BY = ['-sticky', '-updated', '-pk']
 	#BLOG_ORDER_BY = ['-sticky', '-origin']
 	BLOG_ORDER_BY = ['-origin']
-	all_categories = models.Category.objects.filter(visible=True)
 
 	if request.user.is_authenticated:
 		blogs_query = models.Blog.objects.all()
@@ -79,6 +78,9 @@ def index(request, blog_pk=False, category_id=1, category_history=False):
 	else:
 		blogs_query = models.Blog.objects.filter(published=True)
 		links_query = blogs_query.filter(linked=True)
+
+	category_ids_with_blogs = links_query.values_list('category_id', flat=True).distinct()
+	all_categories = models.Category.objects.filter(visible=True, pk__in=category_ids_with_blogs)
 
 	blog_history_query = links_query.values('pk', 'title', 'linked', 'published', 'sticky').order_by(*BLOG_ORDER_BY)
 
@@ -224,9 +226,10 @@ def generate_archive_links(active_year, active_month, years=False):
 
 
 def archive(request, year=False, month=False):
-	all_categories = models.Category.objects.filter(visible=True)
 	year = int(year)
 	month = int(month)
+	category_ids_with_blogs = models.Blog.objects.filter(published=True, linked=True).values_list('category_id', flat=True).distinct()
+	all_categories = models.Category.objects.filter(visible=True, pk__in=category_ids_with_blogs)
 	if year and month:
 		archive_posts = models.Blog.objects.filter(
 				published=True,

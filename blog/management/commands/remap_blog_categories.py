@@ -15,6 +15,8 @@ class Command(BaseCommand):
 		"Mapping (based on production IDs provided):\n"
 		"- gadgets (3) -> hverdags (1)\n"
 		"- web (6) -> hverdags (1)\n"
+		"- humor (12) -> hverdags (1)\n"
+		"- teknologi (4) -> hverdags (1)\n"
 		"- økonomi (7) + vitenskap (9) + helse (5) -> hverdags (1)\n"
 		"- skole (11) -> (unchanged)\n"
 	)
@@ -33,6 +35,8 @@ class Command(BaseCommand):
 		remap = {
 			3: 1,  # gadgets -> hverdags
 			6: 1,  # web -> hverdags
+			12: 1,  # humor -> hverdags
+			4: 1,  # teknologi -> hverdags
 			7: 1,  # økonomi -> hverdags
 			9: 1,  # vitenskap -> hverdags
 			5: 1,  # helse -> hverdags
