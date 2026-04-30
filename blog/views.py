@@ -74,6 +74,7 @@ def index(request, blog_pk=False, category_id=1, category_history=False):
 
 	# Category menu should only show categories that have public entries.
 	menu_links_query = models.Blog.objects.filter(published=True, linked=True)
+	print(menu_links_query)
 	category_ids_with_blogs = menu_links_query.values_list('category_id', flat=True).distinct()
 	all_categories = models.Category.objects.filter(visible=True, pk__in=category_ids_with_blogs)
 
