@@ -40,6 +40,10 @@ class SiteLog(models.Model):
 	user = models.CharField(max_length=80)
 	message = models.CharField(max_length=300)
 
+	class Meta:
+		verbose_name = "sidelogg"
+		verbose_name_plural = "sidelogger"
+
 	def __str__(self):
 		return u'%s: %s' % (self.time, self.message)
 
@@ -56,6 +60,10 @@ class Counter(models.Model):
 	ip = models.GenericIPAddressField()
 	time = models.DateTimeField(auto_now_add=True)
 	agent = models.CharField(max_length=300)
+
+	class Meta:
+		verbose_name = "besøksteller"
+		verbose_name_plural = "besøkstellere"
 
 	def __str__(self):
 		return u'%s %s' % (self.ip, self.time)
@@ -74,6 +82,9 @@ class UserProfile(models.Model):
 	BANK_SECRET = models.CharField(max_length=512, blank=True, null=True)
 	BANK_SECRET_EXPIRE = models.DateField(blank=True, null=True)
 
+	class Meta:
+		verbose_name = "brukerprofil"
+		verbose_name_plural = "brukerprofiler"
 
 	def __str__(self):
 		return u'%s %s' % (self.name, self.surname)

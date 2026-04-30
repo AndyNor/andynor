@@ -21,6 +21,11 @@ def validate_not_future(value):
 class Ticker(models.Model):
 	company_name = models.CharField(max_length=30)
 	ticker_name = models.CharField(max_length=6)
+
+	class Meta:
+		verbose_name = "aksje"
+		verbose_name_plural = "aksjer"
+
 	def __str__(self):
 		return u'%s' % (self.company_name)
 
@@ -35,6 +40,11 @@ class Transaction(models.Model):
 	amount = models.IntegerField(help_text=u'Antall aksjer. Negativt hvis salg.')
 	total_price = models.DecimalField(max_digits=18, decimal_places=3, help_text=u'Kjøpesum inkludert kurtasje. Negativt hvis salg.')
 	brokerage = models.DecimalField(max_digits=18, decimal_places=3, validators=[validate_positive_number])
+
+	class Meta:
+		verbose_name = "aksjetransaksjon"
+		verbose_name_plural = "aksjetransaksjoner"
+
 	def __str__(self):
 		if self.amount < 0:
 			message = u"solgte %s aksjer" % (-self.amount)  #  sold # stocks
@@ -55,6 +65,11 @@ class TickerHistory(models.Model):
 	ticker = models.ForeignKey(Ticker, on_delete=models.CASCADE)
 	date = models.DateField(validators=[validate_not_future])
 	price = models.DecimalField(max_digits=9, decimal_places=3, validators=[validate_positive_number])
+
+	class Meta:
+		verbose_name = "aksjekurs"
+		verbose_name_plural = "aksjekurser"
+
 	def __str__(self):
 		return u'%s - %s' % (self.ticker, self.date)
 

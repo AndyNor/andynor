@@ -5,28 +5,28 @@ from blog import models
 
 @admin.register(models.Category)
 class CategoryAdmin(admin.ModelAdmin):
-	list_display = ('category', 'visible', 'tabbed', 'grouped')
+	list_display = ('category', 'id', 'visible', 'tabbed', 'grouped')
 	list_filter = ('visible', 'tabbed', 'grouped')
 	search_fields = ('category', 'description')
 
 
 @admin.register(models.Group)
 class GroupAdmin(admin.ModelAdmin):
-	list_display = ('name',)
+	list_display = ('name', 'id')
 	search_fields = ('name',)
 
 
 @admin.register(models.Tag)
 class TagAdmin(admin.ModelAdmin):
-	list_display = ('tag', 'description')
+	list_display = ('tag', 'id', 'description')
 	search_fields = ('tag', 'description')
 
 
 @admin.register(models.Blog)
 class BlogAdmin(admin.ModelAdmin):
 	list_display = (
-		'id',
 		'title',
+		'id',
 		'category',
 		'origin',
 		'published',
@@ -44,7 +44,7 @@ class BlogAdmin(admin.ModelAdmin):
 
 @admin.register(models.Comment)
 class CommentAdmin(admin.ModelAdmin):
-	list_display = ('id', 'page', 'poster', 'comment_preview', 'created', 'ip')
+	list_display = ('page', 'id', 'poster', 'comment_preview', 'created', 'ip')
 	list_select_related = ('page',)
 	search_fields = ('comment', 'poster', 'page__title')
 	list_filter = ('created',)
@@ -57,7 +57,7 @@ class CommentAdmin(admin.ModelAdmin):
 
 @admin.register(models.Image)
 class ImageAdmin(admin.ModelAdmin):
-	list_display = ('id', 'filename', 'blog', 'order', 'description_preview')
+	list_display = ('filename', 'id', 'blog', 'order', 'description_preview')
 	list_select_related = ('blog', 'owner')
 	search_fields = ('filename', 'description', 'blog__title')
 	list_filter = ('blog',)
@@ -70,7 +70,7 @@ class ImageAdmin(admin.ModelAdmin):
 
 @admin.register(models.File)
 class FileAdmin(admin.ModelAdmin):
-	list_display = ('id', 'filename', 'blog', 'size', 'created', 'owner')
+	list_display = ('filename', 'id', 'blog', 'size', 'created', 'owner')
 	list_select_related = ('blog', 'owner')
 	search_fields = ('filename', 'checksum', 'blog__title')
 	list_filter = ('created',)

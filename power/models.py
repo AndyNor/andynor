@@ -31,6 +31,10 @@ class Payment(models.Model):
 	kwh_rent_cost = models.DecimalField(max_digits=POWER_MAX_DIGITS, decimal_places=POWER_DECIMAL_PLACES)
 	fixed_cost = models.DecimalField(max_digits=POWER_MAX_DIGITS, decimal_places=POWER_DECIMAL_PLACES)
 
+	class Meta:
+		verbose_name = "strømregning"
+		verbose_name_plural = "strømregninger"
+
 	def __str__(self):
 		return u'%s' % (self.kwh_usage)
 

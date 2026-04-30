@@ -14,6 +14,10 @@ class Category(models.Model):
 	grouped = models.BooleanField(default=False)
 	visible = models.BooleanField(default=True)
 
+	class Meta:
+		verbose_name = "kategori"
+		verbose_name_plural = "kategorier"
+
 	def __str__(self):
 		return u'%s' % (self.category)
 
@@ -30,6 +34,10 @@ class CategoryForm(forms.ModelForm):
 
 class Group(models.Model):
 	name = models.CharField(max_length=25, unique=True)
+
+	class Meta:
+		verbose_name = "gruppe"
+		verbose_name_plural = "grupper"
 
 	def __str__(self):
 		return u'%s' % (self.name)
@@ -57,6 +65,8 @@ class Tag(models.Model):
 		super(Tag, self).save(*args, **kwargs)
 
 	class Meta:
+		verbose_name = "tagg"
+		verbose_name_plural = "tagger"
 		ordering = ['tag']
 
 
@@ -80,6 +90,10 @@ class Blog(models.Model):
 	published = models.BooleanField(default=False)
 	sticky = models.BooleanField(default=False)
 
+	class Meta:
+		verbose_name = "blogginnlegg"
+		verbose_name_plural = "blogginnlegg"
+
 	def __str__(self):
 		return u'%s %s' % (self.pk, self.title)
 
@@ -102,6 +116,10 @@ class Comment(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	ip = models.GenericIPAddressField(null=True)
 
+	class Meta:
+		verbose_name = "kommentar"
+		verbose_name_plural = "kommentarer"
+
 	def __str__(self):
 		return u'%s' % (self.comment[:15])
 
@@ -115,6 +133,10 @@ class Image(models.Model):
 	large = models.CharField(max_length=50)
 	thumbnail = models.CharField(max_length=50, blank=True, null=True)
 	order = models.IntegerField()
+
+	class Meta:
+		verbose_name = "bilde"
+		verbose_name_plural = "bilder"
 
 	def __str__(self):
 		return u'%s - %s' % (self.pk, self.filename)
@@ -131,6 +153,10 @@ class File(models.Model):
 	filename = models.CharField(max_length=255)
 	size = models.IntegerField()
 	checksum = models.CharField(max_length=256)
+
+	class Meta:
+		verbose_name = "fil"
+		verbose_name_plural = "filer"
 
 	def __str__(self):
 		return u'%s' % (self.filename)
