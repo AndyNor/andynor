@@ -2,10 +2,14 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
-from django.db.models import Sum
+from urllib.parse import quote
+
+from django.contrib.humanize.templatetags.humanize import intcomma
+from django.db.models import Exists, OuterRef, Q, Sum
 from django.db.models.fields import DecimalField as ModelDecimalField
+from django.http import HttpResponseNotAllowed, JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponseRedirect
 from decimal import Decimal
 from django.template import RequestContext
 from django.http import Http404
@@ -19,11 +23,47 @@ from mysite.search import get_query
 from django.urls import reverse
 from django.views.decorators.cache import never_cache # avoid browser from caching content to disk
 from django.middleware import csrf
-from django.db.models import Q
 
 
 APP_NAME = 'app_money'
 MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+ACCOUNT_TRANSACTIONS_PAGE_SIZE = 100
+
+
+def _money_amount_display(v):
+	if v is None:
+		v = Decimal('0')
+	else:
+		v = Decimal(v)
+	return intcomma(f'{v.quantize(Decimal("0.01"))}')
+
+
+def _cumulative_balance_by_pk_for_transactions(owner, account_pk, transactions_newest_first):
+	"""
+	Match Transaction.balance(): sum(amount) for same owner+account with date <= txn.date
+	(all movements on that calendar day included; same balance for every row on that day).
+	"""
+	if not transactions_newest_first:
+		return {}
+	max_date = max(t.date for t in transactions_newest_first)
+	day_totals = (
+		Transaction.objects.filter(owner=owner, account_id=account_pk, date__lte=max_date)
+		.values('date')
+		.annotate(day_sum=Sum('amount'))
+		.order_by('date')
+	)
+	cum_by_date = {}
+	running = Decimal(0)
+	for row in day_totals:
+		ds = row['day_sum']
+		if ds is None:
+			ds = Decimal(0)
+		else:
+			ds = Decimal(ds)
+		running += ds
+		cum_by_date[row['date']] = running
+	return {t.pk: cum_by_date[t.date] for t in transactions_newest_first}
 
 
 # Generic object to store data
@@ -919,46 +959,97 @@ def year(request, year):  # "2013"
 
 @login_required
 @never_cache
-def account(request, account, page=None):
-	if page is None:
-		page = 0
+def account(request, account):
+	acc = get_object_or_404(Account, pk=int(account), owner=request.user)
+	request.session['redirect_url'] = request.path
+	return render(
+		request,
+		'money_account.html',
+		{
+			'account': acc.name,
+			'account_id': acc.pk,
+			'transactions_api_url': reverse('money_account_transactions', args=[acc.pk]),
+			'back_link': request.session.get('redirect_url'),
+		},
+	)
 
-	num_per_page = 150
 
-	page = int(page)
-	start = num_per_page * page
-	end = start + num_per_page
+@login_required
+@never_cache
+def account_transactions_api(request, account):
+	if request.method != 'GET':
+		return HttpResponseNotAllowed(['GET'])
 
-	def prepare_links(page):
-		active = '' if (page != 0) else 'disabled'
-		return {
-			'last': {
-				'page': page - 1 if (page > 0) else 0,
-				'active': active
-			},
-			'next': {
-				'page': page + 1,
+	acc = get_object_or_404(Account, pk=int(account), owner=request.user)
+
+	after_date_raw = request.GET.get('after_date')
+	after_pk_raw = request.GET.get('after_pk')
+
+	bank_exists = BankTransaction.objects.filter(related_transaction=OuterRef('pk'))
+	qs = (
+		Transaction.objects.filter(owner=request.user, account=acc)
+		.annotate(_has_bank=Exists(bank_exists))
+		.select_related('category', 'sub_category')
+		.order_by('-date', '-pk')
+	)
+
+	if after_date_raw and after_pk_raw:
+		try:
+			after_pk = int(after_pk_raw)
+			after_date = datetime.strptime(after_date_raw, '%Y-%m-%d').date()
+		except (ValueError, TypeError):
+			return JsonResponse({'error': 'Invalid cursor'}, status=400)
+		qs = qs.filter(Q(date__lt=after_date) | Q(date=after_date, pk__lt=after_pk))
+
+	batch = list(qs[:ACCOUNT_TRANSACTIONS_PAGE_SIZE])
+	balances = _cumulative_balance_by_pk_for_transactions(request.user, acc.pk, batch)
+
+	account_path = reverse('money_account', args=[acc.pk])
+	next_full = request.build_absolute_uri(account_path)
+
+	out_rows = []
+	for t in batch:
+		bal = balances.get(t.pk)
+		completed = date.today() >= t.date
+		positive = t.amount >= 0 if t.amount is not None else True
+		cat = t.category
+		text_color = (cat.text_color if cat and cat.text_color else None) or 'A9A9A9'
+		info = str(t.sub_category)
+		if t.comment:
+			info = f'{info} ({t.comment})'
+
+		edit_url = f'{reverse("money_edit", args=["expence", t.pk])}?next={quote(next_full)}'
+
+		out_rows.append(
+			{
+				'pk': t.pk,
+				'date': t.date.isoformat(),
+				'amount': str(t.amount) if t.amount is not None else '0',
+				'amount_display': _money_amount_display(t.amount),
+				'sub_info': info,
+				'bank_linked': bool(t._has_bank),
+				'completed': completed,
+				'positive': positive,
+				'category_hex': text_color,
+				'balance': str(bal) if bal is not None else '0',
+				'balance_display': _money_amount_display(bal),
+				'edit_url': edit_url,
 			}
+		)
+
+	has_more = len(batch) >= ACCOUNT_TRANSACTIONS_PAGE_SIZE
+	next_cursor = None
+	if has_more and batch:
+		last = batch[-1]
+		next_cursor = {'after_date': last.date.isoformat(), 'after_pk': last.pk}
+
+	return JsonResponse(
+		{
+			'rows': out_rows,
+			'has_more': has_more,
+			'next_cursor': next_cursor,
 		}
-
-	account_data = Object()
-	t = Transaction.objects.filter(
-		owner=request.user,
-		account=account,
-		# Only dates up until now
-		#date__lte=date.today(),
-	).order_by('-date', '-pk')[start:end]
-	account_data.tbody = t
-
-	account_name = Account.objects.get(pk=account).name
-
-	return render(request, 'money_account.html', {
-		'links': prepare_links(page),
-		'table_data': account_data,
-		'account': account_name,
-		'account_id': account,
-		'back_link': request.session['redirect_url'],
-	})
+	)
 
 
 """

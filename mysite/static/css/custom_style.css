@@ -1544,6 +1544,12 @@ html.lightbox-open .home-bottom-nav{
 	vertical-align: -1px;
 }
 
+.money-account-sentinel{
+	min-height: 1px;
+	margin: 0;
+	padding: 0;
+}
+
 .graph-per-account{
 	height: 200px;
 }

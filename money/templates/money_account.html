@@ -5,22 +5,11 @@
 
 {% block money_subtitle %}
 <ul class="pager">
-	<li class="previous {{ links.last.active }}"><a href="{% url 'money_account' account_id links.last.page %}">&larr; Nyere</a></li>
 	<li><a class="btn" href="{% url 'app_money' %}">Oversikt</a></li>
-	<li class="next"><a href="{% url 'money_account' account_id links.next.page %}">Eldre &rarr;</a></li>
 </ul>
 {% endblock %}
 
 {% block money_main %}
-
-<style nonce="{{ request.csp_nonce }}">
-	{% for i in table_data.tbody %}
-	.money-account-row-{{ i.pk }}{
-		color:#{{ i.category.text_color|default:'A9A9A9' }};
-		{% if not i.completed %}background-color: #f6f6f6;{% endif %}
-	}
-	{% endfor %}
-</style>
 
 <table class="table money-account-table">
 	<thead>
@@ -36,37 +25,129 @@
 			<th width="8%">Balanse</th>
 		</tr>
 	</thead>
-	<tbody>
-		{% for i in table_data.tbody %}
-		<tr class="money-account-row-{{ i.pk }}">
-			<td><a href='{% url "money_edit" "expence" i.pk %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i></a></td>
-			<td>{{ i.date }}</td>
-			<td>{{ i.sub_category }} {% if i.comment %} ({{ i.comment }}) {% endif %}</td>
-			<td>{% if i.bank_transaction %} ✓ {% endif %}</td>
-			<td class="money">
-			{% if not i.positive and i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
-			</td>
-			<td class="money">
-			{% if i.positive and i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
-			</td>
-			<td class="money">
-			{% if not i.positive and not i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
-			</td>
-			<td class="money">
-			{% if i.positive and not i.completed %} {{ i.amount|floatformat:"2"|intcomma }} {% endif %}
-			</td>
-			<td class="money money-account-balance">
-			{{ i.balance|floatformat:"2"|intcomma }}
-			</td>
-		</tr>
-		{% endfor %}
+	<tbody id="money-account-tbody">
+		<tr id="money-account-loading"><td colspan="9">Laster transaksjoner…</td></tr>
 	</tbody>
 </table>
+<div id="money-account-sentinel" class="money-account-sentinel" aria-hidden="true"></div>
+<p id="money-account-end" class="muted" hidden>Ingen flere transaksjoner.</p>
+<p id="money-account-error" class="text-error" hidden></p>
 
-<ul class="pager">
-	<li class="previous {{ links.last.active }}"><a href="{% url 'money_account' account_id links.last.page %}">&larr; Forward</a></li>
-	<li><a class="btn" href="{% url 'app_money' %}">Main overview</a></li>
-	<li class="next"><a href="{% url 'money_account' account_id links.next.page %}">Earlier &rarr;</a></li>
-</ul>
+<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+(function() {
+	var apiUrl = "{{ transactions_api_url|escapejs }}";
+	var tbody = document.getElementById("money-account-tbody");
+	var loadingRow = document.getElementById("money-account-loading");
+	var sentinel = document.getElementById("money-account-sentinel");
+	var endMsg = document.getElementById("money-account-end");
+	var errMsg = document.getElementById("money-account-error");
+	var cursor = null;
+	var loading = false;
+	var done = false;
+
+	function cellMoney(text, extraClass) {
+		var td = document.createElement("td");
+		td.className = "money" + (extraClass ? " " + extraClass : "");
+		td.textContent = text || "";
+		return td;
+	}
+
+	function appendRows(rows) {
+		for (var i = 0; i < rows.length; i++) {
+			var r = rows[i];
+			var tr = document.createElement("tr");
+			tr.className = "money-account-row";
+			tr.style.color = "#" + r.category_hex;
+			if (!r.completed) tr.style.backgroundColor = "#f6f6f6";
+
+			var tdEdit = document.createElement("td");
+			var a = document.createElement("a");
+			a.href = r.edit_url;
+			var ic = document.createElement("i");
+			ic.className = "icon-pencil";
+			a.appendChild(ic);
+			tdEdit.appendChild(a);
+			tr.appendChild(tdEdit);
+
+			var tdDate = document.createElement("td");
+			tdDate.textContent = r.date;
+			tr.appendChild(tdDate);
+
+			var tdInfo = document.createElement("td");
+			tdInfo.textContent = r.sub_info;
+			tr.appendChild(tdInfo);
+
+			var tdBank = document.createElement("td");
+			tdBank.textContent = r.bank_linked ? "✓" : "";
+			tr.appendChild(tdBank);
+
+			var amtOut = (!r.positive && r.completed) ? r.amount_display : "";
+			var amtIn = (r.positive && r.completed) ? r.amount_display : "";
+			var pendOut = (!r.positive && !r.completed) ? r.amount_display : "";
+			var pendIn = (r.positive && !r.completed) ? r.amount_display : "";
+
+			tr.appendChild(cellMoney(amtOut, ""));
+			tr.appendChild(cellMoney(amtIn, ""));
+			tr.appendChild(cellMoney(pendOut, ""));
+			tr.appendChild(cellMoney(pendIn, ""));
+			var tdBal = cellMoney(r.balance_display, "money-account-balance");
+			tr.appendChild(tdBal);
+			tbody.appendChild(tr);
+		}
+	}
+
+	function setError(msg) {
+		errMsg.textContent = msg;
+		errMsg.hidden = false;
+	}
+
+	function loadNext() {
+		if (loading || done) return;
+		loading = true;
+		var url = apiUrl;
+		if (cursor) {
+			url += "?after_date=" + encodeURIComponent(cursor.after_date) + "&after_pk=" + encodeURIComponent(String(cursor.after_pk));
+		}
+		fetch(url, { credentials: "same-origin" })
+			.then(function(resp) {
+				if (!resp.ok) throw new Error("HTTP " + resp.status);
+				return resp.json();
+			})
+			.then(function(data) {
+				if (loadingRow && loadingRow.parentNode) loadingRow.parentNode.removeChild(loadingRow);
+				loadingRow = null;
+				appendRows(data.rows || []);
+				if (!data.has_more) {
+					done = true;
+					endMsg.hidden = false;
+					if (observer) observer.disconnect();
+				} else {
+					cursor = data.next_cursor;
+				}
+			})
+			.catch(function(e) {
+				if (loadingRow && loadingRow.parentNode) loadingRow.parentNode.removeChild(loadingRow);
+				loadingRow = null;
+				setError("Kunne ikke laste transaksjoner. " + (e && e.message ? e.message : ""));
+				done = true;
+				if (observer) observer.disconnect();
+			})
+			.finally(function() {
+				loading = false;
+			});
+	}
+
+	var observer = new IntersectionObserver(function(entries) {
+		for (var j = 0; j < entries.length; j++) {
+			if (entries[j].isIntersecting) loadNext();
+		}
+	}, { root: null, rootMargin: "200px", threshold: 0 });
+
+	document.addEventListener("DOMContentLoaded", function() {
+		loadNext();
+		observer.observe(sentinel);
+	});
+})();
+</script>
 
 {% endblock %}
