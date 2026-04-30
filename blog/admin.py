@@ -10,12 +10,6 @@ class CategoryAdmin(admin.ModelAdmin):
 	search_fields = ('category', 'description')
 
 
-@admin.register(models.Group)
-class GroupAdmin(admin.ModelAdmin):
-	list_display = ('name', 'id')
-	search_fields = ('name',)
-
-
 @admin.register(models.Tag)
 class TagAdmin(admin.ModelAdmin):
 	list_display = ('tag', 'id', 'description')
@@ -35,10 +29,10 @@ class BlogAdmin(admin.ModelAdmin):
 		'owner',
 		'updated',
 	)
-	list_filter = ('published', 'sticky', 'linked', 'category', 'group')
+	list_filter = ('published', 'sticky', 'linked', 'category')
 	search_fields = ('title', 'content', 'tags__tag')
 	date_hierarchy = 'origin'
-	list_select_related = ('category', 'owner', 'group')
+	list_select_related = ('category', 'owner')
 	ordering = ('-updated',)
 
 

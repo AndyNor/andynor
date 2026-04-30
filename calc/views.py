@@ -71,33 +71,37 @@ def loan(request):
 	annuitet_plan = []
 	restlaan = faktisk_lanebehov
 	serie_restlan = faktisk_lanebehov
+
+	def kr(value):
+		return int(round(value))
+
+	annuitet_fast = annuitetsfaktor * faktisk_lanebehov + user_var.termingebyr
 	for i in range(0, int(antall_terminer)):
-		annuitet = annuitetsfaktor * faktisk_lanebehov + user_var.termingebyr
 		rente = (restlaan * terminrente) + user_var.termingebyr
 		serie_rente = serie_restlan * terminrente + user_var.termingebyr
-		avdrag = annuitet - rente
-		termin_belop = avdrag + rente
+		avdrag = annuitet_fast - rente
+		termin_belop = annuitet_fast
 		restlaan -= avdrag
 		serie_restlan -= serie_avdrag
 		serie_termin_belop = serie_avdrag + serie_rente
 
-		serie_plan.append((i + 1, int(rente), int(avdrag), int(termin_belop), int(restlaan)))
-		annuitet_plan.append((i + 1, int(serie_rente), int(serie_avdrag), int(serie_termin_belop), int(serie_restlan)))
+		annuitet_plan.append((i + 1, kr(rente), kr(avdrag), kr(termin_belop), kr(restlaan)))
+		serie_plan.append((i + 1, kr(serie_rente), kr(serie_avdrag), kr(serie_termin_belop), kr(serie_restlan)))
 
 	table_head = ('Termin', 'Renter + gebyr', 'Avdrag', 'Terminbeløp', 'Restgjeld')
 
-	serie = {
-		'per_termin': int(innbetaling_per_termin),
-		'total_kost': int(totalkostnad),
-		'rebyr_renter': int(kostnad_renter_gebyrer),
-		'plan': serie_plan,
+	annuitet = {
+		'per_termin': kr(annuitet_fast),
+		'total_kost': kr(totalkostnad),
+		'rebyr_renter': kr(kostnad_renter_gebyrer),
+		'plan': annuitet_plan,
 	}
 
-	annuitet = {
+	serie = {
 		'per_termin': 'Variabel',
-		'total_kost': int(serie_totalkostnad),
-		'rebyr_renter': int(serie_kostnad_renter_gebyrer),
-		'plan': annuitet_plan,
+		'total_kost': kr(serie_totalkostnad),
+		'rebyr_renter': kr(serie_kostnad_renter_gebyrer),
+		'plan': serie_plan,
 	}
 
 	return render(request, 'calc_loan.html', {

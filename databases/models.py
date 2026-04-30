@@ -97,11 +97,11 @@ class Data(models.Model):
 
 
 class DataForm(forms.ModelForm):
-	formfield_callback = make_custom_plugins
 
 	class Meta:
 		model = Data
 		fields = "__all__"
+		formfield_callback = make_custom_plugins
 
 	def __init__(self, *args, **kwargs):
 		super(DataForm, self).__init__(*args, **kwargs)

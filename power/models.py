@@ -53,8 +53,8 @@ class Payment(models.Model):
 
 
 class PaymentForm(forms.ModelForm):
-	formfield_callback = make_custom_plugins
 
 	class Meta:
 		model = Payment
 		exclude = ('owner',)
+		formfield_callback = make_custom_plugins

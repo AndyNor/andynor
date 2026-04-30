@@ -32,27 +32,6 @@ class CategoryForm(forms.ModelForm):
 		fields = "__all__" 
 
 
-class Group(models.Model):
-	name = models.CharField(max_length=25, unique=True)
-
-	class Meta:
-		verbose_name = "gruppe"
-		verbose_name_plural = "grupper"
-
-	def __str__(self):
-		return u'%s' % (self.name)
-
-	def save(self, *args, **kwargs):
-		self.name = self.name.lower()
-		super(Group, self).save(*args, **kwargs)
-
-
-class GroupForm(forms.ModelForm):
-	class Meta:
-		model = Group
-		fields = "__all__" 
-
-
 class Tag(models.Model):
 	tag = models.CharField(max_length=25, unique=True)
 	description = models.CharField(max_length=140, blank=True, null=True)
@@ -85,7 +64,6 @@ class Blog(models.Model):
 	tags = models.ManyToManyField(Tag, blank=True)
 	tags.help_text = ''
 	content = models.TextField(blank=True, null=True)
-	group = models.ForeignKey(Group, blank=True, null=True, on_delete=models.PROTECT)
 	linked = models.BooleanField(default=True)
 	published = models.BooleanField(default=False)
 	sticky = models.BooleanField(default=False)
@@ -102,7 +80,6 @@ class Blog(models.Model):
 
 
 class BlogForm(forms.ModelForm):
-	formfield_callback = make_custom_plugins
 	tags_text = forms.CharField(
 		label="Tagger",
 		required=False,
@@ -112,6 +89,7 @@ class BlogForm(forms.ModelForm):
 	class Meta:
 		model = Blog
 		exclude = ('owner', 'created', 'updated', 'tags')
+		formfield_callback = make_custom_plugins
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)

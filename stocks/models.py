@@ -54,11 +54,11 @@ class Transaction(models.Model):
 
 
 class TransactionForm(forms.ModelForm):
-	formfield_callback = make_custom_plugins
 
 	class Meta:
 		model = Transaction
 		fields = ('ticker', 'date', 'amount', 'total_price', 'brokerage')
+		formfield_callback = make_custom_plugins
 
 
 class TickerHistory(models.Model):
@@ -74,8 +74,8 @@ class TickerHistory(models.Model):
 		return u'%s - %s' % (self.ticker, self.date)
 
 class TickerHistoryForm(forms.ModelForm):
-	formfield_callback = make_custom_plugins
 
 	class Meta:
 		model = TickerHistory
 		fields = ('ticker', 'date', 'price')
+		formfield_callback = make_custom_plugins

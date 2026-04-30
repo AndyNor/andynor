@@ -16,34 +16,34 @@
 
 			<div class="input-prepend">
 			  <span class="add-on">Lånebehov:</span>
-			  <input class="span2" type="text" name="laanebehov" value="{{user_var.laanebehov}}">
+			  <input class="span2" type="number" inputmode="decimal" step="1" min="0" name="laanebehov" value="{{ user_var.laanebehov|stringformat:'0.0f' }}">
 			</div>
 			<div class="input-prepend">
 			  <span class="add-on">Terminer per år:</span>
-			  <input class="span2" type="text" name="terminer" value="{{user_var.terminer}}">
+			  <input class="span2" type="number" inputmode="numeric" step="1" min="1" name="terminer" value="{{ user_var.terminer|stringformat:'0.0f' }}">
 			</div>
 			<div class="input-prepend">
 			  <span class="add-on">Løpetid i år:</span>
-			  <input class="span2" type="text" name="loepetid" value="{{user_var.loepetid}}">
+			  <input class="span2" type="number" inputmode="numeric" step="1" min="1" name="loepetid" value="{{ user_var.loepetid|stringformat:'0.0f' }}">
 			</div>
 
 
 			<div class="input-prepend">
 			  <span class="add-on">Nominell rente [%]:</span>
-			  <input class="span2" type="text" name="nomrente" value="{{user_var.nomrente}}">
+			  <input class="span2" type="number" inputmode="decimal" step="0.01" min="0" name="nomrente" value="{{ user_var.nomrente|stringformat:'0.2f' }}">
 			</div>
 			<div class="input-prepend">
 			  <span class="add-on">Termingebyr:</span>
-			  <input class="span2" type="text" name="termingebyr" value="{{user_var.termingebyr}}">
+			  <input class="span2" type="number" inputmode="decimal" step="1" min="0" name="termingebyr" value="{{ user_var.termingebyr|stringformat:'0.0f' }}">
 			</div>
 
 			<div class="input-prepend">
 			  <span class="add-on">Etableringsgebyr:</span>
-			  <input class="span2" type="text" name="etablering" value="{{user_var.etablering}}">
+			  <input class="span2" type="number" inputmode="decimal" step="1" min="0" name="etablering" value="{{ user_var.etablering|stringformat:'0.0f' }}">
 			</div>
 			<div class="input-prepend input-append">
 			  <span class="add-on">Tinglysningsgebyr:</span>
-			  <input class="span2" type="text" name="tinglysning" value="{{user_var.tinglysning}}">
+			  <input class="span2" type="number" inputmode="decimal" step="1" min="0" name="tinglysning" value="{{ user_var.tinglysning|stringformat:'0.0f' }}">
 			  <button class="btn btn-primary" type="submit">Beregn</button>
 			</div>
 
@@ -58,9 +58,9 @@
 <div class="row">
 	<div class="span6">
 		<h4>Annuitetslån</h4>
-		Innbetaling per termin: {{ serie.per_termin|intcomma }}<br>
-		Totalkostnad: {{ serie.total_kost|intcomma }}<br>
-		Kostnad gebyrer og renter: {{ serie.rebyr_renter|intcomma }}<br>
+		Innbetaling per termin: {{ annuitet.per_termin|intcomma }}<br>
+		Totalkostnad: {{ annuitet.total_kost|intcomma }}<br>
+		Kostnad gebyrer og renter: {{ annuitet.rebyr_renter|intcomma }}<br>
 		<hr>
 		<table class="table table-condensed table-striped">
 			<thead>
@@ -71,7 +71,7 @@
 				</tr>
 			</thead>
 			<tbody>
-			{% for i in serie.plan %}
+			{% for i in annuitet.plan %}
 			<tr>
 				<td class="">{{ i.0|intcomma }}</td>
 				<td class="">{{ i.1|intcomma }}</td>
@@ -87,9 +87,9 @@
 	</div>
 	<div class="span6">
 		<h4>Serielån</h4>
-		Innbetaling per termin: {{ annuitet.per_termin|intcomma }}<br>
-		Totalkostnad: {{ annuitet.total_kost|intcomma }}<br>
-		Kostnad gebyrer og renter: {{ annuitet.rebyr_renter|intcomma }}<br>
+		Innbetaling per termin: {{ serie.per_termin|intcomma }}<br>
+		Totalkostnad: {{ serie.total_kost|intcomma }}<br>
+		Kostnad gebyrer og renter: {{ serie.rebyr_renter|intcomma }}<br>
 		<hr>
 		<table class="table table-condensed table-striped">
 			<thead>
@@ -100,7 +100,7 @@
 				</tr>
 			</thead>
 			<tbody>
-			{% for i in annuitet.plan %}
+			{% for i in serie.plan %}
 			<tr>
 				<td class="">{{ i.0|intcomma }}</td>
 				<td class="">{{ i.1|intcomma }}</td>

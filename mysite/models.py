@@ -151,11 +151,11 @@ def make_custom_plugins(f):
 
 
 class UserProfileForm(forms.ModelForm):
-	formfield_callback = make_custom_plugins
 
 	class Meta:
 		model = UserProfile
 		fields = "__all__"
+		formfield_callback = make_custom_plugins
 
 
 class LoginForm(forms.Form):
