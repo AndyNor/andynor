@@ -1,0 +1,33 @@
+[Unit]
+Description=Gunicorn daemon for Django Project
+Before=nginx.service
+After=network.target
+
+[Service]
+#WorkingDirectory=/home/django/django_project/andynor
+#ExecStart=/usr/bin/gunicorn3 --name=django_project --pythonpath=/home/django/django_project/andynor --bind unix:/home/django/gunicorn.socket --config /etc/gunicorn.d/g>
+#Restart=always
+#SyslogIdentifier=gunicorn
+#User=django
+#Group=django
+
+User=django
+Group=www-data
+WorkingDirectory=/home/django/django_project/andynor
+Environment="PYTHONPATH=/home/django/django_project/andynor"
+Environment="DJANGO_SETTINGS_MODULE=settings"
+Environment="PATH=/home/django/django_project/python3.13-env/bin"
+
+Environment="PYTHONUNBUFFERED=1"
+
+ExecStart=/home/django/django_project/python3.13-env/bin/gunicorn \
+    --workers 3 \
+    --bind unix:/home/django/gunicorn.socket \
+    --capture-output \
+    --error-logfile /home/django/django_project/andynor/gunicorn_error.log \
+    wsgi:application
+Restart=always
+
+
+[Install]
+WantedBy=multi-user.target

@@ -130,7 +130,17 @@ def home_categories_queryset():
 	"""
 	Categories that can be toggled on the home page.
 	"""
-	return Category.objects.filter(visible=True).exclude(pk__in=HOME_EXCLUDED_CATEGORY_IDS)
+	public_category_ids = (
+		Blog.objects.filter(published=True, linked=True)
+		.exclude(category__in=HOME_EXCLUDED_CATEGORY_IDS)
+		.values_list('category_id', flat=True)
+		.distinct()
+	)
+	return (
+		Category.objects.filter(visible=True)
+		.exclude(pk__in=HOME_EXCLUDED_CATEGORY_IDS)
+		.filter(pk__in=public_category_ids)
+	)
 
 
 def _home_parse_selected_category_ids(request, allowed_category_ids):
