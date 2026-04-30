@@ -10,39 +10,39 @@
 	<div class="span12">
 		<h3>{% block money_title %}{% endblock %}</h3>
 		{% block money_actions %}
-		<div class="pull-right">
+		<div class="pull-right money-actions-toolbar">
 			<a class="btn btn-small money-actions-btn"
 				href='{% url "app_money" %}?next={{ request.get_full_path|urlencode }}'>
-				Oversikt</a>
+				<i class="icon-th"></i> Oversikt</a>
 			{% comment %}			
 				<a class="btn btn-small money-actions-btn"
 				href='{% url "bank_transactions" %}?next={{ request.get_full_path|urlencode }}'>
-				Transaksjoner</a>
+				<i class="icon-list-alt"></i> Transaksjoner</a>
 			{% endcomment %}	
 			<a class="btn btn-small money-actions-btn"
 				href='{% url "money_new" "expence" %}?next={{ request.get_full_path|urlencode }}{% if account_id %}&account={{ account_id }}{% endif %}'>
-				Manuell utgift</a>
+				<i class="icon-plus-sign"></i> Manuell utgift</a>
 			<a class="btn btn-small money-actions-btn"
 				href='{% url "money_new" "downpayment" %}?next={{ request.get_full_path|urlencode }}'>
-				Lån</a>
+				<i class="icon-briefcase"></i> Lån</a>
 			<a class="btn btn-small money-actions-btn"
 				href='{% url "money_new" "salary" %}?next={{ request.get_full_path|urlencode }}'>
-				Registrer lønn</a>
+				<i class="icon-edit"></i> Registrer lønn</a>
 			<a class="btn btn-small money-actions-btn"
 				href='/admin/money/salary/'>
-				Vis lønn</a>
+				<i class="icon-list-alt"></i> Vis lønn</a>
 			<a class="btn btn-small money-actions-btn"
 				href='{% url "money_new" "transaction" %}?next={{ request.get_full_path|urlencode }}'>
-				Overfør</a>
+				<i class="icon-share-alt"></i> Overfør</a>
 			<a class="btn btn-small money-actions-btn"
 				href="{% url 'money_admin_add_account' %}">
-				Kontoer</a>
+				<i class="icon-hdd"></i> Kontoer</a>
 			<a class="btn btn-small money-actions-btn"
 				href="{% url 'money_admin_category' %}">
-				Kategorier</a>
+				<i class="icon-tags"></i> Kategorier</a>
 			<a class="btn btn-small money-actions-btn"
 				href="{% url 'money_admin_subcategory' %}">
-				Subkategorier</a>
+				<i class="icon-tag"></i> Subkategorier</a>
 		</div>
 		{% endblock %}
 	</div>

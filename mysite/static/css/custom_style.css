@@ -525,6 +525,22 @@ a {
 	text-align: justify;
 }
 
+/* BBCode [lead] / [title]: balance rhythm vs linebreaksbr (no double <br> stacking). */
+.textJustify p.lead{
+	margin-top: 1.15em;
+	margin-bottom: 0.55em;
+}
+.textJustify p.lead:first-child{
+	margin-top: 0;
+}
+.textJustify h4{
+	margin-top: 1.1em;
+	margin-bottom: 0.45em;
+}
+.textJustify h4:first-child{
+	margin-top: 0;
+}
+
 /* Inline <video> is replaced + inline by default; width:100% alone does not cap to parent. */
 .textJustify .blog-post-video{
 	display: block;
@@ -1518,9 +1534,14 @@ html.lightbox-open .home-bottom-nav{
 }
 
 .money-actions-btn{
-	width: 80px;
-	margin-bottom: 10px;
-	padding-bottom: 3px;
+	width: auto;
+	display: inline-block;
+	margin: 0 6px 10px 0;
+	white-space: nowrap;
+}
+.money-actions-btn [class^="icon-"]{
+	margin-right: 0.35em;
+	vertical-align: -1px;
 }
 
 .graph-per-account{

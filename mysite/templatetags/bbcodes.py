@@ -355,6 +355,13 @@ def bbcode_render(context, text, blog_id):
 		p = re.compile(bbset[0], re.DOTALL)
 		text = p.sub(bbset[1], text)
 
+	# linebreaksbr runs before bbcode; blank lines become <br><br> next to block tags and
+	# stack with normal paragraph/heading margins — trim redundant breaks.
+	text = re.sub(r'(?:<br\s*/?>\s*)+(?=<p class="lead">)', '', text, flags=re.IGNORECASE)
+	text = re.sub(r'(</p>)(?:<br\s*/?>\s*)+', r'\1', text, flags=re.IGNORECASE)
+	text = re.sub(r'(?:<br\s*/?>\s*)+(?=<h4>)', '', text, flags=re.IGNORECASE)
+	text = re.sub(r'(</h4>)(?:<br\s*/?>\s*)+', r'\1', text, flags=re.IGNORECASE)
+
 	return '<div class="textJustify">%s</div>' % text
 
 

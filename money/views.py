@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from collections import defaultdict
+
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.db.models import Sum
+from django.db.models.fields import DecimalField as ModelDecimalField
 from decimal import Decimal
 from django.template import RequestContext
 from django.http import Http404
@@ -185,10 +188,29 @@ def edit(request, this_type, pk=False):
 	if this_type == u'salary':
 
 		if not pk:
-			form = SalaryForm(initial={
+			initial = {
 				'account': request.user.profile.DEFAULT_PAYMENT_ACCOUNT,
-				'comment': request.user.profile.DEFAULT_SALARY_COMMENT
-			})
+				'comment': request.user.profile.DEFAULT_SALARY_COMMENT,
+				'date': date.today(),
+			}
+			prev = (
+				Salary.objects.filter(owner=request.user)
+				.order_by('-date', '-pk')
+				.first()
+			)
+			if prev:
+				initial['salary'] = prev.salary
+				initial['extra_hours'] = prev.extra_hours
+				initial['tax'] = prev.tax
+				initial['retirement_pension'] = prev.retirement_pension
+				initial['labor_union'] = prev.labor_union
+				initial['comment'] = prev.comment
+				if Account.objects.filter(
+					pk=prev.account_id,
+					owner=request.user,
+				).exclude(account_type=2).exists():
+					initial['account'] = prev.account_id
+			form = SalaryForm(initial=initial)
 			if request.method == 'POST':
 				form = SalaryForm(request.POST)
 		else:
@@ -380,11 +402,26 @@ def edit(request, this_type, pk=False):
 	elif this_type == u'downpayment':
 
 		if not pk:
-			form = DownpaymentForm(initial={
-				# make it general !!
+			initial = {
 				'comment': request.user.profile.DEFAULT_DOWNPAYMENT_COMMENT,
 				'source_account': request.user.profile.DEFAULT_PAYMENT_ACCOUNT,
-			})
+				'date': date.today(),
+			}
+			prev = (
+				Downpayment.objects.filter(owner=request.user)
+				.order_by('-date', '-pk')
+				.first()
+			)
+			if prev:
+				initial['interest_and_fees'] = prev.interest_and_fees
+				initial['repayment'] = prev.repayment
+				if Account.objects.filter(
+					pk=prev.destination_account_id,
+					owner=request.user,
+					account_type=2,
+				).exists():
+					initial['destination_account'] = prev.destination_account_id
+			form = DownpaymentForm(initial=initial)
 			if request.method == 'POST':
 				form = DownpaymentForm(request.POST)
 		else:
@@ -689,61 +726,70 @@ def year(request, year):  # "2013"
 	user = request.user
 
 	def expence_data(request, year):
+		tx_qs = Transaction.objects.exclude(
+			account__pk=13,  # Egen leilighet
+		).filter(
+			date__year=year,
+			owner=request.user,
+		).exclude(category__isnull=True)
+
+		cell_map = defaultdict(dict)
+		for r in tx_qs.values('category_id', 'date__month').annotate(value=Sum('amount')):
+			cell_map[r['category_id']][r['date__month']] = r['value']
+
 		data = []
-		for cat in Category.objects.filter(owner=user).order_by(u'name'):
+		for cat in Category.objects.filter(owner=user).order_by('name'):
 			cell_sums = []
 			category_sum = Decimal(0)
 			for month in range(0, 12):
-				this_category_sum = Transaction.objects.exclude(
-						account__pk=13, # Egen leilighet
-					).filter(
-						date__year=year,
-						date__month=month + 1,
-						owner=request.user,
-						category=cat,
-				).aggregate(value=Sum(u'amount'))[u'value']
-				# sum all partial sums of this category
-				if type(this_category_sum).__name__ == u'Decimal':
+				m = month + 1
+				this_category_sum = cell_map[cat.pk].get(m)
+				if isinstance(this_category_sum, Decimal):
 					category_sum += this_category_sum
-
-				# group all partial sums per category
 				cell_sums.append(this_category_sum)
 
 			data.append({
-				u'category': cat.name,
-				u'cell_sums': cell_sums,
-				u'category_sum': category_sum,
-				u'text_color': cat.text_color,
+				'category': cat.name,
+				'cell_sums': cell_sums,
+				'category_sum': category_sum,
+				'text_color': cat.text_color,
 			})
 
 		data.append(month_sums(data))
 		return data
 
 	def salary_data(request, year):
+		decimal_fields = [
+			f for f in Salary._meta.get_fields()
+			if isinstance(f, ModelDecimalField)
+		]
+		ann = {f.name: Sum(f.name) for f in decimal_fields}
+		rows = list(
+			Salary.objects.filter(owner=request.user, date__year=year)
+			.values('date__month')
+			.annotate(**ann)
+			.order_by('date__month')
+		)
+		by_month = {r['date__month']: r for r in rows}
+
 		data = []
-		for field_name in Salary._meta.get_fields():
-			if field_name.get_internal_type() == u'DecimalField':
-				cell_sums = []
-				for month in range(0, 12):
-					sum = Salary.objects.filter(
-						owner=request.user,
-						date__year=year,
-						date__month=month + 1,
-					).aggregate(sum=Sum(field_name.name))[u'sum']
+		for field_name in decimal_fields:
+			cell_sums = []
+			category_sum = Decimal(0)
+			for month in range(0, 12):
+				m = month + 1
+				row = by_month.get(m, {})
+				part = row.get(field_name.name)
+				part = Decimal(0) if part is None else part
+				cell_sums.append(part)
+				if isinstance(part, Decimal):
+					category_sum += part
 
-					sum = Decimal(0) if sum is None else sum
-					cell_sums.append(sum)
-
-				category_sum = Decimal(0)
-				for part_sum in cell_sums:
-					if type(part_sum).__name__ == u'Decimal':
-						category_sum += part_sum
-
-				data.append({
-					u'category': field_name.name.replace('_', ' '),
-					u'cell_sums': cell_sums,
-					u'category_sum': category_sum,
-				})
+			data.append({
+				'category': field_name.name.replace('_', ' '),
+				'cell_sums': cell_sums,
+				'category_sum': category_sum,
+			})
 		data.append(month_sums(data))
 		return data
 
@@ -757,10 +803,19 @@ def year(request, year):  # "2013"
 			{u'text': u'Repayment', u'width': 15},
 			{u'text': u'Comment', u'width': 15},
 		]
-		payments = Downpayment.objects.filter(
-			date__year=year,
-			owner=request.user,
-		).order_by(u'date')
+		payments = (
+			Downpayment.objects.filter(
+				date__year=year,
+				owner=request.user,
+			)
+			.select_related(
+				'source_account',
+				'destination_account',
+				'destination_transaction',
+				'destination_transaction__category',
+			)
+			.order_by('date')
+		)
 
 		data = {'thead': THEAD_COLS, 'payments': payments}
 		return data
@@ -781,50 +836,62 @@ def year(request, year):  # "2013"
 		return sums
 
 	def assets(request, year):
-		items = Transaction.objects.filter(
-			owner=request.user,
-			is_asset=True,
-			date__year=year,
-		).order_by('-date')
+		items = (
+			Transaction.objects.filter(
+				owner=request.user,
+				is_asset=True,
+				date__year=year,
+			)
+			.select_related('category', 'sub_category')
+			.order_by('-date')
+		)
 		# Invert amount from negative to positive
 		for i in items:
 			i.amount = -i.amount
 		return items
 
 	def consumption_sum_data(request, year):
+		rows = (
+			Transaction.objects.exclude(account__pk=13)
+			.filter(
+				date__year=year,
+				owner=request.user,
+				is_consumption=True,
+			)
+			.values('date__month')
+			.annotate(value=Sum('amount'))
+		)
+		by_month = {r['date__month']: r['value'] for r in rows}
+
 		montly_sums = []
 		total_sum = Decimal(0)
-
 		for month in range(0, 12):
-			month_sum = Transaction.objects.exclude(
-					account__pk=13, # Egen leilighet
-				).filter(
-					date__year=year,
-					date__month=month + 1,
-					owner=request.user,
-					is_consumption=True,
-				).aggregate(value=Sum(u'amount'))[u'value']
+			month_sum = by_month.get(month + 1)
 			montly_sums.append(month_sum)
-			if type(month_sum).__name__ == u'Decimal':
+			if isinstance(month_sum, Decimal):
 				total_sum += month_sum
 		montly_sums.append(total_sum)
 		return montly_sums
 
 	def asset_sum_data(request, year):
+		rows = (
+			Transaction.objects.exclude(account__pk=13)
+			.filter(
+				date__year=year,
+				owner=request.user,
+				is_asset=True,
+			)
+			.values('date__month')
+			.annotate(value=Sum('amount'))
+		)
+		by_month = {r['date__month']: r['value'] for r in rows}
+
 		montly_sums = []
 		total_sum = Decimal(0)
-
 		for month in range(0, 12):
-			month_sum = Transaction.objects.exclude(
-					account__pk=13, # Egen leilighet
-				).filter(
-					date__year=year,
-					date__month=month + 1,
-					owner=request.user,
-					is_asset=True,
-				).aggregate(value=Sum(u'amount'))[u'value']
+			month_sum = by_month.get(month + 1)
 			montly_sums.append(month_sum)
-			if type(month_sum).__name__ == u'Decimal':
+			if isinstance(month_sum, Decimal):
 				total_sum += month_sum
 		montly_sums.append(total_sum)
 		return montly_sums
