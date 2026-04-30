@@ -6,7 +6,7 @@ from collections import defaultdict
 from urllib.parse import quote
 
 from django.contrib.humanize.templatetags.humanize import intcomma
-from django.db.models import Exists, Max, OuterRef, Q, Sum
+from django.db.models import Exists, OuterRef, Q, Sum
 from django.db.models.fields import DecimalField as ModelDecimalField
 from django.http import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -30,19 +30,16 @@ APP_NAME = 'app_money'
 MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 ACCOUNT_TRANSACTIONS_PAGE_SIZE = 100
-ACCOUNT_BALANCE_CHART_DAYS = 365
+ACCOUNT_BALANCE_CHART_YEARS = 2
+ACCOUNT_BALANCE_CHART_DAYS = 365 * ACCOUNT_BALANCE_CHART_YEARS
 
 
 def _account_daily_balance_chart_series(owner, account_pk, days=ACCOUNT_BALANCE_CHART_DAYS):
 	"""
-	End-of-day cumulative balance for each calendar day in [chart_end - days, chart_end],
-	where chart_end is the date of the newest transaction for this account (or today if none),
+	End-of-day cumulative balance for each calendar day in [today - days, today],
 	matching Transaction.balance() (sum of amounts with date <= that day).
 	"""
-	last_txn = Transaction.objects.filter(owner=owner, account_id=account_pk).aggregate(
-		d=Max('date'),
-	)['d']
-	chart_end = last_txn if last_txn is not None else date.today()
+	chart_end = date.today()
 	chart_start = chart_end - timedelta(days=days)
 	sum_before = Transaction.objects.filter(
 		owner=owner,
@@ -1019,7 +1016,7 @@ def account(request, account):
 			'transactions_api_url': reverse('money_account_transactions', args=[acc.pk]),
 			'back_link': request.session.get('redirect_url'),
 			'account_chart_json': json.dumps(chart_series),
-			'account_chart_days': ACCOUNT_BALANCE_CHART_DAYS,
+			'account_chart_years': ACCOUNT_BALANCE_CHART_YEARS,
 		},
 	)
 
