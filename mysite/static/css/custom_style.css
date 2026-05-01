@@ -19,6 +19,7 @@ body {
 		z-index: 1030;
 	}
 }
+
 @media (max-width: 767px) {
 	body {
 		padding-top: 96px;
@@ -185,11 +186,22 @@ body {
 	background: rgba(37, 95, 10, 0.10);
 }
 
+/* Beats Bootstrap .navbar .nav>li>a (padding) so the pill keeps its inset at every width */
+.navbar .navbar-inner .nav-icon-link--home-green{
+	padding: 9px 11px;
+}
+
 .nav-icon-link--home-green:hover,
 .nav-icon-link--home-green:focus{
 	background: rgba(37, 95, 10, 0.18);
 	color: #0b3a07;
 	text-decoration: none;
+}
+
+@media (min-width: 768px){
+	.navbar-left-group .nav-icon-item--home{
+		padding: 3px;
+	}
 }
 
 .nav-icon-link--home-green i{
@@ -239,6 +251,17 @@ body {
 .navbar-fixed-top .navbar-inner .container{
 	padding-left: 20px;
 	padding-right: 20px;
+}
+
+/* bootstrap-responsive pads .navbar-inner only for max-width:979px; match on wide layouts */
+@media (min-width: 980px){
+	.navbar-fixed-top .navbar-inner .container{
+		padding-top: 8px;
+		padding-bottom: 8px;
+	}
+	.navbar .navbar-inner .nav-icon-link--home-green{
+		margin: 4px 2px;
+	}
 }
 
 /* Smallest screens: add a bit of breathing room against chrome edges */
@@ -746,6 +769,9 @@ html, body{
 	}
 	.navbar-always-visible .navbar-right-icons .nav--always{
 		flex-wrap: nowrap;
+	}
+	.navbar-right-icons .nav > li{
+		float: none;
 	}
 
 	/* Bootstrap 2 navbar uses floats; override to wrap safely on narrow screens */
