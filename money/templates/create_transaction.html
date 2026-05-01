@@ -40,7 +40,7 @@
 
 <form action="" method="post">{% csrf_token %}
 	<input type="hidden" name="action" value="create_new">
-	<select name="sub_category" class="chzn-select" data-placeholder="Velg kategori" selected="{{ request.user.profile.DEFAULT_EXPENCE_SUB_CATEGORY }}">
+	<select name="sub_category">
 
 		{% with default=request.user.profile.DEFAULT_EXPENCE_SUB_CATEGORY %}
 		{% for c in categories %}

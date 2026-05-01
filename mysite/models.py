@@ -144,9 +144,6 @@ def make_custom_plugins(f):
 		formfield.widget.format = '%Y-%m-%d'
 		formfield.widget.attrs.update({'class': 'datepicker'})
 
-	if isinstance(f, models.ManyToManyField) or isinstance(f, models.ForeignKey):
-		formfield.widget.attrs.update({'class': 'chzn-select', 'data-placeholder': 'Select tags...'})
-
 	return formfield
 
 

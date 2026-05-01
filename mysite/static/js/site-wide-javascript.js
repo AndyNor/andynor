@@ -1,6 +1,3 @@
-// Activate jQuery chosen
-$( '.chzn-select' ).chosen({});
-
 // Add 'bootstrap' class to form labels
 $( "form label" ).addClass( 'control-label' );
 
