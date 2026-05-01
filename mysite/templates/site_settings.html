@@ -1,22 +1,12 @@
 {% extends "index.html" %}
 {% load upto %}
 {% load humanize %}
-{% load static %}
 {% block body_main %}
 	<h1>My dashboard</h1>
 	<p>Week {{ current_time|date:"W, l jS F Y, G:i (O)" }}</p>
 
 	<div class="row">
-
 			<h5>Visits <small>{{ visits_total }} and counting...</small></h5>
-			<script type="text/javascript" nonce="{{ request.csp_nonce }}">
-				var visits_monthly = {{visits_monthly|safe}};
-				var visits_daily = {{visits_daily|safe}};
-			</script>
-
-			<div class="span8 dashboard-graph" id="visits_monthly"></div>
-			<div class="span4 dashboard-graph" id="visits_daily"></div>
-
 	</div>
 
 	<div class="row">
@@ -73,7 +63,3 @@
 
 {% endblock %}
 
-{% block javascript_append %}
-<script src="{% static 'js/highcharts-2.2.5.js' %}"></script>
-<script src="{% static 'js/visit_graph.js' %}"></script>
-{% endblock %}

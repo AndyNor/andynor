@@ -4,6 +4,10 @@
 {% load l10n %}
 {% load static %}
 
+{% block javascript_append %}
+	<script src="{% static 'chart/chart.umd.min.js' %}"></script>
+	<script src="{% static 'js/calc_tax_charts.js' %}"></script>
+{% endblock %}
 
 {% block body_main %}
 
@@ -131,20 +135,15 @@ Boligsparing Ungdom gir et direkte fradrag på <b>{{constant.bsu_frigrense|perce
 Skatteetaten tar ikke inn beløp under <b>{{constant.innkrevingsgrense|intcomma}}</b>. For å ha litt ekstra å rute med i sommerferien og ved juletider trekkes det halv skatt i desember og ingen skatt i sommerferiemåneden. Denne skatten må derfor samles inn de resterende 10.5 månedene. Dette gir et månedlig skattetrekk på <b>{{justert_skatt|percent}}</b>. De fleste har tabelltrekk med ganske høy prosentsats på ekstrainntekt. Skatten blir forhåndstrukket og når det endelige regnestykket er klart året etter, får man enten penger igjen på skatten eller restskatt.
 
 <hr>
-
-<script type="text/javascript" nonce="{{request.csp_nonce}}">
-	var tax_chart_data = {{ tax_data_json|safe }};
-</script>
-
-<div class="row">
-	<div class="span6" id="tax_chart1"></div>
-	<div class="span6" id="tax_chart2"></div>
+<p class="muted">Grafene viser modellerte verdier bare som funksjon av ordinær lønn (øvrige felt i skjemaet er satt til null i kurven).</p>
+<div class="row calc-tax-charts">
+	<div class="span6">
+		<canvas id="tax_chart_percent" height="330" aria-label="Skatt som funksjon av inntekt, prosent"></canvas>
+	</div>
+	<div class="span6">
+		<canvas id="tax_chart_abs" height="330" aria-label="Skatt som funksjon av inntekt, kroner"></canvas>
+	</div>
 </div>
+{{ tax_chart_series|json_script:"tax-chart-data" }}
 
-
-{% endblock %}
-
-{% block javascript_append %}
-<script src="{% static 'js/highcharts-v2.3.5.js' %}"></script>
-<script src="{% static 'js/tax_chart.js' %}"></script>
 {% endblock %}

@@ -39,9 +39,7 @@ def index(request):
 	else:
 		owner = 1  # user "andre"
 
-	payments = models.Payment.objects.filter(owner=owner).order_by('date')
-	payments_json_data = []
-	total_cost_data = []
+	payments = list(models.Payment.objects.filter(owner=owner).order_by('date'))
 	total_cost = {"labels": [], "usage": [], "grid": [], "static": []}
 	forbruk = {"labels": [], "kwh_pris": [], "antall_kwh": []}
 	forbruk_monthly = {}
@@ -70,8 +68,6 @@ def index(request):
 		total_cost["grid"].append(cable)
 		total_cost["static"].append(static)
 
-		payments_json_data.append(payment)
-
 	forbruk["labels"] = total_cost["labels"]
 
 	for year in forbruk_monthly:
@@ -84,11 +80,21 @@ def index(request):
 	for year in forbruk_monthly:
 		sortert_forbruk_monthly[year] = {k: v for k, v in sorted(forbruk_monthly[year].items(), key=lambda item: item[0])}
 
+	chart_month_labels = [p.date.strftime('%b %Y') for p in payments]
+	power_chart_js = {
+		'labels': json.dumps(chart_month_labels),
+		'total_static': json.dumps(total_cost['static']),
+		'total_grid': json.dumps(total_cost['grid']),
+		'total_usage': json.dumps(total_cost['usage']),
+		'forbruk_pris': json.dumps(forbruk['kwh_pris']),
+		'forbruk_kwh': json.dumps(forbruk['antall_kwh']),
+	}
 
 	return render(request, 'power.html', {
 		'total_cost': total_cost,
 		'forbruk': forbruk,
 		'forbruk_monthly': sortert_forbruk_monthly.items(),
+		'power_chart_js': power_chart_js,
 	})
 
 

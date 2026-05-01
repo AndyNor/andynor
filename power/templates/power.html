@@ -6,6 +6,10 @@
 {% block head_css_include %}
 {% endblock %}
 
+{% block javascript_prepend %}
+	<script src="{% static 'chart/chart.umd.min.js' %}"></script>
+{% endblock %}
+
 {% block body_main %}
 {% block power_content %}
 
@@ -19,196 +23,148 @@
 
 	<h3>Strømforbruk</h3>
 
-<h5>Månedlige utgifter</h5>
-<div class="row">
-	<div class="col-sm-12">
-		<canvas height="80" id="chart_total_cost"></canvas>
+	<h5>Månedlige utgifter</h5>
+	<div class="row">
+		<div class="col-sm-12">
+			<canvas id="chart_total_cost" height="120"></canvas>
+		</div>
 	</div>
-</div>
 
-<script type="text/javascript" nonce="{{request.csp_nonce}}">
-var ctx_total_cost = document.getElementById('chart_total_cost').getContext('2d');
-var chart_total_cost = new Chart(ctx_total_cost, {
-	// The type of chart we want to create
-	type: 'bar',
-	// The data for our dataset
-	data: {
-		labels: [{% for date in total_cost.labels %} new Date({{ date|unlocalize }}000), {% endfor %}],
-		datasets: [
-			{
-				label: 'Linjeleie fastbeløp',
-				backgroundColor: 'rgb(239, 118, 118)',
-				data: {{ total_cost.static }},
-			},
-			{
-			label: 'Linjeleie bruk',
-				backgroundColor: 'rgb(77, 111, 208)',
-				data: {{ total_cost.grid }},
-			},
-			{
-				label: 'Strømforbruk',
-				backgroundColor: 'rgb(142, 178, 243)',
-				data: {{ total_cost.usage }},
-			},
-		]
-	},
-	// Configuration options go here
-	options: {
-		scales: {
-			xAxes: [
-				{
-					stacked: true,
-					type: 'time',
-					time: {
-						unit: 'quarter',
+	<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+	(function () {
+		var el = document.getElementById('chart_total_cost');
+		if (!el || typeof Chart === 'undefined') { return; }
+		new Chart(el.getContext('2d'), {
+			type: 'bar',
+			data: {
+				labels: {{ power_chart_js.labels|safe }},
+				datasets: [
+					{
+						label: 'Linjeleie fastbeløp',
+						backgroundColor: 'rgb(239, 118, 118)',
+						data: {{ power_chart_js.total_static|safe }},
 					},
-					offset: true,
-					distribution: 'linear',
-					ticks: {
-						autoSkip: true
-					}
-				}
-			],
-			yAxes: [
-				{
-					stacked: true,
-					ticks: {
-						suggestedMin: 0,
+					{
+						label: 'Linjeleie bruk',
+						backgroundColor: 'rgb(77, 111, 208)',
+						data: {{ power_chart_js.total_grid|safe }},
 					},
-					scaleLabel: {
-						display: true,
-						labelString: 'NOK',
-					}
-				}
-			]
-		},
-	}
-});
-</script>
-<hr>
+					{
+						label: 'Strømforbruk',
+						backgroundColor: 'rgb(142, 178, 243)',
+						data: {{ power_chart_js.total_usage|safe }},
+					},
+				],
+			},
+			options: {
+				responsive: true,
+				scales: {
+					x: { stacked: true },
+					y: {
+						stacked: true,
+						beginAtZero: true,
+						title: { display: true, text: 'NOK' },
+					},
+				},
+			},
+		});
+	})();
+	</script>
+	<hr>
 
-
-<h5>Forbruk og strømpris</h5>
-<div class="row">
-	<div class="col-sm-12">
-		<canvas height="80" id="chart_forbruk_kost"></canvas>
+	<h5>Forbruk og strømpris</h5>
+	<div class="row">
+		<div class="col-sm-12">
+			<canvas id="chart_forbruk_kost" height="120"></canvas>
+		</div>
 	</div>
-</div>
 
-<script type="text/javascript" nonce="{{request.csp_nonce}}">
-var ctx_forbruk_kost = document.getElementById('chart_forbruk_kost').getContext('2d');
-var chart_forbruk_kost = new Chart(ctx_forbruk_kost, {
-	// The data for our dataset
-	type: 'bar',
-	data: {
-		labels: [{% for date in forbruk.labels %} new Date({{ date|unlocalize }}000), {% endfor %}],
-		datasets: [
-			{
-				type: 'line',
-				pointRadius: 5,
-				label: 'Strømpris',
-				fill: false,
-				backgroundColor: 'rgb(239, 118, 118)',
-				data: {{ forbruk.kwh_pris }},
-			},
-			{
-				label: 'kWh brukt',
-				backgroundColor: 'rgb(77, 111, 208)',
-				data: {{ forbruk.antall_kwh }},
-			},
-		]
-	},
-	// Configuration options go here
-	options: {
-		scales: {
-			xAxes: [
-				{
-					type: 'time',
-					time: {
-						unit: 'quarter',
+	<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+	(function () {
+		var el = document.getElementById('chart_forbruk_kost');
+		if (!el || typeof Chart === 'undefined') { return; }
+		new Chart(el.getContext('2d'), {
+			type: 'bar',
+			data: {
+				labels: {{ power_chart_js.labels|safe }},
+				datasets: [
+					{
+						type: 'line',
+						order: 2,
+						label: 'Strømpris',
+						borderColor: 'rgb(239, 118, 118)',
+						backgroundColor: 'rgb(239, 118, 118)',
+						pointRadius: 4,
+						tension: 0.2,
+						data: {{ power_chart_js.forbruk_pris|safe }},
 					},
-					offset: true,
-					distribution: 'linear',
-					ticks: {
-						autoSkip: true
-					}
-				}
-			],
-			yAxes: [
-				{
-					ticks: {
-						suggestedMin: 0,
+					{
+						type: 'bar',
+						order: 1,
+						label: 'kWh brukt',
+						backgroundColor: 'rgb(77, 111, 208)',
+						data: {{ power_chart_js.forbruk_kwh|safe }},
 					},
-					scaleLabel: {
-						display: true,
-						labelString: 'Øre/kWh | kWh/dag',
-					}
-				}
-			]
-		},
-	}
-});
-</script>
-<hr>
+				],
+			},
+			options: {
+				responsive: true,
+				scales: {
+					y: {
+						beginAtZero: true,
+						title: { display: true, text: 'Øre/kWh | kWh/dag' },
+					},
+				},
+			},
+		});
+	})();
+	</script>
+	<hr>
 
-
-<h5>Forbruk måned for måned</h5>
-<div class="row">
-	<div class="col-sm-12">
-		<canvas height="80" id="chart_month_relative"></canvas>
+	<h5>Forbruk måned for måned</h5>
+	<div class="row">
+		<div class="col-sm-12">
+			<canvas id="chart_month_relative" height="120"></canvas>
+		</div>
 	</div>
-</div>
 
-<script type="text/javascript" nonce="{{request.csp_nonce}}">
-var ctx_month_relative = document.getElementById('chart_month_relative').getContext('2d');
-var chart_month_relative = new Chart(ctx_month_relative, {
-	// The data for our dataset
-	type: 'bar',
-	data: {
-		labels: ["Januar", "Februar", "Mars", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Desember"],
-		datasets: [
-			{% for year, values in forbruk_monthly %}
-			{
-				label: '{{ year }}',
-			{% if forloop.last %}
-				backgroundColor: 'rgb(239, 118, 118)',
-			{% else %}
-				backgroundColor: 'rgb(253, 205, 205)',
-			{% endif %}
-				data: [{% for month, kwh in values.items %}{{ kwh|unlocalize }},{% endfor %}],
+	<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+	(function () {
+		var el = document.getElementById('chart_month_relative');
+		if (!el || typeof Chart === 'undefined') { return; }
+		new Chart(el.getContext('2d'), {
+			type: 'bar',
+			data: {
+				labels: ['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'],
+				datasets: [
+					{% for year, values in forbruk_monthly %}
+					{
+						label: '{{ year }}',
+						{% if forloop.last %}
+						backgroundColor: 'rgb(239, 118, 118)',
+						{% else %}
+						backgroundColor: 'rgb(253, 205, 205)',
+						{% endif %}
+						data: [{% for month, kwh in values.items %}{{ kwh|unlocalize }},{% endfor %}],
+					}{% if not forloop.last %},{% endif %}
+					{% endfor %}
+				],
 			},
-			{% endfor %}
-		]
-	},
-	// Configuration options go here
-	options: {
-		scales: {
-			yAxes: [
-				{
-					ticks: {
-						suggestedMin: 0,
+			options: {
+				responsive: true,
+				scales: {
+					y: {
+						beginAtZero: true,
+						title: { display: true, text: 'Snitt kWh per dag' },
 					},
-					scaleLabel: {
-						display: true,
-						labelString: 'Snitt kWh per dag',
-					}
-				}
-			]
-		},
-	}
-});
-</script>
-
+				},
+			},
+		});
+	})();
+	</script>
 
 {% endblock %}
 {% endblock %}
-
 
 {% block credits %}
-{% endblock %}
-
-
-{% block javascript_prepend %}
-	<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
-	<script type="text/javascript" src="{% static 'js/chart.js' %}"></script>
 {% endblock %}

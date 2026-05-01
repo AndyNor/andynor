@@ -4,7 +4,6 @@ from django.shortcuts import render
 #from django.http import HttpResponseRedirect  # redirect after successfull POST
 from django.template import RequestContext  # required for csrf
 #from django.contrib import messages  # Message system
-import json  # used for json export
 import math
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
@@ -394,7 +393,7 @@ def tax(request, year=2026):
 	# data for the current page
 	result = calc_tax(constant, user_var)
 
-	# data for the chart
+	# Chart series: skatt vs. ordinær lønn (Chart.js)
 	series_arbeidsinntektskatt = []
 	series_trygdeskatt = []
 	series_toppskatt_trinn1 = []
@@ -406,7 +405,6 @@ def tax(request, year=2026):
 	salary = 0.0
 	max_salary = 2000000.0
 
-	# Charts should only depend on salary (arbeidsinntekter), not the other inputs.
 	chart_user_var = Object()
 	chart_user_var.renteinntekter = 0.0
 	chart_user_var.renteutgifter = 0.0
@@ -434,7 +432,6 @@ def tax(request, year=2026):
 
 		salary = (salary + 1000) * 1.08
 
-	# Ensure we include an endpoint exactly at max_salary
 	chart_user_var.arbeidsinntekter = max_salary
 	instance = calc_tax(constant, chart_user_var)
 	series_arbeidsinntektskatt.append({'x': int(max_salary), 'y': int(instance.arbeidsinntektskatt)})
@@ -446,17 +443,18 @@ def tax(request, year=2026):
 	series_toppskatt_trinn02.append({'x': int(max_salary), 'y': int(instance.toppskatt_trinn02)})
 	series_netto.append({'x': int(max_salary), 'y': int(instance.netto)})
 
-	chart_series = [
-		{'name': 'Netto inntekt', 'color': '#B1DEFA', 'data': series_netto},
-		{'name': 'Trinnskatt trinn 5', 'color': '#003200', 'data': series_toppskatt_trinn3},
-		{'name': 'Trinnskatt trinn 4', 'color': '#0D400B', 'data': series_toppskatt_trinn2},
-		{'name': 'Trinnskatt trinn 3', 'color': '#2A8A27', 'data': series_toppskatt_trinn1},
-		{'name': 'Trinnskatt trinn 2', 'color': '#2A8A17', 'data': series_toppskatt_trinn02},
-		{'name': 'Trinnskatt trinn 1', 'color': '#2A8A07', 'data': series_toppskatt_trinn01},
-		{'name': 'Inntektskatt', 'color': '#7AE876', 'data': series_arbeidsinntektskatt},
+	# Grønne nyanser: lys inntektskatt → mørkere trinn 1–5 (mer kontrast, fortsatt grønt)
+	tax_chart_series = [
+		{'name': 'Netto inntekt', 'color': '#E8F4FC', 'data': series_netto},
+		{'name': 'Trinnskatt trinn 5', 'color': '#0A4D2C', 'data': series_toppskatt_trinn3},
+		{'name': 'Trinnskatt trinn 4', 'color': '#1B7A3E', 'data': series_toppskatt_trinn2},
+		{'name': 'Trinnskatt trinn 3', 'color': '#2E9A48', 'data': series_toppskatt_trinn1},
+		{'name': 'Trinnskatt trinn 2', 'color': '#4EBF5C', 'data': series_toppskatt_trinn02},
+		{'name': 'Trinnskatt trinn 1', 'color': '#7AD178', 'data': series_toppskatt_trinn01},
+		{'name': 'Inntektskatt', 'color': '#B8F0B0', 'data': series_arbeidsinntektskatt},
 		{'name': 'Trygdeskatt', 'color': '#B51616', 'data': series_trygdeskatt},
 	]
-	user_var.arbeidsinntekter = user_var.arbeidsinntekter_tmp  # reset after loop
+	user_var.arbeidsinntekter = user_var.arbeidsinntekter_tmp
 
 	return render(request, 'calc_tax.html', {
 		'kapitalinntekter': result.kapitalinntekter,
@@ -480,5 +478,5 @@ def tax(request, year=2026):
 		'justert_skatt': result.justert_skatt,
 		'constant': constant,
 		'user_var': user_var,
-		'tax_data_json': json.dumps(chart_series),
+		'tax_chart_series': tax_chart_series,
 	})

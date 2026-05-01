@@ -80,14 +80,6 @@ body {
 	border-right: 1px solid rgba(37, 95, 10, 0.25);
 }
 
-/* Highcharts: keep legend visible, but non-interactive (CSP-friendly) */
-#tax_chart1 .highcharts-legend,
-#tax_chart1 .highcharts-legend *,
-#tax_chart2 .highcharts-legend,
-#tax_chart2 .highcharts-legend *{
-	pointer-events: none;
-}
-
 /* /calc/ landing buttons */
 .calc-link-btn{
 	background-color: #f2f2f2;
