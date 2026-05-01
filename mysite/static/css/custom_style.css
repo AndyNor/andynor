@@ -1253,6 +1253,11 @@ html, body{
 		float: none;
 	}
 
+	/* Pop-out labels sit under icons and are clipped by overflow-y: hidden; skip on small screens */
+	.navbar .nav-icon-link__label:not(.nav-icon-link__label--inline){
+		display: none !important;
+	}
+
 	/* Bootstrap 2 navbar uses floats; override to wrap safely on narrow screens */
 	.navbar .nav-collapse .nav{
 		display: flex;
