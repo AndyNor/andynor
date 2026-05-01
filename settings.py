@@ -202,15 +202,11 @@ MIDDLEWARE = (
 CSP_DEFAULT_SRC = ("'none'",)
 CSP_SCRIPT_SRC = ("'self'", 'https://www.youtube.com', 'https://s.ytimg.com', 'https://www.youtube-nocookie.com')
 CSP_FRAME_SRC = ("'self'", 'https://www.youtube.com', 'https://www.youtube-nocookie.com')
-CSP_STYLE_SRC = ("'self'")
 CSP_IMG_SRC = ("'self' data:")
 CSP_STYLE_SRC = (
-    "'self'", 
+    "'self'",
     "https://cdnjs.cloudflare.com",
-    "'sha256-hMEnt2qMHAmQZgCjWJ4hweKuzi+3YEdUo00f8k/ebMo='", # jQuery's inline style
-    # tablesorter "resizable" widget injects <style>...</style> via JS at runtime (no nonce possible)
-    "'sha256-8SUl9xHjYV2TArOfAnCQwB7/lPW4lKCyVf7o9IF6gs8='",
-    # Allow specific inline style attributes (hash-gated).
+    "'sha256-hMEnt2qMHAmQZgCjWJ4hweKuzi+3YEdUo00f8k/ebMo='",  # jQuery's inline style
 )
 CSP_FONT_SRC = ("'self'", "https://cdnjs.cloudflare.com")
 CSP_CONNECT_SRC = ("'self'", "https://andynor.net")

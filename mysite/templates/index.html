@@ -20,8 +20,6 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 	<link rel="shortcut icon" href="{% static 'favicon.png' %}">
 	<link rel="apple-touch-icon" href="{% static 'favicon_apple.png' %}">
-	<link rel="stylesheet" href="{% static 'tablesorter/theme.default.css' %}">
-	<link rel="stylesheet" href="{% static 'tablesorter/filter.formatter.css' %}">
 	{% endblock %}
 
 
@@ -34,28 +32,7 @@
 	<script src="{% static 'js/jquery.unveil.min.js' %}"></script>
 	<script src="{% static 'js/site-wide-javascript.js' %}"></script>
 	<script src="{% static 'js/lightbox.js' %}"></script>
-	<script src="{% static 'tablesorter/jquery.tablesorter.js' %}"></script>
-	<script src="{% static 'tablesorter/jquery.tablesorter.widgets.js' %}"></script>
-	<script src="{% static 'floatThead/jquery.floatThead.min.js' %}"></script>
 	{% block javascript_prepend %}{% endblock %}
-
-	<script nonce="{{request.csp_nonce}}">
-	$(document).ready(function(){
-		$(".tablesorter").tablesorter({
-			theme: 'default',
-			widgets : ["filter",],
-			widgetOptions : {
-				filter_liveSearch : true,
-				filter_searchFiltered: true,
-				filter_placeholder: { search : '' },
-				filter_columnFilters: true,
-				filter_ignoreCase : true,
-				filter_startsWith : false,
-			}
-		})
-		$(".floatheader").floatThead({top: 40});
-	})
-	</script>
 
 	{% block feeds %}
 	<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss/">

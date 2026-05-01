@@ -1,1 +1,0 @@
-df -H /dev/vda1 | awk 'NR==2{print$5}'
