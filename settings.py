@@ -116,6 +116,41 @@ if THIS_ENVIRONMENT == "DO_PROD":
 	STATIC_ROOT = '/home/django/django_project/andynor/static/'
 	STATIC_URL = '/static/'
 
+	# 500 tracebacks: django.request logs to stderr, but gunicorn_error.log is easy to miss
+	# or interleave; a dedicated file gives reliable exc_info / stack traces.
+	LOGGING = {
+		'version': 1,
+		'disable_existing_loggers': False,
+		'formatters': {
+			'detail': {
+				'format': '{levelname} {asctime} {name} {pathname}:{lineno}\n{message}',
+				'style': '{',
+			},
+		},
+		'handlers': {
+			'django_error_file': {
+				'level': 'ERROR',
+				'class': 'logging.handlers.RotatingFileHandler',
+				'filename': '/home/django/django_project/andynor/django_error.log',
+				'maxBytes': 5 * 1024 * 1024,
+				'backupCount': 5,
+				'formatter': 'detail',
+			},
+			'console': {
+				'level': 'ERROR',
+				'class': 'logging.StreamHandler',
+				'formatter': 'detail',
+			},
+		},
+		'loggers': {
+			'django.request': {
+				'handlers': ['django_error_file', 'console'],
+				'level': 'ERROR',
+				'propagate': False,
+			},
+		},
+	}
+
 if THIS_ENVIRONMENT == "DEV":
 	MEDIA_ROOT = '_media/'
 	MEDIA_URL = '/media/'

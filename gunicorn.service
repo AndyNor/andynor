@@ -20,6 +20,8 @@ Environment="PATH=/home/django/django_project/python3.13-env/bin"
 
 Environment="PYTHONUNBUFFERED=1"
 
+# Worker stdout/stderr (--capture-output) → gunicorn_error.log.
+# Django 500 tracebacks with full stacks: django_error.log (see LOGGING in settings.py for DO_PROD).
 ExecStart=/home/django/django_project/python3.13-env/bin/gunicorn \
     --workers 3 \
     --bind unix:/home/django/gunicorn.socket \
