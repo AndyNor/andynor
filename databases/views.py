@@ -47,6 +47,18 @@ def _category_label_nb(name):
 	return DATABASE_CATEGORY_LABELS_NB.get(name, name.replace('_', ' ').capitalize())
 
 
+def _databases_nav_context(category_name_for_nav):
+	"""Context for ``databases_menu.html`` (category tabs + fixed admin bar URLs)."""
+	name = category_name_for_nav or 'audible'
+	return {
+		'category_list': models.Category.objects.all(),
+		'category_name': name,
+		'database_category_labels': DATABASE_CATEGORY_LABELS_NB,
+		'database_category_icons': DATABASE_CATEGORY_ICONS,
+		'page_head_title': '%s — AndyNor.net' % (_category_label_nb(name),),
+	}
+
+
 # Generic object to store data
 class Object(object):
 	pass
@@ -213,17 +225,19 @@ def edit(request, model_name, pk=None, new_type=None):
 		form.save()
 		return HttpResponseRedirect(get_previous_page(request, APP_NAME))
 
+	# Menyen krever category_name m.m.; utelatt gir tom streng i {% url %} → NoReverseMatch (500).
+	menu_category = new_type if model_name == 'Data' and new_type else 'audible'
+	ctx = _databases_nav_context(menu_category)
 	if model_name == 'Data':
-		return render(request, 'databases_edit_data.html', {
-			'form': form,
-			'type': model_name,
-		})
+		ctx.update({'form': form, 'type': model_name})
+		return render(request, 'databases_edit_data.html', ctx)
 	else:
-		return render(request, 'databases_edit.html', {
+		ctx.update({
 			'form': form,
 			'type': model_name,
 			'entries': model.objects.values('pk', 'name'),
 		})
+		return render(request, 'databases_edit.html', ctx)
 
 
 @permission_required('databases.data.can_add_data', raise_exception=True)

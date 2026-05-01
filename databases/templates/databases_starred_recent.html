@@ -10,7 +10,7 @@
 			{% else %}
 			{{ item.name }}
 			{% endif %}
-			<span class="database-starred-recent__meta">{{ item.created|date:"Y-m-d" }}</span>
+			<span class="database-starred-recent__meta">({{ item.created|date:"Y" }})</span>
 		</li>
 		{% endfor %}
 	</ol>
