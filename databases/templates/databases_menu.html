@@ -1,14 +1,22 @@
 {% load variable_lookup %}
 <div class="database-menu-bar">
 	<div class="database-menu-bar__tabs database_container">
-		<ul class="nav nav-tabs">
+		<nav class="database-category-nav-wrap" aria-label="Databasekategorier">
+		<ul class="database-category-nav">
 		{% for cat in category_list %}
-			<li{% if category_name == cat.name %} class="active"{% endif %}>
-			<a href='{% url "databases_view" cat.name %}'>
-			{% with nav_lbl=database_category_labels|variable_lookup:cat.name %}{{ nav_lbl|default:cat.name|capfirst }}{% endwith %}</a>
+			<li class="database-category-nav__item">
+			<a class="database-category-btn{% if category_name == cat.name %} database-category-btn--active{% endif %}"
+				href='{% url "databases_view" cat.name %}'
+				{% if category_name == cat.name %}aria-current="page"{% endif %}>
+			{% with icon=database_category_icons|variable_lookup:cat.name %}
+				{% if icon %}<i class="{{ icon }} database-category-btn__icon" aria-hidden="true"></i>{% endif %}
+			{% endwith %}
+			<span class="database-category-btn__label">{% with nav_lbl=database_category_labels|variable_lookup:cat.name %}{{ nav_lbl|default:cat.name|capfirst }}{% endwith %}</span>
+			</a>
 			</li>
 		{% endfor %}
 		</ul>
+		</nav>
 	</div>
 </div>
 {% if user.is_authenticated %}

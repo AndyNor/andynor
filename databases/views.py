@@ -27,6 +27,19 @@ DATABASE_CATEGORY_LABELS_NB = {
 	'quotes': 'Sitater',
 }
 
+# Font Awesome 6 class strings (solid unless noted) for category nav buttons
+DATABASE_CATEGORY_ICONS = {
+	'audible': 'fa-solid fa-headphones',
+	'books': 'fa-solid fa-book',
+	'games': 'fa-solid fa-gamepad',
+	'movies': 'fa-solid fa-film',
+	'tvseries': 'fa-solid fa-tv',
+	'programs': 'fa-solid fa-display',
+	'links': 'fa-solid fa-link',
+	'spotify': 'fa-brands fa-spotify',
+	'quotes': 'fa-solid fa-quote-left',
+}
+
 
 def _category_label_nb(name):
 	if not name:
@@ -171,6 +184,7 @@ def overview(request, category_name=None):
 		'starred_recent_list': starred_recent_list,
 		'page_head_title': page_head_title,
 		'database_category_labels': DATABASE_CATEGORY_LABELS_NB,
+		'database_category_icons': DATABASE_CATEGORY_ICONS,
 	})
 
 
