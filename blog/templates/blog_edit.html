@@ -6,12 +6,12 @@
 	<h2>Write <small>{{ sub_header }}</small></h2>
 	<hr>
 	<div class="pull-right">
-		<a class="btn btn-small m-5" href="{% url "blog_category_new" %}?next={{ request.get_full_path|urlencode }}">Add category</a><br>
-		<a class="btn btn-small m-5" href="{% url "blog_tag_add" %}?next={{ request.get_full_path|urlencode }}">Add tag</a><br>
-		<a class="btn btn-small btn-primary m-5" href="/blog/340/">BB-codes</a>
+		<a class="btn btn-small m-5" href="{% url "blog_category_new" %}?next={{ request.get_full_path|urlencode }}">Legg til kategori</a><br>
+		<a class="btn btn-small m-5" href="{% url "blog_tag_add" %}?next={{ request.get_full_path|urlencode }}">Legg til tagg</a><br>
+		<a class="btn btn-small btn-primary m-5" href="/blog/340/">BB-koder</a>
 	</div>
 	<div class="blog-write-form">
-	{% include "form.html" with form=form redirect=redirect blog_options_row=form_blog_options_row %}
+	{% include "form.html" with form=form redirect=redirect blog_options_row=form_blog_options_row category_visible_option_row=form_category_visible_option %}
 	</div>
 	<table class="table table-bordered table-condensed">
 	{% for i in entries %}

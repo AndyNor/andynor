@@ -1,27 +1,37 @@
-{% if user.is_authenticated %}
-<div class="pull-right">
-	<ul class="btn-group">
-		<a class="btn btn-primary" href='{% url "databases_new_data" "Data" category_name %}'>New</a>
-		<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-			Admin
-			<span class="caret"></span>
-		</a>
-		<ul class="dropdown-menu">
-			<li><a href='{% url "databases_new" "Category" %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i> Edit categories</a></li>
-			<li><a href='{% url "databases_new" "SubCategory" %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i> Edit sub-categories</a></li>
-			<li><a href='{% url "databases_new" "Series" %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i> Edit series</a></li>
+{% load variable_lookup %}
+<div class="database-menu-bar">
+	<div class="database-menu-bar__tabs database_container">
+		<ul class="nav nav-tabs">
+		{% for cat in category_list %}
+			<li{% if category_name == cat.name %} class="active"{% endif %}>
+			<a href='{% url "databases_view" cat.name %}'>
+			{% with nav_lbl=database_category_labels|variable_lookup:cat.name %}{{ nav_lbl|default:cat.name|capfirst }}{% endwith %}</a>
+			</li>
+		{% endfor %}
 		</ul>
-	</ul>
+	</div>
+</div>
+{% if user.is_authenticated %}
+<div class="database-fixed-admin-bar" role="region" aria-label="Database handlinger">
+	<div class="container database-fixed-admin-bar__inner">
+		<nav class="database-fixed-admin-bar__actions" aria-label="Hurtighandlinger for database">
+			<a class="database-fixed-admin-bar__link database-fixed-admin-bar__link--primary" href='{% url "databases_new_data" "Data" category_name %}' title="Ny oppføring i aktiv kategori">
+				<i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
+				<span>Ny</span>
+			</a>
+			<a class="database-fixed-admin-bar__link" href='{% url "databases_new" "Category" %}?next={{ request.get_full_path|urlencode }}' title="Rediger kategorier">
+				<i class="fa-solid fa-folder" aria-hidden="true"></i>
+				<span>Kategorier</span>
+			</a>
+			<a class="database-fixed-admin-bar__link" href='{% url "databases_new" "SubCategory" %}?next={{ request.get_full_path|urlencode }}' title="Rediger underkategorier">
+				<i class="fa-solid fa-folder-tree" aria-hidden="true"></i>
+				<span>Underkategorier</span>
+			</a>
+			<a class="database-fixed-admin-bar__link" href='{% url "databases_new" "Series" %}?next={{ request.get_full_path|urlencode }}' title="Rediger serier">
+				<i class="fa-solid fa-list" aria-hidden="true"></i>
+				<span>Serier</span>
+			</a>
+		</nav>
+	</div>
 </div>
 {% endif %}
-
-<div class="database_container">
-	<ul class="nav nav-tabs">
-	{% for cat in category_list %}
-		<li{% if category_name == cat.name %} class="active"{% endif %}>
-		<a href='{% url "databases_view" cat.name %}'>
-		{{cat.name|capfirst}}</a>
-		</li>
-	{% endfor %}
-	</ul>
-</div>

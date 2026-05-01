@@ -1,0 +1,32 @@
+{% if subcategory_filter %}
+<form class="database-audible-filters database-subcategory-filters" method="get" action="">
+	<div class="database-audible-filters__row">
+		<label class="database-audible-filters__field">
+			<span class="database-audible-filters__label">Kategori</span>
+			<select name="kategori" class="input-xlarge">
+				<option value="">Alle</option>
+				{% for sub in subcategory_filter.subcategories %}
+				<option value="{{ sub.pk }}"{% if subcategory_filter.selected_kategori == sub.pk|stringformat:"d" %} selected{% endif %}>{{ sub.name|capfirst }}</option>
+				{% endfor %}
+			</select>
+		</label>
+	</div>
+	<div class="database-audible-filters__actions">
+		<a class="btn" href="{% url 'databases_view' category_name %}">Nullstill</a>
+		<noscript>
+			<button type="submit" class="btn btn-primary">Filtrer</button>
+		</noscript>
+	</div>
+</form>
+<script nonce="{{ request.csp_nonce }}">
+(function () {
+	var form = document.querySelector('.database-subcategory-filters');
+	if (!form) return;
+	form.querySelectorAll('select').forEach(function (sel) {
+		sel.addEventListener('change', function () {
+			form.submit();
+		});
+	});
+})();
+</script>
+{% endif %}

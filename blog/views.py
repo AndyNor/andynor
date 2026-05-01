@@ -308,7 +308,12 @@ def delete_blog(request, blog_pk):
 
 @permission_required('blog.blog.can_add_blog', raise_exception=True)
 def write(request, pk=False):
-	blog_form = generate_form(request, models.Blog, models.BlogForm, pk)
+	form_initial = False
+	if not pk:
+		default_category = models.Category.objects.filter(default_choice=True).first()
+		if default_category is not None:
+			form_initial = {'category': default_category.pk}
+	blog_form = generate_form(request, models.Blog, models.BlogForm, pk, form_initial)
 	if blog_form.is_valid():
 		o = blog_form.save(commit=False)
 		o.owner = request.user
@@ -343,11 +348,16 @@ def category(request, pk=False):
 	category_form = generate_form(request, models.Category, models.CategoryForm, pk, None)
 	if category_form.is_valid():
 		category_form.save()
-		return HttpResponseRedirect(get_previous_page(request, APP_NAME))
+		if request.GET.get('next'):
+			return HttpResponseRedirect(get_previous_page(request, APP_NAME))
+		return HttpResponseRedirect(
+			reverse('blog_category_edit', kwargs={'pk': category_form.instance.pk})
+		)
 
 	return render(request, 'blog_edit.html', {
 		'form': category_form,
 		'entries': models.Category.objects.all(),
+		'form_category_visible_option': True,
 	})
 
 

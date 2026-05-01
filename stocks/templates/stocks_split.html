@@ -23,8 +23,8 @@
 	</div>
 
 	<div class="form-actions">
-		<button type="submit" {% if secure %} autocomplete="off" {% endif %} class="btn btn-primary submitButtonMargin">{{submit|default:'Commit'}}</button>
-		<a class="btn btn-danger" href="{{ redirect|default:"/return/" }}">Cancel</a>
+		<button type="submit" {% if secure %} autocomplete="off" {% endif %} class="btn btn-primary submitButtonMargin">{{ submit|default:'Lagre' }}</button>
+		<a class="btn btn-danger" href="{{ redirect|default:"/return/" }}">{{ cancel|default:'Avbryt' }}</a>
 	</div>
 	</fieldset>
 </form>

@@ -5,8 +5,8 @@ from blog import models
 
 @admin.register(models.Category)
 class CategoryAdmin(admin.ModelAdmin):
-	list_display = ('category', 'id', 'visible', 'tabbed', 'grouped')
-	list_filter = ('visible', 'tabbed', 'grouped')
+	list_display = ('category', 'id', 'visible', 'default_choice')
+	list_filter = ('visible', 'default_choice')
 	search_fields = ('category', 'description')
 
 

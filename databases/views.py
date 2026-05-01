@@ -7,8 +7,31 @@ from databases import models
 from django.urls import reverse
 from django.contrib import messages  # Message system
 from django.middleware import csrf
+from django.db.models import Count, Q
 
 APP_NAME = 'app_databases'
+
+SUBCATEGORY_FILTER_CATEGORIES = frozenset({'games', 'movies', 'tvseries'})
+
+STARRED_RECENT_CATEGORIES = frozenset({'audible', 'books', 'games', 'movies', 'tvseries'})
+
+DATABASE_CATEGORY_LABELS_NB = {
+	'audible': 'Lydbøker',
+	'books': 'Bøker',
+	'games': 'Spill',
+	'movies': 'Filmer',
+	'tvseries': 'TV-serier',
+	'programs': 'Programmer',
+	'links': 'Lenker',
+	'spotify': 'Spotify',
+	'quotes': 'Sitater',
+}
+
+
+def _category_label_nb(name):
+	if not name:
+		return 'Databaser'
+	return DATABASE_CATEGORY_LABELS_NB.get(name, name.replace('_', ' ').capitalize())
 
 
 # Generic object to store data
@@ -36,19 +59,118 @@ def overview(request, category_name=None):
 		return HttpResponseRedirect(reverse('databases_view', args=[u'audible']))
 
 	request.session['redirect_next'] = reverse('databases_view', args=[category_name])
+	category_pk = None
+	item_list = None
 	try:
 		category_pk = models.Category.objects.get(name=category_name).pk
-
 		item_list = models.Data.objects.filter(
-				category=category_pk
+			category=category_pk
 		).order_by(*sort(category_name))
-	except:
-		item_list = None
+	except models.Category.DoesNotExist:
+		pass
+
+	starred_recent_list = None
+	if category_name in STARRED_RECENT_CATEGORIES and category_pk is not None:
+		starred_recent_list = list(
+			models.Data.objects.filter(
+				category_id=category_pk,
+				star=True,
+			).order_by('-created')[:10]
+		)
+
+	audible_filter = None
+	subcategory_filter = None
+	if category_name == 'audible' and category_pk is not None:
+		base = models.Data.objects.filter(category=category_pk)
+		writers_for_filter = list(
+			base.exclude(writer__isnull=True)
+			.exclude(writer='')
+			.values('writer')
+			.annotate(audible_book_count=Count('pk'))
+			.order_by('-audible_book_count', 'writer')
+		)
+		series_ids = base.exclude(series__isnull=True).values_list(
+			'series_id', flat=True
+		).distinct()
+		series_for_filter = (
+			models.Series.objects.filter(pk__in=series_ids)
+			.annotate(
+				audible_book_count=Count(
+					'data',
+					filter=Q(data__category_id=category_pk),
+				)
+			)
+			.order_by('-audible_book_count', 'name')
+		)
+		sub_ids = base.exclude(subcategory__isnull=True).values_list(
+			'subcategory_id', flat=True
+		).distinct()
+		subcategories_for_filter = models.SubCategory.objects.filter(pk__in=sub_ids).order_by('name')
+
+		writer_param = (request.GET.get('writer') or '').strip()
+		series_param = (request.GET.get('serie') or '').strip()
+		kategori_param = (request.GET.get('kategori') or '').strip()
+		lest_param = (request.GET.get('lest') or '').strip().lower()
+		if lest_param not in ('ja', 'nei'):
+			lest_param = ''
+
+		if writer_param:
+			item_list = item_list.filter(writer=writer_param)
+		if series_param:
+			try:
+				item_list = item_list.filter(series_id=int(series_param))
+			except (TypeError, ValueError):
+				pass
+		if kategori_param:
+			try:
+				item_list = item_list.filter(subcategory_id=int(kategori_param))
+			except (TypeError, ValueError):
+				pass
+		if lest_param == 'ja':
+			item_list = item_list.filter(flagged=True)
+		elif lest_param == 'nei':
+			item_list = item_list.filter(flagged=False)
+
+		audible_filter = {
+			'writers': writers_for_filter,
+			'series_list': series_for_filter,
+			'subcategories': subcategories_for_filter,
+			'selected_writer': writer_param,
+			'selected_serie': series_param,
+			'selected_kategori': kategori_param,
+			'selected_lest': lest_param,
+		}
+
+	elif category_name in SUBCATEGORY_FILTER_CATEGORIES and category_pk is not None:
+		base = models.Data.objects.filter(category=category_pk)
+		sub_ids = base.exclude(subcategory__isnull=True).values_list(
+			'subcategory_id', flat=True
+		).distinct()
+		subcategories_for_filter = models.SubCategory.objects.filter(pk__in=sub_ids).order_by(
+			'name'
+		)
+		kategori_param = (request.GET.get('kategori') or '').strip()
+		if kategori_param:
+			try:
+				item_list = item_list.filter(subcategory_id=int(kategori_param))
+			except (TypeError, ValueError):
+				pass
+		subcategory_filter = {
+			'subcategories': subcategories_for_filter,
+			'selected_kategori': kategori_param,
+		}
+
+	page_head_title = '%s — AndyNor.net' % (_category_label_nb(category_name),)
 
 	return render(request, ['databases_view_%s.html' % category_name, 'databases.html'], {
 		'category_list': category_list,
 		'category_name': category_name,
 		'item_list': item_list,
+		'audible_filter': audible_filter,
+		'subcategory_filter': subcategory_filter,
+		'starred_recent_list': starred_recent_list,
+		'page_head_title': page_head_title,
+		'database_category_labels': DATABASE_CATEGORY_LABELS_NB,
 	})
 
 
@@ -101,14 +223,14 @@ def delete(request, model_name, pk=None, new_type=None):
 		try:
 			o.delete()
 		except ProtectedError:
-			messages.error(request, "There are still database entries relying on this field!")
+			messages.error(request, 'Det finnes fortsatt oppføringer som bruker dette feltet.')
 
 		if model_name == 'Data':
 			return HttpResponseRedirect(get_previous_page(request, APP_NAME))
 		else:
 			return HttpResponseRedirect(reverse('databases_new', args=[model_name]))
 	else:
-		messages.error(request, u'Token did not match')
+		messages.error(request, 'Token stemte ikke.')
 
 	return HttpResponseRedirect(get_previous_page(request, APP_NAME))
 

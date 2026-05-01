@@ -1,48 +1,114 @@
 {% extends "databases.html" %}
 {% load humanize %}
 {% load upto %}
-
 {% block databases_category %}
 
-<table class="table table-condensed table-striped">
-	<thead>
-		<tr>
-			<th></th>
-			<th>Tittel</th>
-			<th>Serie</th>
-			<th>Forfatter</th>
-			<th>Kategori</th>
-			<th>Lest?</th>
-			<th>Utmerkelse?</th>
-			<th>Varighet</th>
+{% include "databases_starred_recent.html" %}
 
-		</tr>
-	</thead>
-	<tbody>
-	{% for item in item_list %}
-		<tr>
-			<td>{% if user.is_authenticated %}
-			<a href="{% url "databases_edit_data" 'Data' item.pk category_name %}?next={{ request.get_full_path|urlencode }}"><i class="icon-pencil"></i></a>
-			{% endif %}</td>
-			<td>
-			{% if item.url %}
-				<a href="{{item.url}}">{{item.name}}</a>
-			{% else %}
-				{{item.name}}
-			{% endif %}
-			{% if item.series_nr %}
-				({{ item.series_nr|ordinal }})
-			{% endif %}
-			</td>
-			<td>{{ item.series.name }}</td>
-			<td>{{item.writer}}</td>
-			<td>{{item.subcategory.name|capfirst}}</td>
-			<td>{% if item.flagged %}<i class="icon-ok"></i>{% endif %}</td>
-			<td>{% if item.star %}<i class="icon-star"></i>{% endif %}</td>
-			<td>{{ item.duration|default:"0"|mintohour }}</td>
-		</tr>
-	{% endfor %}
-	</tbody>
-</table>
+{% if audible_filter %}
+<form class="database-audible-filters" method="get" action="">
+	<div class="database-audible-filters__row">
+		<label class="database-audible-filters__field">
+			<span class="database-audible-filters__label">Forfatter</span>
+			<select name="writer" class="input-xlarge">
+				<option value="">Alle</option>
+				{% for row in audible_filter.writers %}
+				<option value="{{ row.writer }}"{% if audible_filter.selected_writer == row.writer %} selected{% endif %}>{{ row.writer }} ({{ row.audible_book_count }})</option>
+				{% endfor %}
+			</select>
+		</label>
+		<label class="database-audible-filters__field">
+			<span class="database-audible-filters__label">Serie</span>
+			<select name="serie" class="input-xlarge">
+				<option value="">Alle</option>
+				{% for s in audible_filter.series_list %}
+				<option value="{{ s.pk }}"{% if audible_filter.selected_serie == s.pk|stringformat:"d" %} selected{% endif %}>{{ s.name }} ({{ s.audible_book_count }})</option>
+				{% endfor %}
+			</select>
+		</label>
+		<label class="database-audible-filters__field">
+			<span class="database-audible-filters__label">Kategori</span>
+			<select name="kategori" class="input-xlarge">
+				<option value="">Alle</option>
+				{% for sub in audible_filter.subcategories %}
+				<option value="{{ sub.pk }}"{% if audible_filter.selected_kategori == sub.pk|stringformat:"d" %} selected{% endif %}>{{ sub.name|capfirst }}</option>
+				{% endfor %}
+			</select>
+		</label>
+		<label class="database-audible-filters__field">
+			<span class="database-audible-filters__label">Lest</span>
+			<select name="lest" class="input-medium">
+				<option value=""{% if not audible_filter.selected_lest %} selected{% endif %}>Alle</option>
+				<option value="ja"{% if audible_filter.selected_lest == 'ja' %} selected{% endif %}>Lest</option>
+				<option value="nei"{% if audible_filter.selected_lest == 'nei' %} selected{% endif %}>Ikke lest</option>
+			</select>
+		</label>
+	</div>
+	<div class="database-audible-filters__actions">
+		<a class="btn" href="{% url 'databases_view' category_name %}">Nullstill</a>
+		<noscript>
+			<button type="submit" class="btn btn-primary">Filtrer</button>
+		</noscript>
+	</div>
+</form>
+	<script nonce="{{ request.csp_nonce }}">
+	(function () {
+		var form = document.querySelector('.database-audible-filters');
+		if (!form) return;
+		form.querySelectorAll('select').forEach(function (sel) {
+			sel.addEventListener('change', function () {
+				form.submit();
+			});
+		});
+	})();
+	</script>
+{% endif %}
+
+{% if item_list %}
+<div class="database-media-grid">
+{% for item in item_list %}
+	<article class="database-media-card database-media-card--audible database-media-card--media-titled box blog-post">
+		<header class="box-header">
+			<div class="aside-header">
+				<div class="database-media-card__title-row">
+					<div class="database-media-card__title-main">
+						{% if item.star %}
+						<span class="database-media-card__star-gold" title="Utmerkelse"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+						{% endif %}
+						<h3 class="blog-post-title">
+							{% if item.url %}<a href="{{ item.url }}">{{ item.name }}</a>{% else %}{{ item.name }}{% endif %}
+							{% if item.series_nr %}<span class="database-media-card__ordinal">({{ item.series_nr|ordinal }})</span>{% endif %}
+						</h3>
+						{% if user.is_authenticated %}
+						<a href="{% url 'databases_edit_data' 'Data' item.pk category_name %}?next={{ request.get_full_path|urlencode }}" class="database-media-card__edit database-media-card__edit--inline-title" title="Rediger"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></a>
+						{% endif %}
+					</div>
+					{% if item.flagged %}
+					<span class="database-media-card__heard" title="Lest"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></span>
+					{% endif %}
+				</div>
+				{% if item.series or item.writer or item.duration|default:0|mintohour %}
+				<p class="blog-post-meta database-media-card__meta-primary">
+					{% if item.series %}{{ item.series.name }}{% endif %}
+					{% if item.writer %}{% if item.series %} · {% endif %}{{ item.writer }}{% endif %}
+					{% if item.duration|default:0|mintohour %}{% if item.series or item.writer %} · {% endif %}{{ item.duration|default:0|mintohour }}{% endif %}
+				</p>
+				{% endif %}
+				{% if item.subcategory %}
+				<p class="blog-post-meta database-media-card__meta-category">{{ item.subcategory.name|capfirst }}</p>
+				{% endif %}
+			</div>
+		</header>
+		{% if item.text %}
+		<div class="box-content">
+			<div class="database-media-card__text textJustify">{{ item.text|linebreaksbr }}</div>
+		</div>
+		{% endif %}
+	</article>
+{% endfor %}
+</div>
+{% else %}
+<p>Ingenting å vise.</p>
+{% endif %}
 
 {% endblock %}

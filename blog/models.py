@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django import forms
 from django.contrib.auth.models import User
 from mysite.models import make_custom_plugins
@@ -8,11 +8,17 @@ from django.urls import reverse
 
 
 class Category(models.Model):
-	category = models.CharField(max_length=25, unique=True)
-	description = models.CharField(max_length=140, blank=True, null=True)
-	tabbed = models.BooleanField(default=False)
-	grouped = models.BooleanField(default=False)
-	visible = models.BooleanField(default=True)
+	category = models.CharField('Kategori', max_length=25, unique=True)
+	description = models.CharField('Beskrivelse', max_length=140, blank=True, null=True)
+	visible = models.BooleanField('Synlig', default=True)
+	default_choice = models.BooleanField(
+		'Standardvalg',
+		default=False,
+		help_text=(
+			'Kun én kategori kan være standard om gangen. '
+			'Når du krysser av her, fjernes standardvalg fra alle andre kategorier.'
+		),
+	)
 
 	class Meta:
 		verbose_name = "kategori"
@@ -23,18 +29,37 @@ class Category(models.Model):
 
 	def save(self, *args, **kwargs):
 		self.category = self.category.lower()
-		super(Category, self).save(*args, **kwargs)
+		if self.default_choice:
+			with transaction.atomic():
+				qs = Category.objects.filter(default_choice=True)
+				if self.pk is not None:
+					qs = qs.exclude(pk=self.pk)
+				qs.update(default_choice=False)
+				super(Category, self).save(*args, **kwargs)
+		else:
+			super(Category, self).save(*args, **kwargs)
 
 
 class CategoryForm(forms.ModelForm):
 	class Meta:
 		model = Category
-		fields = "__all__" 
+		fields = "__all__"
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		for name in ('visible', 'default_choice'):
+			if name not in self.fields:
+				continue
+			widget = self.fields[name].widget
+			if isinstance(widget, forms.CheckboxInput):
+				extra = 'blog-write-option-input'
+				cls = (widget.attrs.get('class', '') + ' ' + extra).strip()
+				widget.attrs['class'] = cls
 
 
 class Tag(models.Model):
-	tag = models.CharField(max_length=25, unique=True)
-	description = models.CharField(max_length=140, blank=True, null=True)
+	tag = models.CharField('Tagg', max_length=25, unique=True)
+	description = models.CharField('Beskrivelse', max_length=140, blank=True, null=True)
 
 	def __str__(self):
 		return u'%s' % (self.tag)
@@ -55,17 +80,50 @@ class TagForm(forms.ModelForm):
 		fields = "__all__" 
 
 class Blog(models.Model):
-	owner = models.ForeignKey(User, on_delete=models.PROTECT)
-	category = models.ForeignKey(Category, on_delete=models.PROTECT)
-	title = models.CharField(max_length=100, blank=True, null=True)
-	created = models.DateTimeField(auto_now_add=True)
-	updated = models.DateTimeField(auto_now=True)
-	origin = models.DateField(blank=True, null=False, default=datetime.date.today)
-	tags = models.ManyToManyField(Tag, blank=True)
-	tags.help_text = ''
-	content = models.TextField(blank=True, null=True)
-	linked = models.BooleanField(default=True)
-	published = models.BooleanField(default=False)
+	owner = models.ForeignKey(
+		User,
+		on_delete=models.PROTECT,
+		verbose_name='Eier',
+	)
+	category = models.ForeignKey(
+		Category,
+		on_delete=models.PROTECT,
+		verbose_name='Kategori',
+	)
+	title = models.CharField('Tittel', max_length=100, blank=True, null=True)
+	created = models.DateTimeField('Opprettet', auto_now_add=True)
+	updated = models.DateTimeField('Oppdatert', auto_now=True)
+	origin = models.DateField(
+		'Dato',
+		blank=True,
+		null=False,
+		default=datetime.date.today,
+		help_text='Dato innlegget vises under (sortering og visning).',
+	)
+	tags = models.ManyToManyField(
+		Tag,
+		blank=True,
+		verbose_name='Tagger',
+		help_text='',
+	)
+	content = models.TextField('Innhold', blank=True, null=True)
+	linked = models.BooleanField(
+		default=True,
+		verbose_name='Lenket',
+		help_text=(
+			'Vis innlegget i bloggmenyer, på forsiden og i kategorilister for besøkende. '
+			'Uten avkryssing er det skjult der, men et publisert innlegg kan fortsatt åpnes med direktelenke. '
+			'Kommentarer er bare tilgjengelige når innlegget både er publisert og lenket.'
+		),
+	)
+	published = models.BooleanField(
+		default=False,
+		verbose_name='Publisert',
+		help_text=(
+			'Gjør innlegget synlig for besøkende som ikke er innlogget. '
+			'Uten avkryssing er det et utkast som kun er synlig for deg (og andre med skrivetilgang) når dere er innlogget.'
+		),
+	)
 
 	class Meta:
 		verbose_name = "blogginnlegg"
@@ -183,11 +241,15 @@ class BlogForm(forms.ModelForm):
 
 
 class Comment(models.Model):
-	page = models.ForeignKey(Blog, on_delete=models.PROTECT)
-	poster = models.CharField(max_length=40, verbose_name='Your name')
-	comment = models.TextField()
-	created = models.DateTimeField(auto_now_add=True)
-	ip = models.GenericIPAddressField(null=True)
+	page = models.ForeignKey(
+		Blog,
+		on_delete=models.PROTECT,
+		verbose_name='Innlegg',
+	)
+	poster = models.CharField('Navn', max_length=40)
+	comment = models.TextField('Kommentar')
+	created = models.DateTimeField('Opprettet', auto_now_add=True)
+	ip = models.GenericIPAddressField('IP-adresse', null=True)
 
 	class Meta:
 		verbose_name = "kommentar"
@@ -198,14 +260,22 @@ class Comment(models.Model):
 
 
 class Image(models.Model):
-	owner = models.ForeignKey(User, on_delete=models.PROTECT)
-	filename = models.CharField(max_length=50)
-	description = models.CharField(max_length=150, blank=True, null=True)
-	blog = models.ForeignKey(Blog, on_delete=models.PROTECT)
-	original = models.CharField(max_length=50, blank=True, null=True)
-	large = models.CharField(max_length=50)
-	thumbnail = models.CharField(max_length=50, blank=True, null=True)
-	order = models.IntegerField()
+	owner = models.ForeignKey(
+		User,
+		on_delete=models.PROTECT,
+		verbose_name='Eier',
+	)
+	filename = models.CharField('Filnavn', max_length=50)
+	description = models.CharField('Beskrivelse', max_length=150, blank=True, null=True)
+	blog = models.ForeignKey(
+		Blog,
+		on_delete=models.PROTECT,
+		verbose_name='Blogginnlegg',
+	)
+	original = models.CharField('Original', max_length=50, blank=True, null=True)
+	large = models.CharField('Stor versjon', max_length=50)
+	thumbnail = models.CharField('Miniatyrbilde', max_length=50, blank=True, null=True)
+	order = models.IntegerField('Rekkefølge')
 
 	class Meta:
 		verbose_name = "bilde"
@@ -216,16 +286,24 @@ class Image(models.Model):
 
 
 class ImageForm(forms.Form):
-	image = forms.ImageField()
+	image = forms.ImageField(label='Bilde')
 
 
 class File(models.Model):
-	owner = models.ForeignKey(User, on_delete=models.PROTECT)
-	blog = models.ForeignKey(Blog, on_delete=models.PROTECT)
-	created = models.DateTimeField(auto_now_add=True)
-	filename = models.CharField(max_length=255)
-	size = models.IntegerField()
-	checksum = models.CharField(max_length=256)
+	owner = models.ForeignKey(
+		User,
+		on_delete=models.PROTECT,
+		verbose_name='Eier',
+	)
+	blog = models.ForeignKey(
+		Blog,
+		on_delete=models.PROTECT,
+		verbose_name='Blogginnlegg',
+	)
+	created = models.DateTimeField('Opprettet', auto_now_add=True)
+	filename = models.CharField('Filnavn', max_length=255)
+	size = models.IntegerField('Størrelse (bytes)')
+	checksum = models.CharField('Sjekksum', max_length=256)
 
 	class Meta:
 		verbose_name = "fil"
@@ -235,7 +313,7 @@ class File(models.Model):
 		return u'%s' % (self.filename)
 
 class FileForm(forms.Form):
-	file = forms.FileField()
+	file = forms.FileField(label='Fil')
 
 class CommentForm(forms.ModelForm):
 	class Meta:
@@ -244,4 +322,8 @@ class CommentForm(forms.ModelForm):
 
 
 class MoveImagesForm(forms.Form):
-	blog = forms.ModelChoiceField(queryset=Blog.objects.order_by('-pk'), help_text="Select recieving blog")
+	blog = forms.ModelChoiceField(
+		queryset=Blog.objects.order_by('-pk'),
+		label='Mål-blogg',
+		help_text='Velg blogginnlegget bildene skal flyttes til.',
+	)

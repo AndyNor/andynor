@@ -20,9 +20,10 @@ body {
 	}
 }
 
+/* Phones: navbar wraps (Forside + search, then icon row) — needs more offset than desktop */
 @media (max-width: 767px) {
 	body {
-		padding-top: 96px;
+		padding-top: 132px;
 		padding-bottom: 0px;
 	}
 }
@@ -497,8 +498,127 @@ a {
 	color: white;
 }
 
-.database_container{
+/* Databases: category tabs (Ny / Administrer → fixed bar below) */
+.database-menu-bar{
 	padding: 5px 0;
+	box-sizing: border-box;
+}
+
+.database-menu-bar__tabs{
+	min-width: 0;
+}
+
+.database_container{
+	padding: 0;
+}
+
+/* Fixed bottom strip — translucent toolbar (Ny + rediger-lenker på én linje) */
+.database-fixed-admin-bar{
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1020;
+	box-sizing: border-box;
+	padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+	background: rgba(252, 253, 251, 0.92);
+	border-top: 1px solid rgba(37, 95, 10, 0.16);
+	box-shadow: 0 -3px 14px rgba(0, 0, 0, 0.08);
+	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
+}
+
+.database-fixed-admin-bar__inner{
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	width: 100%;
+}
+
+.database-fixed-admin-bar__actions{
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 8px 10px;
+	width: 100%;
+	margin: 0;
+}
+
+.database-fixed-admin-bar__link{
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 7px 12px;
+	border-radius: 8px;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: rgba(27, 78, 8, 0.96);
+	background: rgba(37, 95, 10, 0.1);
+	border: 1px solid rgba(37, 95, 10, 0.2);
+	text-decoration: none;
+	box-sizing: border-box;
+	transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.database-fixed-admin-bar__link .fa-solid{
+	font-size: 1.05em;
+	opacity: 0.92;
+}
+
+.database-fixed-admin-bar__link:hover,
+.database-fixed-admin-bar__link:focus{
+	background: rgba(37, 95, 10, 0.18);
+	border-color: rgba(37, 95, 10, 0.35);
+	color: rgba(15, 50, 4, 1);
+	text-decoration: none;
+}
+
+.database-fixed-admin-bar__link--primary{
+	background: rgba(37, 95, 10, 0.9);
+	border-color: rgba(27, 70, 8, 0.95);
+	color: #fff;
+}
+
+.database-fixed-admin-bar__link--primary .fa-solid{
+	color: #fff;
+	opacity: 1;
+}
+
+.database-fixed-admin-bar__link--primary:hover,
+.database-fixed-admin-bar__link--primary:focus{
+	background: rgba(27, 75, 8, 0.98);
+	border-color: rgba(20, 55, 6, 1);
+	color: #fff;
+}
+
+@media (max-width: 600px){
+	.database-fixed-admin-bar__actions{
+		justify-content: center;
+	}
+
+	.database-fixed-admin-bar__link{
+		flex: 1 1 calc(50% - 6px);
+		justify-content: center;
+		min-width: 8.5rem;
+	}
+}
+
+/* Room for fixed bar (taller when lenker bryter til to rader) */
+@media (max-width: 979px){
+	body:has(.database-fixed-admin-bar){
+		padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+	}
+}
+
+@media (min-width: 980px){
+	body:has(.database-fixed-admin-bar){
+		padding-bottom: max(
+			90px,
+			calc(56px + env(safe-area-inset-bottom, 0px))
+		);
+	}
 }
 .database_item {
 	margin: 5px;
@@ -507,13 +627,242 @@ a {
 	margin: 10px;
 }
 
-.database_tvseries_item {
+/* Databases: TV series & movies — blog-style cards, 4 columns on wide screens */
+/* Audible list & games/movies/tvseries: GET filters */
+.database-audible-filters,
+.database-subcategory-filters{
 	margin-bottom: 20px;
-	min-height: 120px;
+	padding: 14px 16px;
+	border: 1px solid rgba(37, 95, 10, 0.2);
+	border-radius: 8px;
+	background: linear-gradient(165deg, rgba(37, 95, 10, 0.05) 0%, rgba(255, 255, 255, 0.95) 55%);
+	box-sizing: border-box;
 }
 
-.database_tvseries_text{
-	margin-left: 125px;
+.database-audible-filters__row{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 12px 18px;
+	margin-bottom: 12px;
+}
+
+.database-audible-filters__field{
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+
+.database-audible-filters__label{
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: rgba(37, 95, 10, 0.85);
+}
+
+.database-audible-filters__actions{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Databases: recently added starred entries (top 10 by created) */
+.database-starred-recent{
+	margin-bottom: 20px;
+	padding: 14px 16px;
+	border: 1px solid rgba(201, 162, 39, 0.4);
+	border-radius: 8px;
+	background: linear-gradient(165deg, rgba(201, 162, 39, 0.09) 0%, rgba(255, 255, 255, 0.96) 52%);
+	box-sizing: border-box;
+}
+
+.database-starred-recent__heading{
+	font-size: 1.08rem;
+	font-weight: 700;
+	margin: 0 0 12px 0;
+	color: rgba(37, 95, 10, 0.95);
+}
+
+.database-starred-recent__sub{
+	font-weight: 600;
+	font-size: 0.88em;
+	color: rgba(0, 0, 0, 0.45);
+}
+
+.database-starred-recent__list{
+	margin: 0;
+	padding-left: 1.4em;
+}
+
+.database-starred-recent__item{
+	margin-bottom: 8px;
+	line-height: 1.35;
+}
+
+.database-starred-recent__star{
+	color: #c9a227;
+	margin-right: 6px;
+	font-size: 0.95em;
+}
+
+.database-starred-recent__star .fa-star{
+	filter: drop-shadow(0 1px 1px rgba(160, 120, 0, 0.35));
+}
+
+.database-starred-recent__meta{
+	font-size: 0.86em;
+	color: rgba(0, 0, 0, 0.45);
+	margin-left: 8px;
+	white-space: nowrap;
+}
+
+.database-media-grid{
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 16px;
+	margin-bottom: 18px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.database-media-grid .database-media-card.blog-post.box{
+	margin-bottom: 0;
+}
+
+.database-media-card__text{
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.45;
+	color: rgba(0, 0, 0, 0.72);
+	font-style: italic;
+}
+
+.database-media-card__badge{
+	display: inline-block;
+	margin-left: 6px;
+	padding: 1px 6px;
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: rgba(37, 95, 10, 0.9);
+	background: rgba(37, 95, 10, 0.1);
+	border-radius: 4px;
+	vertical-align: middle;
+}
+
+.database-media-card__star{
+	margin-left: 4px;
+	color: #b8860b;
+}
+
+.database-media-card__edit{
+	margin-left: 6px;
+	white-space: nowrap;
+}
+
+.database-media-card__ordinal{
+	font-weight: 600;
+	font-size: 0.92em;
+	color: rgba(0, 0, 0, 0.5);
+}
+
+/* Database detail cards (Audible, books, …): title row, star, edit, meta lines */
+.database-media-card--media-titled .database-media-card__title-row{
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 10px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.database-media-card--media-titled .database-media-card__title-main{
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px 10px;
+	min-width: 0;
+	flex: 1 1 auto;
+}
+
+.database-media-card--media-titled .database-media-card__title-main .blog-post-title{
+	margin: 0;
+	flex: 0 1 auto;
+	min-width: 0;
+}
+
+.database-media-card--media-titled .database-media-card__edit--inline-title{
+	flex-shrink: 0;
+	align-self: center;
+	margin-left: 8px;
+	font-size: 1.08em;
+	line-height: 1;
+	color: #b73a3a;
+	text-decoration: none;
+}
+
+.database-media-card--media-titled .database-media-card__edit--inline-title .fa-pen-to-square{
+	color: inherit;
+}
+
+.database-media-card--media-titled .database-media-card__edit--inline-title:hover,
+.database-media-card--media-titled .database-media-card__edit--inline-title:focus{
+	color: #8f2d2d;
+	text-decoration: none;
+}
+
+.database-media-card--media-titled .database-media-card__star-gold{
+	flex-shrink: 0;
+	color: #c9a227;
+	font-size: 1.42em;
+	line-height: 1;
+}
+
+.database-media-card--media-titled .database-media-card__star-gold .fa-star{
+	filter: drop-shadow(0 1px 1px rgba(160, 120, 0, 0.45));
+}
+
+.database-media-card--media-titled .database-media-card__heard{
+	flex-shrink: 0;
+	align-self: flex-start;
+	color: rgba(37, 95, 10, 0.82);
+	font-size: 1.22em;
+	line-height: 1;
+	margin-top: 1px;
+}
+
+.database-media-card--media-titled .database-media-card__meta-primary{
+	margin: 0;
+	margin-top: 2px;
+}
+
+.database-media-card--media-titled .database-media-card__meta-category{
+	margin: 0;
+	margin-top: 8px;
+	line-height: 1.35;
+}
+
+@media (max-width: 1199px){
+	.database-media-grid{
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@media (max-width: 767px){
+	.database-media-grid{
+		grid-template-columns: repeat(2, 1fr);
+		gap: 12px;
+	}
+}
+
+@media (max-width: 480px){
+	.database-media-grid{
+		grid-template-columns: 1fr;
+	}
 }
 
 .searchbox_length {
@@ -1538,6 +1887,10 @@ html.lightbox-open .home-bottom-nav{
 	color: rgba(37, 95, 10, 0.75);
 }
 
+.blog-write-form .blog-write-options-row.blog-category-options-row::before{
+	content: "Innstillinger";
+}
+
 .blog-write-form .blog-write-options-row > .control-group:has(.blog-write-option-input){
 	flex: 1 1 200px;
 	min-width: 160px;
@@ -1568,7 +1921,22 @@ html.lightbox-open .home-bottom-nav{
 	background: rgba(190, 80, 80, 0.06);
 }
 
-.blog-write-form .control-group:has(.blog-write-option-input) .control-label{
+/* Entire card toggles the checkbox (label wraps title + control + help) */
+.blog-write-form .control-group:has(.blog-write-option-input) .blog-write-option-full-hit{
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	margin: 0;
+	width: 100%;
+	box-sizing: border-box;
+	font-weight: inherit;
+	line-height: inherit;
+	color: inherit;
+}
+
+.blog-write-form .control-group:has(.blog-write-option-input) .blog-write-option-full-hit .control-label{
 	float: none;
 	width: 100%;
 	flex: 0 0 auto;
@@ -1580,9 +1948,10 @@ html.lightbox-open .home-bottom-nav{
 	font-size: 14px;
 	color: #1f4a0a;
 	line-height: 1.35;
+	cursor: pointer;
 }
 
-.blog-write-form .control-group:has(.blog-write-option-input) .controls{
+.blog-write-form .control-group:has(.blog-write-option-input) .blog-write-option-full-hit .controls{
 	float: none;
 	display: flex;
 	flex-direction: row;
@@ -1590,6 +1959,7 @@ html.lightbox-open .home-bottom-nav{
 	align-items: flex-start;
 	gap: 8px 10px;
 	margin-left: 0;
+	cursor: pointer;
 }
 
 .blog-write-form .control-group:has(.blog-write-option-input) input.blog-write-option-input{
@@ -1601,13 +1971,14 @@ html.lightbox-open .home-bottom-nav{
 	cursor: pointer;
 }
 
-.blog-write-form .control-group:has(.blog-write-option-input) .help-inline{
+.blog-write-form .control-group:has(.blog-write-option-input) .blog-write-option-full-hit .help-inline{
 	flex: 1 1 auto;
 	min-width: 0;
 	margin-bottom: 0;
 	font-size: 12px;
 	line-height: 1.4;
 	color: rgba(0, 0, 0, 0.58);
+	cursor: pointer;
 }
 
 .blog-post-admin{

@@ -1,5 +1,4 @@
 {% extends "databases.html" %}
-{% load humanize %}
 {% block databases_category %}
 
 <table class="table table-condensed table-striped">
@@ -7,10 +6,10 @@
 		<tr>
 			<th></th>
 			<th>Program</th>
-			<th>Description</th>
-			<th>Category</th>
-			<th>Cost</th>
-			<th>Star</th>
+			<th>Beskrivelse</th>
+			<th>Kategori</th>
+			<th>Kostnad</th>
+			<th>Stjerne</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -26,7 +25,7 @@
 				{{item.name}}
 			{% endif %}
 			{% if item.series_nr %}
-				({{ item.series_nr|ordinal }})
+				(nr. {{ item.series_nr }})
 			{% endif %}
 			</td>
 			<td>{{item.text}}</td>

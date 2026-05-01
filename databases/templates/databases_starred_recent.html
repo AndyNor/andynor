@@ -1,0 +1,18 @@
+{% if starred_recent_list %}
+<section class="database-starred-recent" aria-labelledby="database-starred-recent-heading">
+	<h2 id="database-starred-recent-heading" class="database-starred-recent__heading">Nylig tillagt med stjerne <span class="database-starred-recent__sub">(topp 10)</span></h2>
+	<ol class="database-starred-recent__list">
+		{% for item in starred_recent_list %}
+		<li class="database-starred-recent__item">
+			<span class="database-starred-recent__star" title="Utmerkelse"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+			{% if item.url %}
+			<a href="{{ item.url }}">{{ item.name }}</a>
+			{% else %}
+			{{ item.name }}
+			{% endif %}
+			<span class="database-starred-recent__meta">{{ item.created|date:"Y-m-d" }}</span>
+		</li>
+		{% endfor %}
+	</ol>
+</section>
+{% endif %}

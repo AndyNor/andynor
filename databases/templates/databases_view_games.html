@@ -1,39 +1,57 @@
 {% extends "databases.html" %}
-{% load humanize %}
+{% load upto %}
 {% block databases_category %}
 
-<table class="table table-condensed table-striped">
-	<thead>
-		<tr>
-			<th></th>
-			<th>Tittel</th>
-			<th>År utgitt</th>
-			<th>Kategori</th>
-			<th>Særlig anbefalt</th>
-		</tr>
-	</thead>
-	<tbody>
-	{% for item in item_list %}
-		<tr>
-			<td>{% if user.is_authenticated %}
-			<a href='{% url "databases_edit_data" "Data" item.pk category_name %}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i></a>
-			{% endif %}</td>
-			<td>
-			{% if item.url %}
-				<a href="{{item.url}}">{{item.name}}</a>
-			{% else %}
-				{{item.name}}
-			{% endif %}
-			{% if item.series_nr %}
-				({{ item.series_nr|ordinal }})
-			{% endif %}
-			</td>
-			<td>{{ item.produced|date:"Y" }}</td>
-			<td>{{item.subcategory.name|capfirst}}</td>
-			<td>{% if item.star %}<i class="icon-star"></i>{% endif %}</td>
-		</tr>
-	{% endfor %}
-	</tbody>
-</table>
+{% include "databases_starred_recent.html" %}
+
+{% include "databases_subcategory_filter.html" %}
+
+{% if item_list %}
+<div class="database-media-grid">
+{% for item in item_list %}
+	<article class="database-media-card database-media-card--games database-media-card--media-titled box blog-post">
+		<header class="box-header">
+			<div class="aside-header">
+				<div class="database-media-card__title-row">
+					<div class="database-media-card__title-main">
+						{% if item.star %}
+						<span class="database-media-card__star-gold" title="Utmerkelse"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+						{% endif %}
+						<h3 class="blog-post-title">
+							{% if item.url %}<a href="{{ item.url }}">{{ item.name }}</a>{% else %}{{ item.name }}{% endif %}
+							{% if item.series_nr %}<span class="database-media-card__ordinal">(nr. {{ item.series_nr }})</span>{% endif %}
+						</h3>
+						{% if user.is_authenticated %}
+						<a href="{% url 'databases_edit_data' 'Data' item.pk category_name %}?next={{ request.get_full_path|urlencode }}" class="database-media-card__edit database-media-card__edit--inline-title" title="Rediger"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></a>
+						{% endif %}
+					</div>
+					{% if item.flagged %}
+					<span class="database-media-card__heard" title="Lest"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></span>
+					{% endif %}
+				</div>
+				{% if item.produced or item.series or item.writer or item.duration|default:0|mintohour %}
+				<p class="blog-post-meta database-media-card__meta-primary">
+					{% if item.produced %}{{ item.produced|date:'Y' }}{% endif %}
+					{% if item.series %}{% if item.produced %} · {% endif %}{{ item.series.name }}{% endif %}
+					{% if item.writer %}{% if item.produced or item.series %} · {% endif %}{{ item.writer }}{% endif %}
+					{% if item.duration|default:0|mintohour %}{% if item.produced or item.series or item.writer %} · {% endif %}{{ item.duration|default:0|mintohour }}{% endif %}
+				</p>
+				{% endif %}
+				{% if item.subcategory %}
+				<p class="blog-post-meta database-media-card__meta-category">{{ item.subcategory.name|capfirst }}</p>
+				{% endif %}
+			</div>
+		</header>
+		{% if item.text %}
+		<div class="box-content">
+			<div class="database-media-card__text textJustify">{{ item.text|linebreaksbr }}</div>
+		</div>
+		{% endif %}
+	</article>
+{% endfor %}
+</div>
+{% else %}
+<p>Ingenting å vise.</p>
+{% endif %}
 
 {% endblock %}
