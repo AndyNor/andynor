@@ -159,9 +159,13 @@ if THIS_ENVIRONMENT == "DEV":
 	STATIC_ROOT = '_static/'
 	STATIC_URL = '/static/'
 
-# Use manifest-hashed filenames for static files (cache-busting).
+# Defining STORAGES replaces Django's built-in defaults; ``default`` is required
+# for FileField/ImageField (media). ``staticfiles`` uses the manifest backend.
 # Requires running `collectstatic` after changes to static assets.
 STORAGES = {
+	"default": {
+		"BACKEND": "django.core.files.storage.FileSystemStorage",
+	},
 	"staticfiles": {
 		"BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
 	},
