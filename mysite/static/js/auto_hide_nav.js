@@ -38,6 +38,19 @@
 		return (window.innerWidth || 0) >= DESKTOP_MIN_WIDTH_PX;
 	}
 
+	// Phone/tablet touch ends with synthetic mouse events; mouseenter would wrongly
+	// unhide the icon row. Only use hover-lock on real hover-capable pointers.
+	function prefersFinePointerHover() {
+		try {
+			if (window.matchMedia) {
+				return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+			}
+		} catch (e) {
+			/* ignore */
+		}
+		return false;
+	}
+
 	function atTop() {
 		return (window.scrollY || window.pageYOffset || 0) <= SCROLL_TOP_EPS;
 	}
@@ -89,7 +102,7 @@
 	}
 
 	function attachHoverLock(el) {
-		if (!el) {
+		if (!el || !prefersFinePointerHover()) {
 			return;
 		}
 		el.addEventListener('mouseenter', function () {
