@@ -220,6 +220,16 @@
 			return 'cats=' + encodeURIComponent(csv);
 		}
 
+		function streamQuerySuffix() {
+			var parts = [catsQueryParam()];
+			var params = new URLSearchParams(window.location.search || '');
+			var q = params.get('q');
+			if (q) {
+				parts.push('q=' + encodeURIComponent(q));
+			}
+			return parts.join('&');
+		}
+
 		function ensureYearAnchors() {
 			var posts = stream.querySelectorAll('.blog-post[data-year]');
 			var seen = {};
@@ -255,7 +265,7 @@
 			loading = true;
 			var url = moreUrl + '?before_origin=' + encodeURIComponent(nextCursor.before_origin)
 				+ '&before_pk=' + encodeURIComponent(String(nextCursor.before_pk))
-				+ '&' + catsQueryParam();
+				+ '&' + streamQuerySuffix();
 			return fetch(url, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
 				.then(function (r) { if (!r.ok) throw new Error('load failed'); return r.json(); })
 				.then(function (data) {
@@ -484,7 +494,7 @@
 			setYearLoading(year, true);
 			if (io) io.disconnect();
 
-			fetch(yearUrl + '?year=' + encodeURIComponent(String(year)) + '&' + catsQueryParam(),
+			fetch(yearUrl + '?year=' + encodeURIComponent(String(year)) + '&' + streamQuerySuffix(),
 				{ credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
 				.then(function (r) { if (!r.ok) throw new Error('year load failed'); return r.json(); })
 				.then(function (data) {
@@ -521,7 +531,7 @@
 			if (!monthUrl) return;
 			setYearLoading(year, true);
 			if (io) io.disconnect();
-			fetch(monthUrl + '?year=' + encodeURIComponent(String(year)) + '&month=' + encodeURIComponent(String(month)) + '&' + catsQueryParam(),
+			fetch(monthUrl + '?year=' + encodeURIComponent(String(year)) + '&month=' + encodeURIComponent(String(month)) + '&' + streamQuerySuffix(),
 				{ credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
 				.then(function (r) { if (!r.ok) throw new Error('month load failed'); return r.json(); })
 				.then(function (data) {

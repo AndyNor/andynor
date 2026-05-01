@@ -10,7 +10,9 @@
 		<a class="btn btn-small m-5" href="{% url "blog_tag_add" %}?next={{ request.get_full_path|urlencode }}">Add tag</a><br>
 		<a class="btn btn-small btn-primary m-5" href="/blog/340/">BB-codes</a>
 	</div>
-	{% include "form.html" with form=form redirect=redirect %}
+	<div class="blog-write-form">
+	{% include "form.html" with form=form redirect=redirect blog_options_row=form_blog_options_row %}
+	</div>
 	<table class="table table-bordered table-condensed">
 	{% for i in entries %}
 		<tr>

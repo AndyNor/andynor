@@ -70,8 +70,11 @@ def user_login(request):
 					messages.error(request, 'I could not verify your identity.')
 					log_message = "IP %s was blocked" % get_client_ip(request)
 					add_to_log(request, log_message, 1)
+	else:
+		# Only refresh return URL on GET. After a failed POST, Referer is usually /login/ —
+		# do not overwrite the page the user originally wanted.
+		request.session['redirect_next'] = safe_referrer(request)
 
-	request.session['redirect_next'] = safe_referrer(request)
 	return render(request, 'login.html', {
 		'form': form,
 	})
@@ -180,7 +183,11 @@ def _home_parse_selected_category_ids(request, allowed_category_ids):
 	return sorted(list(selected))
 
 
-def home_featured_blogs_queryset(category_ids=None):
+def _home_search_q(request):
+	return (request.GET.get('q') or '').strip()
+
+
+def home_featured_blogs_queryset(category_ids=None, search_q=None):
 	# on frontpage not special health (5), special (10), school (11) or fun (12)
 	base = Blog.objects.exclude(
 		category__in=HOME_EXCLUDED_CATEGORY_IDS
@@ -192,6 +199,11 @@ def home_featured_blogs_queryset(category_ids=None):
 		if not category_ids:
 			return Blog.objects.none()
 		base = base.filter(category__in=category_ids)
+	if search_q:
+		entry_query = get_query(search_q, ['title', 'content'])
+		if entry_query is None:
+			return Blog.objects.none()
+		base = base.filter(entry_query)
 	return base.order_by('-origin', '-pk')
 
 
@@ -213,13 +225,10 @@ def _home_articles_redirect_if_direct_nav(request):
 	if ('application/json' in accept) or (xrw == 'XMLHttpRequest'):
 		return None
 
-	cats = request.GET.get('cats')
-	cat_list = request.GET.getlist('cat')
+	q = request.GET.urlencode()
 	target = reverse('root')
-	if cats:
-		target = '%s?cats=%s' % (target, cats)
-	elif cat_list:
-		target = '%s?cats=%s' % (target, ','.join(cat_list))
+	if q:
+		target = '%s?%s' % (target, q)
 	return HttpResponseRedirect(target)
 
 
@@ -230,6 +239,7 @@ def home_articles_more(request):
 
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
+	search_q = _home_search_q(request)
 
 	origin_s = request.GET.get('before_origin')
 	pk_s = request.GET.get('before_pk')
@@ -241,7 +251,7 @@ def home_articles_more(request):
 	except (ValueError, TypeError):
 		return HttpResponseBadRequest('invalid cursor')
 
-	qs = home_featured_blogs_queryset(selected_category_ids).filter(
+	qs = home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(
 		Q(origin__lt=cursor_date) | Q(origin=cursor_date, pk__lt=cursor_pk)
 	)[:HOME_FEATURED_PAGE_SIZE]
 	blogs = list(qs)
@@ -260,7 +270,7 @@ def home_articles_more(request):
 	has_more = False
 	if blogs:
 		last = blogs[-1]
-		has_more = home_featured_blogs_queryset(selected_category_ids).filter(
+		has_more = home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(
 			Q(origin__lt=last.origin) | Q(origin=last.origin, pk__lt=last.pk)
 		).exists()
 		if has_more:
@@ -283,6 +293,7 @@ def home_articles_newer(request):
 
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
+	search_q = _home_search_q(request)
 
 	origin_s = request.GET.get('after_origin')
 	pk_s = request.GET.get('after_pk')
@@ -294,7 +305,7 @@ def home_articles_newer(request):
 	except (ValueError, TypeError):
 		return HttpResponseBadRequest('invalid cursor')
 
-	qs = home_featured_blogs_queryset(selected_category_ids).filter(
+	qs = home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(
 		Q(origin__gt=cursor_date) | Q(origin=cursor_date, pk__gt=cursor_pk)
 	)[:HOME_FEATURED_PAGE_SIZE]
 	blogs = list(qs)
@@ -313,7 +324,7 @@ def home_articles_newer(request):
 	has_more = False
 	if blogs:
 		first = blogs[0]
-		has_more = home_featured_blogs_queryset(selected_category_ids).filter(
+		has_more = home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(
 			Q(origin__gt=first.origin) | Q(origin=first.origin, pk__gt=first.pk)
 		).exists()
 		if has_more:
@@ -336,6 +347,7 @@ def home_articles_year(request):
 
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
+	search_q = _home_search_q(request)
 
 	year_s = request.GET.get('year')
 	try:
@@ -344,7 +356,7 @@ def home_articles_year(request):
 		return HttpResponseBadRequest('invalid year')
 
 	# "First article of the year" in this feed == newest post within that year.
-	first_qs = home_featured_blogs_queryset(selected_category_ids).filter(origin__year=year)
+	first_qs = home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(origin__year=year)
 	first = first_qs.order_by('-origin', '-pk').first()
 	if not first:
 		return JsonResponse({
@@ -354,13 +366,13 @@ def home_articles_year(request):
 		})
 
 	# Limit context to the selected year only.
-	newer_qs = home_featured_blogs_queryset(selected_category_ids).filter(
+	newer_qs = home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(
 		origin__year=year
 	).filter(
 		Q(origin__gt=first.origin) | Q(origin=first.origin, pk__gt=first.pk)
 	).order_by('origin', 'pk')[:3]
 
-	older_qs = home_featured_blogs_queryset(selected_category_ids).filter(
+	older_qs = home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(
 		origin__year=year
 	).filter(
 		Q(origin__lt=first.origin) | Q(origin=first.origin, pk__lt=first.pk)
@@ -382,7 +394,7 @@ def home_articles_year(request):
 	next_cursor = None
 	has_more = False
 	last = blogs[-1]
-	has_more = home_featured_blogs_queryset(selected_category_ids).filter(
+	has_more = home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(
 		Q(origin__lt=last.origin) | Q(origin=last.origin, pk__lt=last.pk)
 	).exists()
 	if has_more:
@@ -405,6 +417,7 @@ def home_articles_month(request):
 
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
+	search_q = _home_search_q(request)
 
 	year_s = request.GET.get('year')
 	month_s = request.GET.get('month')
@@ -416,7 +429,7 @@ def home_articles_month(request):
 	if month < 1 or month > 12:
 		return HttpResponseBadRequest('invalid month')
 
-	qs_month = home_featured_blogs_queryset(selected_category_ids).filter(origin__year=year, origin__month=month)
+	qs_month = home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(origin__year=year, origin__month=month)
 	first = qs_month.order_by('-origin', '-pk').first()
 	if not first:
 		return JsonResponse({
@@ -448,7 +461,7 @@ def home_articles_month(request):
 	next_cursor = None
 	has_more = False
 	last = blogs[-1]
-	has_more = home_featured_blogs_queryset(selected_category_ids).filter(
+	has_more = home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(
 		Q(origin__lt=last.origin) | Q(origin=last.origin, pk__lt=last.pk)
 	).exists()
 	if has_more:
@@ -471,8 +484,9 @@ def home_articles_index(request):
 
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
+	search_q = _home_search_q(request)
 
-	qs = home_featured_blogs_queryset(selected_category_ids).values('pk', 'origin')
+	qs = home_featured_blogs_queryset(selected_category_ids, search_q=search_q).values('pk', 'origin')
 	items = []
 	for row in qs:
 		o = row['origin']
@@ -491,6 +505,7 @@ def home_articles_html(request):
 
 	allowed_ids = list(home_categories_queryset().values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
+	search_q = _home_search_q(request)
 
 	pks_s = request.GET.get('pks', '')
 	if not pks_s:
@@ -504,7 +519,7 @@ def home_articles_html(request):
 	# Limit to keep response reasonable
 	pks = pks[:25]
 
-	blogs = list(home_featured_blogs_queryset(selected_category_ids).filter(pk__in=pks))
+	blogs = list(home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(pk__in=pks))
 	by_pk = {b.pk: b for b in blogs}
 
 	items = []
@@ -527,20 +542,21 @@ def index(request):
 	all_categories = home_categories_queryset()
 	allowed_ids = list(all_categories.values_list('pk', flat=True))
 	selected_category_ids = _home_parse_selected_category_ids(request, allowed_ids)
+	search_q = _home_search_q(request)
 
-	blogs = list(home_featured_blogs_queryset(selected_category_ids)[:HOME_FEATURED_PAGE_SIZE])
+	blogs = list(home_featured_blogs_queryset(selected_category_ids, search_q=search_q)[:HOME_FEATURED_PAGE_SIZE])
 	blogs_display = _home_blogs_display_entries(blogs)
 
-	home_years = [d.year for d in home_featured_blogs_queryset(selected_category_ids).dates('origin', 'year', order='DESC')]
+	home_years = [d.year for d in home_featured_blogs_queryset(selected_category_ids, search_q=search_q).dates('origin', 'year', order='DESC')]
 	months_by_year = {}
-	for d in home_featured_blogs_queryset(selected_category_ids).dates('origin', 'month', order='DESC'):
+	for d in home_featured_blogs_queryset(selected_category_ids, search_q=search_q).dates('origin', 'month', order='DESC'):
 		months_by_year.setdefault(d.year, set()).add(d.month)
 	months_by_year_json = json.dumps({str(y): sorted(list(ms)) for (y, ms) in months_by_year.items()})
 
 	home_articles_next_cursor = None
 	if blogs:
 		last = blogs[-1]
-		if home_featured_blogs_queryset(selected_category_ids).filter(
+		if home_featured_blogs_queryset(selected_category_ids, search_q=search_q).filter(
 			Q(origin__lt=last.origin) | Q(origin=last.origin, pk__lt=last.pk)
 		).exists():
 			home_articles_next_cursor = {
@@ -548,14 +564,12 @@ def index(request):
 				'before_pk': last.pk,
 			}
 
-	#school_subjects = Blog.objects.filter(category=11, published=True, sticky=True).order_by('-pk')
 	movies = DBobjects.objects.filter(category__name='movies').order_by('-pk')[:10]
 	tvseries = DBobjects.objects.filter(category__name='tvseries').order_by('-flagged', '-pk')[:10]
 	audible = DBobjects.objects.filter(category__name='audible').order_by('-pk')[:10]
 	paperbooks = DBobjects.objects.filter(category__name='books').order_by('-pk')[:10]
 	spotify = DBobjects.objects.filter(category__name='spotify').order_by('name')
 	games = DBobjects.objects.filter(category__name='games').order_by('-pk')[:10]
-	sticky_blogs = Blog.objects.filter(published=True, sticky=True).order_by('-updated')
 	#profiles = list(UserProfile.objects.all())
 	#profiles.sort(key=lambda x: x.birthday_countdown())
 
@@ -584,12 +598,11 @@ def index(request):
 	return render(request, 'home.html', {
 		'category_list': all_categories,
 		'home_selected_category_ids': selected_category_ids,
+		'query_string': search_q,
 		'blogs_display': blogs_display,
 		'home_years': home_years,
 		'home_months_by_year_json': months_by_year_json,
 		'home_articles_stream_config': home_articles_stream_config,
-		#'school_subjects': school_subjects,
-		'sticky_blogs': sticky_blogs,
 		'movies': movies,
 		'audible': audible,
 		'paperbooks': paperbooks,
@@ -610,19 +623,12 @@ def count_query(history_days):
 
 
 def search(request):
-	query_string = ''
-	found_entries = None
-	if ('q' in request.GET) and request.GET['q'].strip():
-		query_string = request.GET['q']
-		entry_query = get_query(query_string, ['title', 'content'])
-		valid_entries = Blog.objects.filter(published=1)
-		if entry_query != None:
-			found_entries = valid_entries.filter(entry_query).order_by('-pk')[:25]
-
-	return render(request, 'search_default.html', {
-		'query_string': query_string,
-		'found_entries': found_entries,
-	})
+	"""Site search uses the home page stream; keep /search/?q= as a stable entry point."""
+	q = request.GET.urlencode()
+	target = reverse('root')
+	if q:
+		target = '%s?%s' % (target, q)
+	return HttpResponseRedirect(target)
 
 
 @permission_required('blog.blog.can_add_blog', raise_exception=True)

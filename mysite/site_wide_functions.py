@@ -65,51 +65,79 @@ def set_redirect_session(request, page, parameters):
 
 def get_previous_page(request, default='root'):
 	'''
-	Using either GET 'next' or a default to set path for redirection
+	Using either GET 'next' or session 'redirect_next' or a default to set path for redirection.
+	Same-site absolute URLs (e.g. from HTTP_REFERER) are normalized to a relative path.
 	'''
-	previous_page = request.GET.get('next', None)
-	if previous_page is None:
-		previous_page = request.session.get('redirect_next', None)
-		request.session['redirect_next'] = None
-		if previous_page is None:
-			previous_page = reverse(default)
+	from urllib.parse import urlparse, parse_qs, urlencode
+	from django.utils.http import url_has_allowed_host_and_scheme
+
+	candidate = request.GET.get('next')
+	if candidate is not None:
+		request.session.pop('redirect_next', None)
+	else:
+		candidate = request.session.pop('redirect_next', None)
+	if not candidate:
+		return reverse(default)
+
+	candidate = str(candidate).strip()
+	if not candidate:
+		return reverse(default)
+
+	parsed = urlparse(candidate)
+	if parsed.scheme or parsed.netloc:
+		if not url_has_allowed_host_and_scheme(
+			url=candidate,
+			allowed_hosts={request.get_host()},
+			require_https=False,
+		):
+			return reverse(default)
+		path = parsed.path or '/'
+		redirect_to = '%s?%s' % (path, parsed.query) if parsed.query else path
+	else:
+		if not candidate.startswith('/') or candidate.startswith('//'):
+			return reverse(default)
+		redirect_to = candidate
+
+	if not url_has_allowed_host_and_scheme(
+		url=redirect_to,
+		allowed_hosts={request.get_host()},
+		require_https=False,
+	):
+		return reverse(default)
+
+	login_path = reverse('user_login').rstrip('/') or '/login'
+	rd_parsed = urlparse(redirect_to)
+	rd_path = (rd_parsed.path or '/').rstrip('/')
+	if rd_path == login_path.rstrip('/'):
+		return reverse(default)
 
 	# Guard against redirecting to JSON-only "articles" endpoints when coming
 	# from edit forms (e.g. image comment edit). Those endpoints are intended
 	# for XHR/infinite-scroll and will render as raw JSON in the browser.
 	try:
-		from urllib.parse import urlparse, parse_qs, urlencode
-		parsed = urlparse(str(previous_page))
-		# Disallow absolute URLs (basic open-redirect guard) and normalize to path.
-		if parsed.scheme or parsed.netloc:
-			previous_page = reverse(default)
-		else:
-			blocked_paths = {
-				'/articles/more/',
-				'/articles/newer/',
-				'/articles/year/',
-				'/articles/month/',
-				'/articles/index/',
-				'/articles/html/',
-			}
-			if parsed.path in blocked_paths:
-				qs = parse_qs(parsed.query or '')
-				# Preserve category selection, since the home page supports it.
-				params = {}
-				if 'cats' in qs and qs['cats']:
-					params['cats'] = qs['cats'][-1]
-				elif 'cat' in qs and qs['cat']:
-					# If cats isn't present, translate repeated cat= into cats=csv.
-					params['cats'] = ','.join(qs['cat'])
-				target = reverse(default)
-				if params:
-					target = '%s?%s' % (target, urlencode(params))
-				previous_page = target
+		blocked_paths = {
+			'/articles/more/',
+			'/articles/newer/',
+			'/articles/year/',
+			'/articles/month/',
+			'/articles/index/',
+			'/articles/html/',
+		}
+		if rd_parsed.path in blocked_paths:
+			qs = parse_qs(rd_parsed.query or '')
+			params = {}
+			if 'cats' in qs and qs['cats']:
+				params['cats'] = qs['cats'][-1]
+			elif 'cat' in qs and qs['cat']:
+				params['cats'] = ','.join(qs['cat'])
+			target = reverse(default)
+			if params:
+				target = '%s?%s' % (target, urlencode(params))
+			redirect_to = target
 	except Exception:
-		# Fail safe: keep the original behavior if parsing fails.
 		pass
 
-	return previous_page
+	return redirect_to
 
 
 def url_with_fragment(url, fragment):

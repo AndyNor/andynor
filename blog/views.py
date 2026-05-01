@@ -68,8 +68,6 @@ def index(request, blog_pk=False, category_id=1, category_history=False):
 
 	NUM_DISPLAYED_LINKS = 20
 	NUM_PAGINATION = 4
-	#BLOG_ORDER_BY = ['-sticky', '-updated', '-pk']
-	#BLOG_ORDER_BY = ['-sticky', '-origin']
 	BLOG_ORDER_BY = ['-origin']
 
 	# Category menu should only show categories that have public entries.
@@ -84,7 +82,7 @@ def index(request, blog_pk=False, category_id=1, category_history=False):
 		blogs_query = models.Blog.objects.filter(published=True)
 		links_query = blogs_query.filter(linked=True)
 
-	blog_history_query = links_query.values('pk', 'title', 'linked', 'published', 'sticky').order_by(*BLOG_ORDER_BY)
+	blog_history_query = links_query.values('pk', 'title', 'linked', 'published').order_by(*BLOG_ORDER_BY)
 
 	# Get correct blog, category name and links
 	if blog_pk:
@@ -336,6 +334,7 @@ def write(request, pk=False):
 		u'form': blog_form,
 		u'sub_header': sub_text,
 		u'redirect': redirect_url,
+		u'form_blog_options_row': True,
 	})
 
 

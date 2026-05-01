@@ -24,12 +24,11 @@ class BlogAdmin(admin.ModelAdmin):
 		'category',
 		'origin',
 		'published',
-		'sticky',
 		'linked',
 		'owner',
 		'updated',
 	)
-	list_filter = ('published', 'sticky', 'linked', 'category')
+	list_filter = ('published', 'linked', 'category')
 	search_fields = ('title', 'content', 'tags__tag')
 	date_hierarchy = 'origin'
 	list_select_related = ('category', 'owner')

@@ -10,25 +10,29 @@
 			{% if user.is_authenticated %}
 			<div class="pull-right">
 			{% if blog_active %}
-					<div class="dropdown">
-						<button class="btn dropdown-toggle" type="button" data-toggle="dropdown">Administrer <span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li>
+					<div class="dropdown blog-post-admin">
+						<a class="nav-icon-link blog-post-admin__toggle dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="fa-solid fa-gear" aria-hidden="true"></i>
+							<span class="nav-icon-link__label nav-icon-link__label--inline">Administrer</span>
+							<span class="caret" aria-hidden="true"></span>
+						</a>
+						<ul class="dropdown-menu pull-right blog-post-admin__menu" role="menu">
+							<li role="none">
 								{% url "blog_update" blog_active.pk as blog_update_url %}
-								<a href='{{ blog_update_url }}?next={{ request.get_full_path|urlencode }}'><i class="icon-pencil"></i> Edit text</a>
+								<a href='{{ blog_update_url }}?next={{ request.get_full_path|urlencode }}' role="menuitem"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Rediger tekst</a>
 							</li>
-							<li>
+							<li role="none">
 								{% url "image_upload" blog_active.pk as image_upload_url %}
-								<a href='{{ image_upload_url }}'><i class="icon-camera"></i> Manage images</a>
+								<a href='{{ image_upload_url }}' role="menuitem"><i class="fa-solid fa-image" aria-hidden="true"></i> Bilder</a>
 							</li>
-							<li>
+							<li role="none">
 								{% url "file_upload" blog_active.pk as file_upload_url %}
-								<a href='{{ file_upload_url }}'><i class="icon-file"></i> Manage files</a>
+								<a href='{{ file_upload_url }}' role="menuitem"><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Filer</a>
 							</li>
-							<li class="divider"></li>
-							<li>
+							<li class="divider" role="separator"></li>
+							<li class="blog-post-admin__item--danger" role="none">
 								{% url "blog_delete" blog_active.pk as blog_delete_url %}
-								<a href='{{ blog_delete_url }}'><i class="icon-remove"></i> Delete</a>
+								<a href='{{ blog_delete_url }}' role="menuitem"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Slett</a>
 							</li>
 						</ul>
 					</div>

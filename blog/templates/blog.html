@@ -51,7 +51,6 @@
 								<a href="{% url 'blog_show' blog.pk %}">
 								{% if not blog.published %}<i class="icon-file"></i>{% endif %}
 								{% if not blog.linked %}<i class="icon-filter"></i>{% endif %}
-								{% if blog.sticky %}<i class="icon-star"></i>{% endif %}
 								{{ blog.title }}
 								</a>
 							</li>

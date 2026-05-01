@@ -66,7 +66,6 @@ class Blog(models.Model):
 	content = models.TextField(blank=True, null=True)
 	linked = models.BooleanField(default=True)
 	published = models.BooleanField(default=False)
-	sticky = models.BooleanField(default=False)
 
 	class Meta:
 		verbose_name = "blogginnlegg"
@@ -108,6 +107,15 @@ class BlogForm(forms.ModelForm):
 
 		if self.instance and getattr(self.instance, 'pk', None):
 			self.fields['tags_text'].initial = " ".join([t.tag for t in self.instance.tags.order_by('tag')])
+
+		for name in ('linked', 'published'):
+			if name not in self.fields:
+				continue
+			widget = self.fields[name].widget
+			if isinstance(widget, forms.CheckboxInput):
+				extra = 'blog-write-option-input'
+				cls = (widget.attrs.get('class', '') + ' ' + extra).strip()
+				widget.attrs['class'] = cls
 
 	def clean_tags_text(self):
 		raw = (self.cleaned_data.get('tags_text') or '').strip()
