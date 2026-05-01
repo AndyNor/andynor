@@ -3,8 +3,8 @@
 
 	var TOP_HIDE_DELAY_MS = 2000;
 	var SCROLL_TOP_EPS = 2;
-	// Match Bootstrap 2 desktop breakpoint (bootstrap-responsive.css uses 979px max-width).
-	var DESKTOP_MIN_WIDTH_PX = 980;
+	// Only enable scroll auto-hide in the same range as small-screen navbar rules (max-width: 767px in custom_style.css).
+	var DESKTOP_MIN_WIDTH_PX = 768;
 
 	var body = document.body;
 	if (!body) {
