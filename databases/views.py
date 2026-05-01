@@ -40,6 +40,35 @@ DATABASE_CATEGORY_ICONS = {
 	'quotes': 'fa-solid fa-quote-left',
 }
 
+# Nav button order (DB ``Category.name``); unknown categories append sorted by name.
+DATABASE_CATEGORY_MENU_ORDER = (
+	'tvseries',
+	'audible',
+	'games',
+	'movies',
+	'books',
+	'programs',
+	'links',
+	'spotify',
+	'quotes',
+)
+
+
+def _categories_for_nav():
+	cats = list(models.Category.objects.all())
+	by_name = {c.name: c for c in cats}
+	ordered = []
+	seen = set()
+	for name in DATABASE_CATEGORY_MENU_ORDER:
+		cat = by_name.get(name)
+		if cat is not None:
+			ordered.append(cat)
+			seen.add(cat.pk)
+	for c in sorted(cats, key=lambda x: x.name):
+		if c.pk not in seen:
+			ordered.append(c)
+	return ordered
+
 
 def _category_label_nb(name):
 	if not name:
@@ -49,9 +78,9 @@ def _category_label_nb(name):
 
 def _databases_nav_context(category_name_for_nav):
 	"""Context for ``databases_menu.html`` (category tabs + fixed admin bar URLs)."""
-	name = category_name_for_nav or 'audible'
+	name = category_name_for_nav or DATABASE_CATEGORY_MENU_ORDER[0]
 	return {
-		'category_list': models.Category.objects.all(),
+		'category_list': _categories_for_nav(),
 		'category_name': name,
 		'database_category_labels': DATABASE_CATEGORY_LABELS_NB,
 		'database_category_icons': DATABASE_CATEGORY_ICONS,
@@ -65,7 +94,7 @@ class Object(object):
 
 
 def overview(request, category_name=None):
-	category_list = models.Category.objects.all()
+	category_list = _categories_for_nav()
 
 	def sort(category_name):
 		check = {
@@ -81,7 +110,9 @@ def overview(request, category_name=None):
 		return sort
 
 	if not category_name:
-		return HttpResponseRedirect(reverse('databases_view', args=[u'audible']))
+		return HttpResponseRedirect(
+			reverse('databases_view', args=[DATABASE_CATEGORY_MENU_ORDER[0]])
+		)
 
 	request.session['redirect_next'] = reverse('databases_view', args=[category_name])
 	category_pk = None
@@ -226,7 +257,9 @@ def edit(request, model_name, pk=None, new_type=None):
 		return HttpResponseRedirect(get_previous_page(request, APP_NAME))
 
 	# Menyen krever category_name m.m.; utelatt gir tom streng i {% url %} → NoReverseMatch (500).
-	menu_category = new_type if model_name == 'Data' and new_type else 'audible'
+	menu_category = (
+		new_type if model_name == 'Data' and new_type else DATABASE_CATEGORY_MENU_ORDER[0]
+	)
 	ctx = _databases_nav_context(menu_category)
 	if model_name == 'Data':
 		ctx.update({'form': form, 'type': model_name})
