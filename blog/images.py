@@ -173,96 +173,89 @@ def img_calc_large(image, max_width):
 ''' functions directly used by the views '''
 
 
-def img_calc_thumb(request, image, max_width, max_height=False):
-
+def regenerate_blog_thumbnail(image, max_width, max_height=False):
+	"""
+	Rebuild thumbnail JPEG from the large image on disk (same logic as img_calc_thumb).
+	Returns True on success, False if the large file is missing or processing fails.
+	"""
 	def reduce_wide(im, background, new_size):
 		im.thumbnail(new_size, RESAMPLE_LANCZOS)
 		height = im.size[1]
 		width = im.size[0]
-		#print("asked for size: %s %s" % (new_size))
-		#print("actual size: %s %s" % (width, height))
 		middle = int(width / 2)
 		delta = int(max_width / 2)
 		x_min = middle - delta
 		x_max = middle + delta
-		#print("%s %s %s %s") % (x_min, 0, x_max, thumb_height)
-		crop = im.crop((x_min, 0, x_max, height)) # left, upper, right, lower)-tuple
+		crop = im.crop((x_min, 0, x_max, height))
 		crop.load()
 		background.paste(crop, (0, 0))
-		print("%s : %s" % ((x_min, 0, x_max, height), (background.size[0], background.size[1])))
 		return background
 
 	def reduce_tall(im, background, new_size):
 		im.thumbnail(new_size, RESAMPLE_LANCZOS)
 		height = im.size[1]
 		width = im.size[0]
-		#print("asked for size: %s %s" % (new_size))
-		#print("actual size: %s %s" % (width, height))
 		middle = int(height / 2)
 		delta = int(max_height / 2)
 		y_min = middle - delta
-		y_max = middle + delta # + (max_height - (delta * 2))  # last + is adjustment for making exactly size
-		#print("%s %s %s %s") % (0, y_min, width, y_max)
-		#crop = im.crop((0, y_min, width, y_max))
-		crop = im.crop((0, y_min, width, y_max)) # left, upper, right, lower)-tuple
+		y_max = middle + delta
+		crop = im.crop((0, y_min, width, y_max))
 		crop.load()
 		background.paste(crop, (0, 0))
-		print("%s : %s" % ((0, y_min, width, y_max), (background.size[0], background.size[1])))
 		return background
 
-	# open large version of image
 	filename_large = '%s%s' % (settings.MEDIA_ROOT, image.large)
 	try:
 		im = Image.open(filename_large)
-	except:
-		messages.error(request, 'Could not find a large version of image')
+	except Exception:
 		return False
 
-	im = ImageOps.exif_transpose(im)
+	try:
+		im = ImageOps.exif_transpose(im)
 
-	# determine thumbnail filename
-	if image.original:
-		base = image.original if '.' not in str(image.original) else os.path.splitext(str(image.original))[0]
-	else:
-		# large_<base>.jpg -> <base>
-		large_base = os.path.splitext(os.path.basename(str(image.large)))[0]
-		base = large_base[6:] if large_base.startswith('large_') else large_base
-	filename_thumb = 'thumb_%s.jpg' % base
-
-	# create a background
-	if max_height:
-		background = Image.new('RGB', (max_width, max_height), (255, 255, 255))
-
-	# find width and height of large image
-	width = im.size[0]
-	height = im.size[1]
-	#print((width, height))
-
-	# determine if image is tall or wide
-	if not max_height:
-		# don't care about height
-		new_height = int((width / max_width) * height)
-		im.thumbnail((max_width, new_height), RESAMPLE_LANCZOS)
-
-	else:
-		if width >= (height * (max_width / float(max_height))):
-			# image is too wide
-			new_height = max_height
-			new_width = int((height / max_height) * width)
-			im = reduce_wide(im, background, (new_width, new_height))
+		if image.original:
+			base = image.original if '.' not in str(image.original) else os.path.splitext(str(image.original))[0]
 		else:
-			#image is too tall
-			new_width = max_width
-			new_height = int((width / max_width) * height)
-			im = reduce_tall(im, background, (new_width, new_height))
+			large_base = os.path.splitext(os.path.basename(str(image.large)))[0]
+			base = large_base[6:] if large_base.startswith('large_') else large_base
+		filename_thumb = 'thumb_%s.jpg' % base
 
-	# paste reduced image onto background
-	thumb_path = '%s%s' % (settings.MEDIA_ROOT, filename_thumb)
-	rgb_im = im.convert('RGB')
-	rgb_im.save(thumb_path, "jpeg", quality=85)
-	messages.success(request, 'Thumbnail was recalculated')
-	image.thumbnail = filename_thumb
-	image.save()
+		if max_height:
+			background = Image.new('RGB', (max_width, max_height), (255, 255, 255))
+
+		width = im.size[0]
+		height = im.size[1]
+
+		if not max_height:
+			new_height = int((width / max_width) * height)
+			im.thumbnail((max_width, new_height), RESAMPLE_LANCZOS)
+		else:
+			if width >= (height * (max_width / float(max_height))):
+				new_height = max_height
+				new_width = int((height / max_height) * width)
+				im = reduce_wide(im, background, (new_width, new_height))
+			else:
+				new_width = max_width
+				new_height = int((width / max_width) * height)
+				im = reduce_tall(im, background, (new_width, new_height))
+
+		thumb_path = '%s%s' % (settings.MEDIA_ROOT, filename_thumb)
+		rgb_im = im.convert('RGB')
+		rgb_im.save(thumb_path, "jpeg", quality=85)
+		image.thumbnail = filename_thumb
+		image.save()
+	except Exception:
+		return False
+	return True
+
+
+def img_calc_thumb(request, image, max_width, max_height=False):
+	ok = regenerate_blog_thumbnail(image, max_width, max_height)
+	if ok:
+		messages.success(request, 'Thumbnail was recalculated')
+	else:
+		messages.error(request, 'Could not find a large version of image')
+	return ok
 
 
 def images_create(request, blog_id, user, filename, image_id):
