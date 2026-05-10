@@ -1932,7 +1932,56 @@ html.lightbox-open .home-bottom-nav{
 }
 
 .money-account-table{
-	font-size: 90%;
+	table-layout: fixed;
+	width: 100%;
+	font-size: 0.875rem;
+}
+
+.money-account-table col.money-account-col-edit{
+	width: 2rem;
+}
+.money-account-table col.money-account-col-date{
+	width: 5.75rem;
+}
+.money-account-table col.money-account-col-info{
+	width: auto;
+}
+.money-account-table col.money-account-col-bank{
+	width: 2.25rem;
+}
+.money-account-table col.money-account-col-num{
+	width: 5.5rem;
+}
+.money-account-table col.money-account-col-balance{
+	width: 6rem;
+}
+
+.money-account-table th,
+.money-account-table td{
+	vertical-align: top;
+}
+
+.money-account-table .money-account-col-edit,
+.money-account-table .money-account-col-bank{
+	text-align: center;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+.money-account-table .money-account-col-info{
+	word-break: break-word;
+	overflow-wrap: anywhere;
+	hyphens: auto;
+}
+
+.money-account-table td.money{
+	white-space: nowrap;
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+.money-account-table thead th{
+	line-height: 1.2;
 }
 
 .money-account-balance{
