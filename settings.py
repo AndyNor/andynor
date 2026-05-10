@@ -43,7 +43,7 @@ INSTALLED_APPS = (
 	'mysite',
 	'money',
 	'power',
-	'blog',
+	'blog.apps.BlogConfig',
 	'databases',
 	'calc',
 	'stocks',
