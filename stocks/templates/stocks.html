@@ -2,6 +2,8 @@
 {% load humanize %}
 {% load variable_lookup %}
 
+{% block body_attrs %} class="stocks-app"{% endblock %}
+
 {% block head_css_include %}{% endblock %}
 {% block body_main %}
 
@@ -16,6 +18,7 @@
 
 <h3>Aksjer</h3>
 
+<div class="table-scroll" role="region" aria-label="Aksjeoversikt">
 <table class="table table-striped">
 	<thead>
 		<th></th>
@@ -59,9 +62,11 @@
 		<td></td>
 	</tr>
 </table>
+</div>
 
 <h3>Resultat per år</h3>
 
+<div class="table-scroll" role="region" aria-label="Resultat per år">
 <table class="table table-striped">
 	<thead>
 		<th>Ticker</th>
@@ -93,6 +98,7 @@
 			<td><b>{{ sum_of_sums|floatformat:"0"|intcomma|default:0 }}</b></td>
 	</tr>
 </table>
+</div>
 
 {% endblock %}
 

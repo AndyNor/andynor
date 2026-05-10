@@ -2,6 +2,8 @@
 {% load humanize %}
 {% load static %}
 
+{% block body_attrs %} class="stocks-app"{% endblock %}
+
 {% block head_css_include %}{% endblock %}
 {% block body_main %}
 
@@ -124,6 +126,7 @@ new Chart(canvas, {
 </script>
 
 
+<div class="table-scroll" role="region" aria-label="Transaksjoner">
 <table class="table table-striped">
 	<thead>
 		<th></th>
@@ -157,6 +160,7 @@ new Chart(canvas, {
 		<td></td>
 	</tr>
 </table>
+</div>
 
 {% endblock %}
 

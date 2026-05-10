@@ -1197,6 +1197,27 @@ html, body{
 	border-radius: 3px;
 }
 
+/* Scroll-wrapped tables (money / power payment / stocks): tighter on small screens */
+@media (max-width: 767px){
+	.table-scroll .table{
+		font-size: 12px;
+	}
+	.table-scroll .table th,
+	.table-scroll .table td{
+		padding: 3px 5px;
+		line-height: 1.25;
+	}
+	.table-scroll .table .btn{
+		padding: 2px 6px;
+		font-size: 11px;
+		line-height: 1.2;
+	}
+	.table-scroll .table .btn-mini{
+		padding: 1px 4px;
+		font-size: 10px;
+	}
+}
+
 /* Small-screen navbar: allow wrapping instead of overflow */
 @media (max-width: 767px){
 	.navbar-always-visible{
