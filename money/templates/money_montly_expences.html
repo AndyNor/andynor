@@ -8,6 +8,7 @@
 
 <a href="/admin/money/fastutgift/">Rediger poster</a><br><br>
 
+<div class="table-scroll" role="region" aria-label="Faste utgifter">
 <table class="table table-sm">
 	<tr>
 		<th>Rediger</th>
@@ -26,6 +27,7 @@
 	</tr>
 {% endfor %}
 </table>
+</div>
 
 	<li><form method="post" action="{% url 'money_add_monthly_expences' year=year month=month %}" class="form-inline">
 		{% csrf_token %}<button class="btn btn-success" type="submit">Bekreft</button></form></li>

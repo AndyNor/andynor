@@ -19,6 +19,7 @@
 </style>
 {% endif %}
 
+<div class="table-scroll" role="region" aria-label="Banktransaksjon">
 <table class="table table-condensed">
 	<thead>
 		<tr>
@@ -37,6 +38,7 @@
 		</tr>
 	</tbody>
 </table>
+</div>
 
 <form action="" method="post">{% csrf_token %}
 	<input type="hidden" name="action" value="create_new">
@@ -59,6 +61,7 @@
 {% if valg %}
 	Kan det være en av disse?
 
+	<div class="table-scroll" role="region" aria-label="Mulige treff">
 	<table class="table table-condensed">
 		<thead>
 			<tr>
@@ -87,6 +90,7 @@
 			{% endfor %}
 		</tbody>
 	</table>
+	</div>
 {% endif %}
 
 {% endblock %}

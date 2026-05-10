@@ -22,6 +22,7 @@
 </ul>
 <p>Viser de siste {{transactions.count}} transaksjonene. Sum av reserverte transaksjoner er {{sum_reservert}}.</p>
 
+<div class="table-scroll" role="region" aria-label="Banktransaksjoner">
 <table class="table table-condensed">
 	<thead>
 		<tr>
@@ -67,5 +68,6 @@
 		{% endfor %}
 	</tbody>
 </table>
+</div>
 
 {% endblock %}

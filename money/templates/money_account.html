@@ -19,6 +19,7 @@
 <script type="application/json" id="money-account-chart-data">{{ account_chart_json|safe }}</script>
 <script src="{% static 'chart/chart.umd.min.js' %}"></script>
 
+<div class="table-scroll" role="region" aria-label="Kontotransaksjoner">
 <table class="table money-account-table">
 	<thead>
 		<tr>
@@ -37,6 +38,7 @@
 		<tr id="money-account-loading"><td colspan="9">Laster transaksjoner…</td></tr>
 	</tbody>
 </table>
+</div>
 <div id="money-account-sentinel" class="money-account-sentinel" aria-hidden="true"></div>
 <p id="money-account-end" class="muted" hidden>Ingen flere transaksjoner.</p>
 <p id="money-account-error" class="text-error" hidden></p>

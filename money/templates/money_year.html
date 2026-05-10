@@ -31,18 +31,18 @@
 </style>
 
 <h5>Utgifter</h5>
-<div class="scrollable">
+<div class="scrollable table-scroll" role="region" aria-label="Utgifter per måned">
 	{% include "money_year_table_monthly.html" with table_data=expence_data %}
 </div>
 
 <h5>Lønn</h5>
-<div class="scrollable">
+<div class="scrollable table-scroll" role="region" aria-label="Lønn per måned">
 	{% include "money_year_table_monthly.html" with table_data=salary_data %}
 </div>
 
 {% if dp_data.payments %}
 <h5>Nedbetaling lån</h5>
-<div class="scrollable">
+<div class="scrollable table-scroll" role="region" aria-label="Nedbetaling lån">
 	<table class="table table-striped">
 		<thead>
 			<tr>
@@ -70,7 +70,7 @@
 {% endif %}
 
 <h5>Kjøp og investeringer</h5>
-<div class="scrollable">
+<div class="scrollable table-scroll" role="region" aria-label="Kjøp og investeringer">
 	<table class="table table-striped">
 		<thead>
 			<tr>
