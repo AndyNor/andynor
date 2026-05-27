@@ -238,8 +238,9 @@ class TransactionForm(forms.Form):
 	def __init__(self, *args, **kwargs):
 		self.user = kwargs.pop('user', None)
 		super(TransactionForm, self).__init__(*args, **kwargs)
-		self.fields['source_account'] = forms.ModelChoiceField(queryset=Account.objects.filter(owner=self.user))
-		self.fields['destination_account'] = forms.ModelChoiceField(queryset=Account.objects)
+		visible_accounts = Account.objects.filter(owner=self.user, visible=True)
+		self.fields['source_account'] = forms.ModelChoiceField(queryset=visible_accounts)
+		self.fields['destination_account'] = forms.ModelChoiceField(queryset=visible_accounts)
 
 	def clean_destination_account(self):
 		source_account = self.cleaned_data['source_account']

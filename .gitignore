@@ -121,3 +121,4 @@ venv.bak/
 Andynor http.url
 Andynor djangoshell.lnk
 *.old
+*.tar
